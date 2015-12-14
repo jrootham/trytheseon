@@ -1,19 +1,18 @@
 #container
 {
     display: flex;
-    height: 900px;
+    height: 90vh;
+}
+
+#title
+{
+    text-align: center;
 }
 
 #before
 {
     width: 15vw;
     border: solid 1px black;
-}
-
-#logo
-{
-    height: 15vw;
-    background-color: #b0d4ff;
 }
 
 #picture
