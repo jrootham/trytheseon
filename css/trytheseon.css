@@ -1,0 +1,37 @@
+#container
+{
+    display: flex;
+    height: 900px;
+}
+
+#before
+{
+    width: 15vw;
+    border: solid 1px black;
+}
+
+#logo
+{
+    height: 15vw;
+    background-color: #b0d4ff;
+}
+
+#picture
+{
+    margin: 2px;
+    border: solid 1px black;
+}
+
+#edit
+{
+    width: 69vw;
+    border: solid 1px black;
+    margin-left: 2px;
+    margin-right: 2px;
+}
+
+#after
+{
+    width: 15vw;
+    border: solid 1px black;
+}
