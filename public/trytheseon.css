@@ -11,7 +11,7 @@
 
 #before
 {
-    width: 15vw;
+    width: 14vw;
     border: solid 1px black;
 }
 
@@ -24,7 +24,7 @@
 
 #edit
 {
-    width: 69vw;
+    width: 70vw;
     border: solid 1px black;
     margin-left: 2px;
     margin-right: 2px;
@@ -32,6 +32,6 @@
 
 #after
 {
-    width: 15vw;
+    width: 14vw;
     border: solid 1px black;
 }
