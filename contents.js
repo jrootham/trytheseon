@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import RadioGroup from "react-radio";
 
 import {store, Constants} from "./data.js";
-import {Edit} from "./edit.js";
+import {Edit, setOverlay, paintAll} from "./edit.js";
 
 const Title = React.createClass({
     render: function()  {
@@ -57,6 +57,7 @@ const Select = React.createClass({
         const makeChange = store => {
             return (value, event) => {
                 store.display.which = parseInt(value);
+                setOverlay(store);
                 redraw(store);
             }
         }
@@ -128,8 +129,8 @@ const Parent = React.createClass({
 });
 
 const redraw = function() {
-    console.log(store.display);
     ReactDOM.render(<Parent store={store}/>, document.getElementById('bigbox'));
+    paintAll(store);
 }
 
 redraw();
