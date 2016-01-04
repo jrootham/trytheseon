@@ -3,7 +3,8 @@ import ReactDOM from "react-dom";
 import RadioGroup from "react-radio";
 
 import {store, Constants} from "./data.js";
-import {Edit, setOverlay, paintAll} from "./edit.js";
+import {Edit} from "./edit.js";
+import {setOverlay, paintAll} from "./paint.js";
 
 const Title = React.createClass({
     render: function()  {
