@@ -33,9 +33,6 @@ const Picture = React.createClass({
             <div>
                 <button>Load from server</button>
             </div>
-            <div>
-                <button>Save to server</button>
-            </div>
         </div>
 
     }
@@ -58,7 +55,7 @@ const Select = React.createClass({
             return (value, event) => {
                 store.display.which = parseInt(value);
                 setOverlay(store);
-                redraw(store);
+                redraw();
             }
         }
 
@@ -76,8 +73,6 @@ const Select = React.createClass({
 const Size = React.createClass({
     render: function() {
         return <div>
-                <div>Ratio {this.props.size.ratio}</div>
-                <div>Scale {this.props.size.scale}</div>
                 <div>Width {this.props.size.width}</div>
                 <div>Height {this.props.size.height}</div>
             </div>
@@ -128,7 +123,7 @@ const Parent = React.createClass({
     }
 });
 
-const redraw = function() {
+export const redraw = function() {
     ReactDOM.render(<Parent store={store}/>, document.getElementById('bigbox'));
     paintAll(store);
 }
