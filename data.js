@@ -12,10 +12,8 @@ export const Constants = {
     MIN_WIDTH:      80,
     MIN_HEIGHT :    80,
 
-    NONE:           0,
-    SIZE:           1,
-    PICTURE:        2,
-    CATALOGUE:      3
+    NONE:           -2,
+    SIZE:           -1
 };
 
 export let store = {
@@ -24,12 +22,35 @@ export let store = {
             width : Constants.MAX_WIDTH,
             height: Constants.MAX_HEIGHT
         },
-        pictures:   [],
-        catalogue:  []
+        pictures:   []
     },
     display : {
-        which:  Constants.NONE,
-        index:  -1
+        which:          Constants.NONE
     }
 };
 
+export class Picture {
+    constructor(image) {
+        this.image = image;
+        this.rotate = 0;
+        this.translateX = 0;
+        this.translateY = 0;
+        this.ratio = 1.0;
+        this.scale = 1.0;
+        this.zIndex = 0;
+        this.name = "";
+    }
+
+    copy() {
+        let other = new Picture(this.image);
+        other.rotate = this.rotate;
+        other.translateX = this.translateX;
+        other.translateY = this.translateY;
+        other.ratio = this.ratio;
+        other.scale = this.scale;
+        other.zIndex = this.zIndex;
+        other.name = this.name;
+
+        return other;
+    }
+}

@@ -56,6 +56,9 @@ const paint = store => {
     context.fillStyle = "white";
     context.fillRect(0, 0, store.data.size.width, store.data.size.height);
 
+    store.data.pictures.forEach((element, index) =>{
+        context.drawImage(element.image, 0, 0);
+    });
     context.restore();
 };
 

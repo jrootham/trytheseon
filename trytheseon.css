@@ -1,0 +1,106 @@
+#container
+{
+    display: flex;
+    height: 90.5vh;
+}
+
+#title
+{
+    text-align: center;
+}
+
+#before
+{
+    width: 14vw;
+    border: solid 1px black;
+}
+
+#picture
+{
+    margin: 2px;
+    padding: 2px;
+    border: solid 1px black;
+}
+
+#edit
+{
+    width: 70vw;
+    border: solid 1px black;
+    margin-left: 2px;
+    margin-right: 2px;
+}
+
+#after
+{
+    width: 14vw;
+    border: solid 1px black;
+}
+
+#edit
+{
+    overflow: auto;
+}
+
+#canvas
+{
+    border: solid 15px red;
+}
+
+#local
+{
+    display:            none;
+    position:           absolute;
+    left:               20vw;
+    background-color:   white;
+    border:             solid 1px black;
+}
+
+#localNone
+{
+    display:            none;
+    position:           absolute;
+    background-color:   white;
+    border:             solid 1px black;
+}
+
+.left
+{
+    display:    inline-block;
+    left:       5vw;
+}
+
+.right
+{
+    display:    inline-block;
+    right:      5vw;
+}
+
+#builder
+{
+    display:    none;
+    position:   absolute;
+    top:        10vh;
+    left:       15vw;
+    height:     95vh;
+}
+
+#build-canvas-container
+{
+    display: inline-block;
+}
+
+#builder-canvas
+{
+    border: solid blue 15px;
+}
+
+#build_controllers
+{
+    display:            inline-block;
+    width:              15vw;
+    height:             95vh;
+    border:             solid black 1px;
+    background-color:   white;
+}
+
+

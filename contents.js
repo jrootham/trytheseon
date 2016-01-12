@@ -2,9 +2,12 @@ import React from "react";
 import ReactDOM from "react-dom";
 import RadioGroup from "react-radio";
 
+import "./trytheseon.css"
+
 import {store, Constants} from "./data.js";
 import {Edit} from "./edit.js";
 import {setOverlay, paintAll} from "./paint.js";
+import {PictureEditor} from "./picture.js";
 
 const Title = React.createClass({
     render: function()  {
@@ -17,27 +20,20 @@ const Title = React.createClass({
 const Before = React.createClass({
     render: function() {
         return <div id="before" >
-            <Picture />
+            <PictureEditor store = {this.props.store} />
         </div>
     }
 });
 
-const Picture = React.createClass({
-    render: function()  {
-        return <div id="picture">
-            <div>
-                Picture
-            </div>
-            <div>
-                <button>Load from local</button>
-            </div>
-            <div>
-                <button>Load from server</button>
-            </div>
-        </div>
+export const show = name => {
+    let popup = document.getElementById(name);
+    popup.setAttribute("style", "display:block");
+};
 
-    }
-});
+export const hide = name => {
+    let popup = document.getElementById(name);
+    popup.setAttribute("style", "display:none");
+};
 
 const Select = React.createClass({
     render: function() {
@@ -51,6 +47,10 @@ const Select = React.createClass({
                 label: "Size\n"
             }
         ];
+
+        this.props.store.data.pictures.forEach((element, index) => {
+            which.push({value:index, label:element.name})
+        });
 
         const makeChange = store => {
             return (value, event) => {
@@ -80,15 +80,44 @@ const Size = React.createClass({
     }
 });
 
+const PictureData = React.createClass({
+    render: function() {
+        let picture = this.props.picture;
+
+        return <div>
+            <div>Name: {picture.name}</div>
+            <div>X: {picture.translateX}</div>
+            <div>Y: {picture.translateY}</div>
+            <div>Scale: {picture.scale}</div>
+            <div>Rotate: {picture.rotate}</div>
+            <div>Z: {picture.zIndex}</div>
+        </div>
+    }
+});
+
 const Display = React.createClass({
     render: function() {
         let output = <div></div>
 
         switch (this.props.store.display.which) {
+            case Constants.NONE:
+                break;
+
             case Constants.SIZE:
                 output = <div id="display">
                     <Size size = {this.props.store.data.size} />
                 </div>
+                break;
+
+            default:
+                let index = this.props.store.display.which;
+
+                if (index >= 0) {
+                    let picture = this.props.store.data.pictures[index];
+                    output = <div id="display">
+                        <PictureData picture ={picture} />
+                    </div>
+                }
         }
 
         return output;
@@ -107,7 +136,7 @@ const After = React.createClass({
 const Container = React.createClass({
     render: function() {
         return <div id="container">
-            <Before />
+            <Before store = {this.props.store} />
             <Edit store = {this.props.store} />
             <After store = {this.props.store} />
         </div>
