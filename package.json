@@ -1,0 +1,41 @@
+{
+  "name": "trytheseon",
+  "version": "0.1.0",
+  "description": "App to virtually try on things to wear (check matching)",
+  "main": "index.js",
+  "scripts": {
+    "start": "babel-node server.js",
+    "dev": "babel-node devServer.js",
+    "build": "webpack -p --config ./webpack.production.config.js",
+    "postinstall": "npm run build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "jrootham@tjddev.net:gitreps/trytheseon"
+  },
+  "author": "jrootham",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "babel-core": "<6.0.0",
+    "babel-loader": "<6.0.0",
+    "babel-runtime": "<6.0.0",
+    "css-loader": "^0.23.0",
+    "express": "^4.13.3",
+    "react": "^0.14.3",
+    "react-dom": "^0.14.3",
+    "react-radio": "^1.0.8",
+    "react-skylight": "^0.2.0",
+    "style-loader": "^0.13.0",
+    "webpack": "^1.12.9"
+  },
+  "private": true,
+  "devDependencies": {
+    "babel-plugin-react-transform": "^1.1.1",
+    "react-transform-catch-errors": "^1.0.0",
+    "react-transform-hmr": "^1.0.1",
+    "redbox-react": "^1.2.0",
+    "webpack-dev-middleware": "^1.4.0",
+    "webpack-hot-middleware": "^2.6.0"
+  }
+}
