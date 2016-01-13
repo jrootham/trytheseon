@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import RadioGroup from "react-radio";
 
-import "./trytheseon.css"
+import "./../trytheseon.css"
 
 import {store, Constants} from "./data.js";
 import {Edit} from "./edit.js";
