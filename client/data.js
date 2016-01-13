@@ -38,17 +38,22 @@ export class Picture {
         this.ratio = 1.0;
         this.scale = 1.0;
         this.zIndex = 0;
+        this.centroidX = image.width / 2;
+        this.centroidY = image.height / 2;
         this.name = "";
     }
 
     copy() {
         let other = new Picture(this.image);
+
         other.rotate = this.rotate;
         other.translateX = this.translateX;
         other.translateY = this.translateY;
         other.ratio = this.ratio;
         other.scale = this.scale;
         other.zIndex = this.zIndex;
+        other.centroidX = this.centroidX;
+        other.centroidY = this.centroidY;
         other.name = this.name;
 
         return other;
