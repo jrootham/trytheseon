@@ -9,6 +9,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 
 import {Constants} from "./data.js";
+import {paintAll} from "./paint.js";
 import {redraw} from "./contents.js";
 
 export const SIZE_RECT = 20;
@@ -83,9 +84,13 @@ export const Edit = React.createClass({
         this.props.store.data.size.height = Math.round(this.startHeight * scale);
 
         if (this.continue) {
+            paintAll(this.props.store);
             window.requestAnimationFrame(this.setSize);
         }
-        redraw();
+        else {
+            redraw();
+        }
+
     },
 
     setWidth: function(timestamp) {
@@ -95,9 +100,12 @@ export const Edit = React.createClass({
         width = Math.max(Constants.MIN_WIDTH, width);
         this.props.store.data.size.width = width;
         if (this.continue) {
+            paintAll(this.props.store);
             window.requestAnimationFrame(this.setWidth);
         }
-        redraw();
+        else {
+            redraw();
+        }
     },
 
     setHeight: function(timestamp) {
@@ -107,9 +115,12 @@ export const Edit = React.createClass({
         height = Math.max(Constants.MIN_HEIGHT, height);
         this.props.store.data.size.height = height;
         if (this.continue) {
+            paintAll(this.props.store);
             window.requestAnimationFrame(this.setHeight);
         }
-        redraw();
+        else {
+            redraw();
+        }
     },
 
     fixXY: function(raw) {

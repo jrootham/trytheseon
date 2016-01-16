@@ -81,8 +81,41 @@ const Size = React.createClass({
 });
 
 const PictureData = React.createClass({
+    plus: function() {
+        let pictureList = this.props.store.data.pictures;
+        let index = this.props.store.display.which;
+        let picture = pictureList[index];
+        let length = pictureList.length;
+        if (length > 1 && picture.zIndex < length - 1) {
+            let other = pictureList.find(element => {
+                return element.zIndex === picture.zIndex + 1;
+            });
+
+            other.zIndex--;
+            picture.zIndex++;
+        }
+        redraw();
+    },
+
+    minus: function() {
+        let pictureList = this.props.store.data.pictures;
+        let index = this.props.store.display.which;
+        let picture = pictureList[index];
+        let length = pictureList.length;
+        if (length > 1 && picture.zIndex > 0) {
+            let other = pictureList.find(element => {
+                return element.zIndex === picture.zIndex - 1;
+            });
+
+            other.zIndex++;
+            picture.zIndex--;
+        }
+        redraw();
+    },
+
     render: function() {
-        let picture = this.props.picture;
+        let index = this.props.store.display.which;
+        let picture = this.props.store.data.pictures[index];
 
         return <div>
             <div>Name: {picture.name}</div>
@@ -91,6 +124,10 @@ const PictureData = React.createClass({
             <div>Scale: {picture.scale}</div>
             <div>Rotate: {picture.rotate}</div>
             <div>Z: {picture.zIndex}</div>
+            <div>
+                <button onClick={this.plus}>+</button>
+                <button onClick={this.minus}>-</button>
+            </div>
         </div>
     }
 });
@@ -110,12 +147,9 @@ const Display = React.createClass({
                 break;
 
             default:
-                let index = this.props.store.display.which;
-
-                if (index >= 0) {
-                    let picture = this.props.store.data.pictures[index];
+                if (this.props.store.display.which >= 0) {
                     output = <div id="display">
-                        <PictureData picture ={picture} />
+                        <PictureData store ={this.props.store} />
                     </div>
                 }
         }

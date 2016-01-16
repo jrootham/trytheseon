@@ -145,6 +145,7 @@ const Local = React.createClass({
             createImageBitmap(file).then(function(image) {
                 localPicture = new Picture(image);
                 localPicture.name = `Picture ${pictureArray.length}`;
+                localPicture.zIndex = pictureArray.length;
                 show("builder");
                 paint(nothing);
             });

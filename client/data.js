@@ -38,8 +38,8 @@ export class Picture {
         this.ratio = 1.0;
         this.scale = 1.0;
         this.zIndex = 0;
-        this.centroidX = image.width / 2;
-        this.centroidY = image.height / 2;
+        this.centroidX = Math.min(image.width, Constants.MAX_WIDTH) / 2;
+        this.centroidY = Math.min(image.height, Constants.MAX_HEIGHT) / 2;
         this.name = "";
     }
 
