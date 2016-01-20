@@ -9,11 +9,10 @@ import React from "react";
 import ReactDOM from "react-dom";
 
 import {Constants} from "./data.js";
-import {paintAll} from "./paint.js";
-import {redraw} from "./contents.js";
+import {EditSize} from "./editSize.js";
 
 export const SIZE_RECT = 20;
-export const PICTURE_RECT = 20;
+export const PICTURE_RECT = 40;
 const BORDER_SIZE = 15;
 
 export const nothing = () => {};
@@ -29,6 +28,8 @@ export const Edit = React.createClass({
         y: 0
     },
 
+    editor: undefined,
+
     continue: false,
 
     onPointerDown: function(event) {
@@ -40,86 +41,18 @@ export const Edit = React.createClass({
         this.start.x = x;
         this.start.y = y;
 
-        let size = this.props.store.data.size;
-        let [left, top, midBottom, midSide] = getSizePoints(size);
+        switch (this.props.store.display.which) {
+            case Constants.NONE:
+                this.editor = undefined;
+                break;
 
-        if (inBox(this.start, left, top, SIZE_RECT)) {
-            this.continue = true;
-            this.startWidth = this.props.store.data.size.width;
-            this.startHeight = this.props.store.data.size.height;
-            window.requestAnimationFrame(this.setSize);
-        }
-        else if (inBox(this.start, left, midSide, SIZE_RECT)){
-            this.continue = true;
-            this.startWidth = this.props.store.data.size.width;
-            window.requestAnimationFrame(this.setWidth);
-        }
-        else if (inBox(this.start, midBottom, top, SIZE_RECT)){
-            this.continue = true;
-            this.startHeight = this.props.store.data.size.height;
-            window.requestAnimationFrame(this.setHeight);
-        }
-    },
+            case Constants.SIZE:
+                this.editor = new EditSize(this);
+                break;
 
-    setSize: function(timestamp) {
-        let [x, y] = this.fixXY(this.point);
-        let dx = x - this.start.x;
-        let dy = y - this.start.y;
-
-        let scale = 1.0;
-
-        if (dx < dy ) {
-            scale = x / this.start.x;
-        }
-        else {
-            scale = y / this.start.y;
-        }
-
-        scale = Math.min(Constants.MAX_WIDTH / this.startWidth, scale);
-        scale = Math.max(Constants.MIN_WIDTH / this.startWidth, scale);
-        scale = Math.min(Constants.MAX_HEIGHT / this.startHeight, scale);
-        scale = Math.max(Constants.MIN_HEIGHT / this.startHeight, scale);
-
-        this.props.store.data.size.width = Math.round(this.startWidth * scale);
-        this.props.store.data.size.height = Math.round(this.startHeight * scale);
-
-        if (this.continue) {
-            paintAll(this.props.store);
-            window.requestAnimationFrame(this.setSize);
-        }
-        else {
-            redraw();
-        }
-
-    },
-
-    setWidth: function(timestamp) {
-        let [x, y] = this.fixXY(this.point);
-        let width = this.startWidth + (x - this.start.x);
-        width = Math.min(Constants.MAX_WIDTH, width);
-        width = Math.max(Constants.MIN_WIDTH, width);
-        this.props.store.data.size.width = width;
-        if (this.continue) {
-            paintAll(this.props.store);
-            window.requestAnimationFrame(this.setWidth);
-        }
-        else {
-            redraw();
-        }
-    },
-
-    setHeight: function(timestamp) {
-        let [x, y] = this.fixXY(this.point);
-        let height = this.startHeight + (y - this.start.y);
-        height = Math.min(Constants.MAX_HEIGHT, height);
-        height = Math.max(Constants.MIN_HEIGHT, height);
-        this.props.store.data.size.height = height;
-        if (this.continue) {
-            paintAll(this.props.store);
-            window.requestAnimationFrame(this.setHeight);
-        }
-        else {
-            redraw();
+            default:
+                this.editor = undefined;
+                break;
         }
     },
 
@@ -169,7 +102,7 @@ export const Edit = React.createClass({
     }
 });
 
-const inBox = (point, left, top, size) => {
+export const inBox = (point, left, top, size) => {
     let x = point.x;
     let y = point.y;
     return x > left && y > top && x < left + size && y < top + size;

@@ -68,6 +68,8 @@ const pictureOverlay = store => {
     context.save();
     let element = store.data.pictures[store.display.which];
 
+    let pictureRect = PICTURE_RECT / (element.ratio * element.scale);
+
     let width = element.image.width;
     let height = element.image.height;
 
@@ -76,9 +78,9 @@ const pictureOverlay = store => {
     dashedLine(context, 0, element.centroidY, width, element.centroidY);
     dashedLine(context, element.centroidX, 0, element.centroidX, height);
 
-    drawBox(context, width - PICTURE_RECT, 0, PICTURE_RECT);
-    drawBox(context, width - PICTURE_RECT, height - PICTURE_RECT, PICTURE_RECT);
-    drawBox(context, 0, element.centroidY - PICTURE_RECT / 2, PICTURE_RECT);
+    drawBox(context, width - pictureRect, 0, pictureRect);
+    drawBox(context, width - pictureRect, height - pictureRect, pictureRect);
+    drawBox(context, 0, element.centroidY - pictureRect / 2, pictureRect);
 
     context.restore();
 };
