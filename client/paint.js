@@ -109,7 +109,7 @@ const drawBox = (context, left, top, size) => {
 
 const transform = (context, picture) => {
     let ratio = picture.ratio;
-    context.translate(picture.x * ratio, picture.y * ratio);
+    context.translate(picture.translateX * ratio, picture.translateY * ratio);
     context.scale(ratio, ratio);
     context.translate(picture.centroidX, picture.centroidY);
     context.rotate(picture.rotate);

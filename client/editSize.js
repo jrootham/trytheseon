@@ -11,9 +11,8 @@ import {paintAll} from "./paint";
 import {redraw} from "./contents";
 import {getSizePoints, inBox, SIZE_RECT} from "./edit";
 
-export class EditSize {
-
-    constructor (parent) {
+export const EditSize = {
+    start: function (parent) {
         this.parent = parent;
         this.size = this.parent.props.store.data.size;
 
@@ -23,79 +22,79 @@ export class EditSize {
             this.parent.continue = true;
             this.startWidth = this.size.width;
             this.startHeight = this.size.height;
-            window.requestAnimationFrame(this.setSize.bind(this));
+            window.requestAnimationFrame(setSize.bind(this));
         }
         else if (inBox(this.parent.start, left, midSide, SIZE_RECT)) {
             this.parent.continue = true;
             this.startWidth = this.size.width;
-            window.requestAnimationFrame(this.setWidth.bind(this));
+            window.requestAnimationFrame(setWidth.bind(this));
         }
         else if (inBox(this.parent.start, midBottom, top, SIZE_RECT)) {
             this.parent.continue = true;
             this.startHeight = this.size.height;
-            window.requestAnimationFrame(this.setHeight.bind(this));
+            window.requestAnimationFrame(setHeight.bind(this));
         }
     }
+};
 
-    setSize(timestamp) {
-        let [x, y] = this.parent.fixXY(this.parent.point);
-        let dx = x - this.parent.start.x;
-        let dy = y - this.parent.start.y;
+function setSize (timestamp) {
+    let [x, y] = this.parent.fixXY(this.parent.point);
+    let dx = x - this.parent.start.x;
+    let dy = y - this.parent.start.y;
 
-        let scale = 1.0;
+    let scale = 1.0;
 
-        if (dx < dy ) {
-            scale = x / this.parent.start.x;
-        }
-        else {
-            scale = y / this.parent.start.y;
-        }
-
-        scale = Math.min(Constants.MAX_WIDTH / this.startWidth, scale);
-        scale = Math.max(Constants.MIN_WIDTH / this.startWidth, scale);
-        scale = Math.min(Constants.MAX_HEIGHT / this.startHeight, scale);
-        scale = Math.max(Constants.MIN_HEIGHT / this.startHeight, scale);
-
-        this.parent.props.store.data.size.width = Math.round(this.startWidth * scale);
-        this.parent.props.store.data.size.height = Math.round(this.startHeight * scale);
-
-        if (this.parent.continue) {
-            paintAll(this.parent.props.store);
-            window.requestAnimationFrame(this.setSize.bind(this));
-        }
-        else {
-            redraw();
-        }
+    if (dx < dy ) {
+        scale = x / this.parent.start.x;
+    }
+    else {
+        scale = y / this.parent.start.y;
     }
 
-    setWidth (timestamp) {
-        let [x, y] = this.parent.fixXY(this.parent.point);
-        let width = this.startWidth + (x - this.parent.start.x);
+    scale = Math.min(Constants.MAX_WIDTH / this.startWidth, scale);
+    scale = Math.max(Constants.MIN_WIDTH / this.startWidth, scale);
+    scale = Math.min(Constants.MAX_HEIGHT / this.startHeight, scale);
+    scale = Math.max(Constants.MIN_HEIGHT / this.startHeight, scale);
 
-        width = Math.min(Constants.MAX_WIDTH, width);
-        width = Math.max(Constants.MIN_WIDTH, width);
-        this.parent.props.store.data.size.width = width;
-        if (this.parent.continue) {
-            paintAll(this.parent.props.store);
-            window.requestAnimationFrame(this.setWidth.bind(this));
-        }
-        else {
-            redraw();
-        }
-    }
+    this.parent.props.store.data.size.width = Math.round(this.startWidth * scale);
+    this.parent.props.store.data.size.height = Math.round(this.startHeight * scale);
 
-    setHeight (timestamp) {
-        let [x, y] = this.parent.fixXY(this.parent.point);
-        let height = this.startHeight + (y - this.parent.start.y);
-        height = Math.min(Constants.MAX_HEIGHT, height);
-        height = Math.max(Constants.MIN_HEIGHT, height);
-        this.parent.props.store.data.size.height = height;
-        if (this.parent.continue) {
-            paintAll(this.parent.props.store);
-            window.requestAnimationFrame(this.setHeight.bind(this));
-        }
-        else {
-            redraw();
-        }
+    if (this.parent.continue) {
+        paintAll(this.parent.props.store);
+        window.requestAnimationFrame(setSize.bind(this));
     }
-}
+    else {
+        redraw();
+    }
+};
+
+function setWidth(timestamp) {
+    let [x, y] = this.parent.fixXY(this.parent.point);
+    let width = this.startWidth + (x - this.parent.start.x);
+
+    width = Math.min(Constants.MAX_WIDTH, width);
+    width = Math.max(Constants.MIN_WIDTH, width);
+    this.parent.props.store.data.size.width = width;
+    if (this.parent.continue) {
+        paintAll(this.parent.props.store);
+        window.requestAnimationFrame(setWidth.bind(this));
+    }
+    else {
+        redraw();
+    }
+};
+
+function setHeight(timestamp) {
+    let [x, y] = this.parent.fixXY(this.parent.point);
+    let height = this.startHeight + (y - this.parent.start.y);
+    height = Math.min(Constants.MAX_HEIGHT, height);
+    height = Math.max(Constants.MIN_HEIGHT, height);
+    this.parent.props.store.data.size.height = height;
+    if (this.parent.continue) {
+        paintAll(this.parent.props.store);
+        window.requestAnimationFrame(setHeight.bind(this));
+    }
+    else {
+        redraw();
+    }
+};

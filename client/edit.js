@@ -8,8 +8,9 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
-import {Constants} from "./data.js";
-import {EditSize} from "./editSize.js";
+import {Constants} from "./data";
+import {EditSize} from "./editSize";
+import {EditPicture} from "./editPicture";
 
 export const SIZE_RECT = 20;
 export const PICTURE_RECT = 40;
@@ -28,8 +29,6 @@ export const Edit = React.createClass({
         y: 0
     },
 
-    editor: undefined,
-
     continue: false,
 
     onPointerDown: function(event) {
@@ -38,20 +37,21 @@ export const Edit = React.createClass({
 
         let [x, y] = this.fixXY(this.point);
 
+        console.log("mousedown", x, y);
+
         this.start.x = x;
         this.start.y = y;
 
         switch (this.props.store.display.which) {
             case Constants.NONE:
-                this.editor = undefined;
                 break;
 
             case Constants.SIZE:
-                this.editor = new EditSize(this);
+                EditSize.start(this);
                 break;
 
             default:
-                this.editor = undefined;
+                EditPicture.start(this);
                 break;
         }
     },
@@ -103,9 +103,16 @@ export const Edit = React.createClass({
 });
 
 export const inBox = (point, left, top, size) => {
+    return inRect(point, left, top, size, size);
+}
+
+export const inRect = (point, left, top, width, height) => {
     let x = point.x;
     let y = point.y;
-    return x > left && y > top && x < left + size && y < top + size;
+    let result = x > left && y > top && x < left + width && y < top + height;
+
+    console.log(x, y, left, top, width, height, result);
+    return result;
 };
 
 export const getSizePoints = size => {
@@ -115,4 +122,14 @@ export const getSizePoints = size => {
     let midSide = Math.round(top / 2);
 
     return [left, top, midBottom, midSide];
+};
+
+export const getPicturePoints = picture => {
+    let boxSize = PICTURE_RECT / (picture.scale * picture.ratio);
+
+    let left = picture.image.width - boxSize;
+    let top = picture.image.height - boxSize;
+    let midSide = Math.round(top / 2);
+
+    return [left, top, midSide];
 };

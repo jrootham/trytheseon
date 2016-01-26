@@ -9,6 +9,8 @@ import {Edit} from "./edit.js";
 import {setOverlay, paintAll} from "./paint.js";
 import {PictureEditor} from "./picture.js";
 
+const THREESIXTY = Math.PI / 180;
+
 const Title = React.createClass({
     render: function()  {
         return <div id="title">
@@ -122,7 +124,7 @@ const PictureData = React.createClass({
             <div>X: {picture.translateX}</div>
             <div>Y: {picture.translateY}</div>
             <div>Scale: {picture.scale}</div>
-            <div>Rotate: {picture.rotate}</div>
+            <div>Rotate: {Math.round(picture.rotate / THREESIXTY)}</div>
             <div>Z: {picture.zIndex}</div>
             <div>
                 <button onClick={this.plus}>+</button>
