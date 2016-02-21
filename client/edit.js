@@ -18,26 +18,24 @@ const BORDER_SIZE = 15;
 
 export const nothing = () => {};
 
-export const Edit = React.createClass({
-    start: {
+export default class Edit extends React.Component{
+    start = {
         x: 0,
         y :0
-    },
+    };
 
-    point: {
+    point = {
         x: 0,
         y: 0
-    },
+    };
 
-    continue: false,
+    continue = false;
 
-    onPointerDown: function(event) {
+    onPointerDown(event) {
         this.point.x = event.clientX;
         this.point.y = event.clientY;
 
         let [x, y] = this.fixXY(this.point);
-
-        console.log("mousedown", x, y);
 
         this.start.x = x;
         this.start.y = y;
@@ -54,33 +52,33 @@ export const Edit = React.createClass({
                 EditPicture.start(this);
                 break;
         }
-    },
+    }
 
-    fixXY: function(raw) {
+    fixXY(raw) {
         let box = this.canvasRef.getBoundingClientRect();
         let x = (raw.x - box.left) - BORDER_SIZE;
         let y = (raw.y - box.top) - BORDER_SIZE;
         return [x, y];
-    },
+    }
 
-    onPointerMove: function (event) {
+    onPointerMove(event) {
         if (this.continue) {
             this.point.x = event.clientX;
             this.point.y = event.clientY;
         }
-    },
+    }
 
-    onPointerUp: function (event) {
+    onPointerUp(event) {
         this.continue = false;
         this.point.x = event.clientX;
         this.point.y = event.clientY;
-    },
+    }
 
-    onPointerOut: function (event) {
+    onPointerOut(event) {
         this.continue = false;
-    },
+    }
 
-    render: function() {
+    render() {
         let size = this.props.store.data.size;
         let width = size.width;
         let height = size.height;
@@ -100,7 +98,7 @@ export const Edit = React.createClass({
             </canvas>
         </div>
     }
-});
+};
 
 export const inBox = (point, left, top, size) => {
     return inRect(point, left, top, size, size);
@@ -111,7 +109,6 @@ export const inRect = (point, left, top, width, height) => {
     let y = point.y;
     let result = x > left && y > top && x < left + width && y < top + height;
 
-    console.log(x, y, left, top, width, height, result);
     return result;
 };
 
@@ -125,7 +122,7 @@ export const getSizePoints = size => {
 };
 
 export const getPicturePoints = picture => {
-    let boxSize = PICTURE_RECT / (picture.scale * picture.ratio);
+    let boxSize = PICTURE_RECT / picture.scale;
 
     let left = picture.image.width - boxSize;
     let top = picture.image.height - boxSize;

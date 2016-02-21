@@ -68,7 +68,7 @@ const pictureOverlay = store => {
     context.save();
     let element = store.data.pictures[store.display.which];
 
-    let pictureRect = PICTURE_RECT / (element.ratio * element.scale);
+    let pictureRect = PICTURE_RECT / element.scale;
 
     let width = element.image.width;
     let height = element.image.height;
@@ -108,9 +108,7 @@ const drawBox = (context, left, top, size) => {
 };
 
 const transform = (context, picture) => {
-    let ratio = picture.ratio;
-    context.translate(picture.translateX * ratio, picture.translateY * ratio);
-    context.scale(ratio, ratio);
+    context.translate(picture.translateX, picture.translateY);
     context.translate(picture.centroidX, picture.centroidY);
     context.rotate(picture.rotate);
     context.scale(picture.scale, picture.scale);

@@ -9,8 +9,11 @@ import React from "react";
 import ReactDOM from "react-dom";
 
 import {Constants, Picture} from "./data.js";
-import {show, hide, redraw} from "./contents.js";
+import {show, hide, redraw} from "./index.js";
 import {nothing} from "./edit.js";
+
+const BORDER_SIZE = 15;
+const COLOUR_DISTANCE = 40;
 
 let localPicture = undefined;
 let tempImage = undefined;
@@ -60,18 +63,117 @@ const plain = () => {
     paint(transform);
 };
 
-const Builder = React.createClass({
+const Orient = React.createClass({
     setPicture: function() {
         let canvas = document.getElementById("builder-canvas");
-        let localPictureList = this.props.pictures;
+        let localStore = this.props.store;
         createImageBitmap(canvas).then(function(image) {
             localPicture.image = image;
-            localPictureList.push(localPicture.copy());
-            hide("builder");
-            redraw();
+            localStore.display.which = localStore.data.pictures.length;
+            localStore.data.pictures.push(localPicture.copy());
+            hide("orient");
+            show("features");
         });
     },
 
+    render: function() {
+        return <div id="orient">
+            <div>Orient</div>
+            <div>
+                <button onClick={left}>Left</button>
+            </div>
+            <div>
+                <button onClick={right}>Right</button>
+            </div>
+            <div>
+                <button onClick={flip}>Flip</button>
+            </div>
+            <div>
+                <button onClick={plain}>Plain</button>
+            </div>
+            <div>
+                <button onClick={this.setPicture}>Set</button>
+            </div>
+        </div>
+    }
+});
+
+const transformImageData = (process, event) => {
+    let canvas = document.getElementById("builder-canvas");
+    let imageData = canvas.getImageData(0, 0, canvas.width, canvas.height);
+    process(event, imageData);
+    canvas.putImageData(0, 0);
+};
+
+const fixXY = raw => {
+    let canvas = document.getElementById("builder-canvas");
+    let box = canvas.getBoundingClientRect();
+    let x = (raw.x - box.left) - BORDER_SIZE;
+    let y = (raw.y - box.top) - BORDER_SIZE;
+    return [x, y];
+};
+
+const index = (imageData, i, j, k) => {
+    return k + (j * 4) + (i * 4 * imageData.width * j);
+};
+
+const transparentColour = (event, imageData) => {
+
+};
+
+const transparentEdges = (event, imageData) => {
+
+};
+
+const transparentSpeckles = (event, imageData) => {
+
+};
+
+const Features = React.createClass({
+    flood: function(event) {
+        transformImageData(transparentColour, event);
+    },
+
+    edges: function(event) {
+        transformImageData(transparentEdges, event);
+    },
+
+    despeckle: function(event) {
+        transformImageData(transparentSpeckles, event);
+    },
+
+    reset: function(event) {
+
+    },
+
+    done: function(event) {
+        this.props.store.display.which = Constants.NONE;
+        hide("picture");
+        redraw();
+    },
+
+    render: function() {
+        return <div id="features">
+            <div>
+                <button onClick={this.flood}>Set Colour Transparent</button>
+            </div>
+            <div>
+                <button onClick={this.edges}>Set Edges Transparent</button>
+            </div>
+            <div>
+                <button onClick={this.despeckle}>Set Speckles Transparent</button>
+            </div>
+            <div>
+                <button onClick={this.reset}>Reset</button>
+            </div>
+            <div>
+                <button onClick={this.done}>Done</button>
+            </div>
+        </div>
+    }
+});
+
+const Builder = React.createClass({
 render: function() {
         return <div id="builder">
             <div id="build-canvas-container">
@@ -82,24 +184,7 @@ render: function() {
                 </canvas>
             </div>
             <div id="build_controllers">
-                <div id="orient">
-                    <div>Orient</div>
-                    <div>
-                        <button onClick={left}>Left</button>
-                    </div>
-                    <div>
-                        <button onClick={right}>Right</button>
-                    </div>
-                    <div>
-                        <button onClick={flip}>Flip</button>
-                    </div>
-                    <div>
-                        <button onClick={plain}>Plain</button>
-                    </div>
-                    <div>
-                        <button onClick={this.setPicture}>Set</button>
-                    </div>
-                </div>
+                <Features store={this.props.store} />
             </div>
         </div>
     }
@@ -110,90 +195,8 @@ const paint = setTransform => {
     let context = canvas.getContext("2d");
     context.save();
 
-    context.fillStyle = "white";
-    context.fillRect(0, 0, Constants.MAX_WIDTH, Constants.MAX_HEIGHT);
-
     setTransform(context);
     context.drawImage(localPicture.image, 0, 0);
 
     context.restore();
 };
-
-const LocalNone = React.createClass({
-    render: function() {
-        return <div id="localNone">
-            <div>
-                No Files Selected
-            </div>
-            <div>
-                <button onClick = {()=>{hide("localNone")}} >
-                    OK
-                </button>
-            </div>
-        </div>
-    }
-});
-
-const Local = React.createClass({
-    getFile: function() {
-        let fileInput = document.getElementById("localFile");
-        let fileList = fileInput.files;
-        let pictureArray = this.props.data.pictures;
-
-        if (fileList.length > 0) {
-            let file = fileList[0];
-            createImageBitmap(file).then(function(image) {
-                localPicture = new Picture(image);
-                localPicture.name = `Picture ${pictureArray.length}`;
-                localPicture.zIndex = pictureArray.length;
-                show("builder");
-                paint(nothing);
-            });
-            hide("local");
-        }
-        else {
-            show("localNone");
-        }
-    },
-
-    render: function() {
-        return <div id="local">
-            <div>
-                <input id="localFile" type="file"/>
-            </div>
-            <div>
-                <div className="left">
-                    <button onClick = {()=>{hide("local")}}>Cancel</button>
-                </div>
-                <div className="right">
-                    <button onClick = {this.getFile}>OK</button>
-                </div>
-                <LocalNone />
-            </div>
-        </div>
-    }
-});
-
-export const PictureEditor = React.createClass({
-    local: function() {
-        show ("local");
-    },
-
-    render: function()  {
-        return <div id="picture">
-            <div>
-                Picture
-            </div>
-            <div>
-                <button onClick={this.local}>Load from local</button>
-            </div>
-            <Local data = {this.props.store.data} />
-            <Builder pictures = {this.props.store.data.pictures} />
-            <div>
-                <button>Load from server</button>
-            </div>
-        </div>
-
-    }
-});
-

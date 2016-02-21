@@ -25,7 +25,6 @@
     "react": "^0.14.3",
     "react-dom": "^0.14.3",
     "react-radio": "^1.0.8",
-    "react-skylight": "^0.2.0",
     "style-loader": "^0.13.0",
     "webpack": "^1.12.9"
   },

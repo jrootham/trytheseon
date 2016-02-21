@@ -5,136 +5,302 @@
  *
  * Copyright © 2016 Jim Rootham
  */
+import React from "react";
+import ReactDOM from "react-dom";
+import RadioGroup from "react-radio";
 
 import {Constants} from "./data"
-import {paintAll} from "./paint";
-import {redraw} from "./contents";
+import {redraw} from "./index";
 import {inBox, inRect, getPicturePoints ,PICTURE_RECT} from "./edit";
+import {expand} from "./imageProcess";
 
-export const EditPicture = {
-    start: function(parent) {
-        this.parent = parent;
-        let index = this.parent.props.store.display.which;
-        this.picture = this.parent.props.store.data.pictures[index];
-        let pictureWidth = this.picture.image.width * this.picture.ratio;
-        let pictureHeight = this.picture.image.height * this.picture.ratio;
-        let [left, top, midSide] = getPicturePoints(this.picture);
-        this.constant = this.picture.copy();
-        this.startPoint = map(this.constant, this.parent.start, true);
+const BUFFER = 15;
 
-        let boxSize = PICTURE_RECT / (this.picture.scale * this.picture.ratio);
+class Zoom extends React.Component {
+    render() {
+        var zoom = [
+            {
+                value: 1 / 16,
+                label: "1 / 16",
+                style: {display:"block"}
+            },
+            {
+                value: 1 / 8,
+                label: "1 / 8",
+                style: {display:"block"}
+            },
+            {
+                value: 1 / 4,
+                label: "1 / 4",
+                style: {display:"block"}
+            },
+            {
+                value: 1 / 2,
+                label: "1 / 2",
+                style: {display:"block"}
+            },
+            {
+                value: 1,
+                label: "1",
+                style: {display:"block"}
+            },
+            {
+                value: 2,
+                label: "2",
+                style: {display:"block"}
+            },
+            {
+                value: 4,
+                label: "4",
+                style: {display:"block"}
+            },
+            {
+                value: 8,
+                label: "8",
+                style: {display:"block"}
+            }
+        ];
 
-        if (inBox(this.startPoint, left, top, boxSize)
-            || inBox(this.startPoint, left, 0, boxSize)) {
-            this.parent.continue = true;
-            let dx = this.startPoint.x - this.picture.centroidX;
-            let dy = this.startPoint.y - this.picture.centroidY;
-
-            this.startLength = dist(dx, dy);
-            this.startScale = this.picture.scale;
-            window.requestAnimationFrame(setScale.bind(this));
+        const makeChange = store => {
+            return (value, event) => {
+                store.display.picture.zoom = parseFloat(value);
+                redraw();
+            }
         }
-        else if (inBox(this.startPoint, 0, midSide, boxSize)) {
-            this.parent.continue = true;
-            let dx = this.startPoint.x - this.picture.centroidX;
-            let dy = this.startPoint.y - this.picture.centroidY;
-            this.startRotate = Math.atan2(dy, dx);
-            window.requestAnimationFrame(setRotate.bind(this));
-        }
-        else if (inRect(this.startPoint, 0, 0, pictureWidth, pictureHeight)){
-            this.parent.continue = true;
-            this.startX = this.picture.translateX;
-            this.startY = this.picture.translateY;
-            window.requestAnimationFrame(setTranslate.bind(this));
-        }
+
+        return <div className="control_container">
+            Zoom
+            <RadioGroup
+                name="zoom"
+                defaultValue={1}
+                items={zoom}
+                onChange={makeChange(this.props.store)}
+            />
+        </div>
+    }
+}
+
+
+const makeLeft = store => {
+
+};
+
+const makeRight = store => {
+
+};
+
+const makeFlip = store => {
+
+};
+
+
+class Orient extends React.Component{
+    render() {
+        return <div className="control_container">
+            <div>Orient</div>
+            <div>
+                <button onClick={makeLeft(this.props.store)}>Left</button>
+            </div>
+            <div>
+                <button onClick={makeRight(this.props.store)}>Right</button>
+            </div>
+            <div>
+                <button onClick={makeFlip(this.props.store)}>Flip</button>
+            </div>
+        </div>
     }
 };
 
-const map = (picture, point, flag) => {
-    let x = point.x;
-    let y = point.y;
-
-    x -= picture.translateX / picture.ratio;
-    y -= picture.translateY / picture.ratio;
-
-    x -= picture.centroidX;
-    y -= picture.centroidY;
-
-    const minusRotate = - picture.rotate;
-
-    let xPrime = x * Math.cos(minusRotate) - y * Math.sin(minusRotate);
-    let yPrime = x * Math.sin(minusRotate) + y * Math.cos(minusRotate);
-
-    x = xPrime;
-    y = yPrime;
-
-    x /= picture.scale;
-    y /= picture.scale;
-
-    x += picture.centroidX;
-    y += picture.centroidY;
-
-    return {x:x, y:y};
+const transformImageData = (process, event) => {
+    let canvas = document.getElementById("builder-canvas");
+    let imageData = canvas.getImageData(0, 0, canvas.width, canvas.height);
+    process(event, imageData);
+    canvas.putImageData(0, 0);
 };
 
-const dist = (dx, dy) => {return Math.sqrt(dx * dx + dy * dy)};
+const fixXY = raw => {
+    let canvas = document.getElementById("builder-canvas");
+    let box = canvas.getBoundingClientRect();
+    let x = (raw.x - box.left) - BORDER_SIZE;
+    let y = (raw.y - box.top) - BORDER_SIZE;
+    return [x, y];
+};
 
-function setScale(timestamp) {
-    let [x, y] = this.parent.fixXY(this.parent.point);
-    let point = map(this.constant, {x:x, y:y});
-    let dx = point.x - this.picture.centroidX;
-    let dy = point.y - this.picture.centroidY;
-    let currentLength = dist(dx, dy);
-    let newScale = this.constant.scale * (currentLength / this.startLength);
+const index = (imageData, i, j, k) => {
+    return k + (j * 4) + (i * 4 * imageData.width * j);
+};
 
-    this.picture.scale = Math.max(0.1, Math.min(1.0 / this.picture.ratio, newScale));
+const transparentColour = (event, imageData) => {
 
-    if (this.parent.continue) {
-        paintAll(this.parent.props.store);
-        window.requestAnimationFrame(setScale.bind(this));
-    }
-    else {
-        redraw();
-    }
-}
+};
 
-function setRotate(timestamp) {
-    let [x, y] = this.parent.fixXY(this.parent.point);
-    let point = map(this.constant, {x:x, y:y});
-    let dx = point.x - this.picture.centroidX;
-    let dy = point.y - this.picture.centroidY;
+const transparentEdges = (event, imageData) => {
 
-    let deltaRotate = Math.atan2(dy, dx) - this.startRotate;
+};
 
-    let newRotate = this.constant.rotate + deltaRotate;
-    const MAX_ROTATE = 2 * Math.PI;
-    this.picture.rotate = (newRotate + MAX_ROTATE) % MAX_ROTATE;
+const transparentSpeckles = (event, imageData) => {
 
-    if (this.parent.continue) {
-        paintAll(this.parent.props.store);
-        window.requestAnimationFrame(setRotate.bind(this));
-    }
-    else {
-        redraw();
+};
+
+class Transparent extends React.Component{
+    flood(event) {
+        transformImageData(transparentColour, event);
     }
 
-}
-
-function setTranslate(timestamp) {
-    let [x, y] = this.parent.fixXY(this.parent.point);
-//    let point = map(this.constant, {x:x, y:y});
-    let dx = x - this.parent.start.x;
-    let dy = y - this.parent.start.y;
-
-    this.picture.translateX = this.constant.translateX + dx;
-    this.picture.translateY = this.constant.translateY + dy;
-
-    if (this.parent.continue) {
-        paintAll(this.parent.props.store);
-        window.requestAnimationFrame(setTranslate.bind(this));
+    edges(event) {
+        transformImageData(transparentEdges, event);
     }
-    else {
+
+    despeckle(event) {
+        transformImageData(transparentSpeckles, event);
+    }
+
+    reset(event) {
+
+    }
+
+    done(event) {
+        this.props.store.display.which = Constants.NONE;
+        hide("picture");
         redraw();
     }
 
+    render() {
+        return <div className="control_container">
+            <div>Transparent</div>
+            <div>
+                <button onClick={this.flood}>Colour</button>
+            </div>
+            <div>
+                <button onClick={this.edges}>Edges</button>
+            </div>
+            <div>
+                <button onClick={this.despeckle}>Speckles</button>
+            </div>
+            <div>
+                <button onClick={this.reset}>Reset</button>
+            </div>
+        </div>
+    }
 }
+
+class Overlay extends React.Component {
+    render() {
+        const overlay = [
+            {
+                value: Constants.picture.NOTHING,
+                label: "Nothing",
+                style: {display:"block"}
+            },
+            {
+                value: Constants.picture.CLIP,
+                label: "Clip",
+                style: {display:"block"}
+            },
+            {
+                value: Constants.picture.CENTROID,
+                label: "Centroid",
+                style: {display:"block"}
+            }
+        ];
+
+        const makeChange = store => {
+            return (value, event) => {
+                store.display.picture.layout = parseInt(value);
+                redraw();
+            }
+        };
+
+
+        return <div className="control_container">
+            Set
+            <RadioGroup
+                name="overlay"
+                defaultValue={Constants.picture.NOTHING}
+                items={overlay}
+                onChange={makeChange(this.props.store)}
+            />
+        </div>
+    }
+}
+
+class Features extends React.Component {
+    render() {
+        return <div>
+            <Zoom store={this.props.store}/>
+            <Orient store={this.props.store}/>
+            <Transparent store={this.props.store}/>
+            <Overlay store={this.props.store}/>
+            <div>
+                <button onClick={this.done}>Done</button>
+            </div>
+        </div>
+    }
+}
+
+export default class EditPicture extends React.Component {
+    render() {
+        const builderStyle = {
+            height:     95 + "vh"
+        };
+
+        const containerStyle = {
+            display:    "inline-block",
+            width:      (Constants.MAX_WIDTH + BUFFER) + "px",
+            height:     (Constants.MAX_HEIGHT + BUFFER) + "px",
+            overflow:   "scroll"
+        };
+
+        const canvasStyle ={
+
+        };
+
+        const invisible = {
+            display:    "none"
+        };
+
+        const controllersStyle = {
+            display:        "inline-block",
+            verticalAlign:  "top"
+        };
+
+        return <div style={builderStyle}>
+            <div style={containerStyle}>
+                <canvas id="builder-canvas" style={canvasStyle}>
+                    Canvas not supported
+                </canvas>
+                <div style={invisible}>
+                    <canvas id="invisible">Not supported</canvas>
+                </div>
+            </div>
+            <div style={controllersStyle} className="control_container">
+                <Features store={this.props.store} />
+            </div>
+        </div>
+    }
+}
+
+export const paintPicture = store => {
+    let canvas = document.getElementById("builder-canvas");
+    let picture = store.data.pictures[store.display.which];
+    let image = picture.image;
+    let zoom = store.display.picture.zoom;
+    let width = image.width * zoom;
+    let height = image.height * zoom;
+
+    canvas.width = width;
+    canvas.height = height;
+
+    let context = canvas.getContext("2d");
+    context.save();
+
+    if (zoom > 1) {
+        const invisible = document.getElementById("invisible");
+        image = expand(invisible, image, zoom);
+    }
+
+    context.drawImage(image, 0, 0, image.width, image.height,
+        0, 0, width, height);
+
+    context.restore();
+};

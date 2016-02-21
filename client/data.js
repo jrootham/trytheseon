@@ -7,13 +7,32 @@
  */
 
 export const Constants = {
-    MAX_WIDTH:      800,
-    MAX_HEIGHT :    800,
-    MIN_WIDTH:      80,
-    MIN_HEIGHT :    80,
+    MAX_WIDTH:          800,
+    MAX_HEIGHT :        800,
+    MIN_WIDTH:          80,
+    MIN_HEIGHT :        80,
 
-    NONE:           -2,
-    SIZE:           -1
+    layout: {
+        NOTHING:        -2,
+        SIZE:           -1,
+    },
+
+    picture: {
+        NOTHING:        0,
+        CLIP:           1,
+        CENTROID:       2
+    },
+
+    page: {
+        START:          0,
+        SIGNON:         1,
+        LOCAL_LOAD:     2,
+        SERVER_LOAD:    3,
+        SAVE_AS:        4,
+        CATALOGUE:      5,
+        EDIT_PICTURE:   6,
+        LAYOUT:         7
+    }
 };
 
 export let store = {
@@ -25,7 +44,15 @@ export let store = {
         pictures:   []
     },
     display : {
-        which:          Constants.NONE
+        previous:   Constants.page.START,
+        page:       Constants.page.START,
+
+        which:      Constants.layout.NOTHING,
+
+        picture: {
+            zoom:   1,
+            layout: Constants.picture.NOTHING
+        }
     }
 };
 
@@ -35,9 +62,12 @@ export class Picture {
         this.rotate = 0;
         this.translateX = 0;
         this.translateY = 0;
-        this.ratio = 1.0;
         this.scale = 1.0;
         this.zIndex = 0;
+        this.clipX = 0;
+        this.clipY = 0;
+        this.clipWidth = image.width;
+        this.clipHeight = image.height;
         this.centroidX = Math.min(image.width, Constants.MAX_WIDTH) / 2;
         this.centroidY = Math.min(image.height, Constants.MAX_HEIGHT) / 2;
         this.name = "";
@@ -49,9 +79,12 @@ export class Picture {
         other.rotate = this.rotate;
         other.translateX = this.translateX;
         other.translateY = this.translateY;
-        other.ratio = this.ratio;
         other.scale = this.scale;
         other.zIndex = this.zIndex;
+        other.clipX = this.clipX;
+        other.clipY = this.clipY;
+        other.clipWidth = this.clipWidth;
+        other.clipHeight = this.clipHeight;
         other.centroidX = this.centroidX;
         other.centroidY = this.centroidY;
         other.name = this.name;

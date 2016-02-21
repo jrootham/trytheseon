@@ -1,52 +1,34 @@
+/**
+ * layout.js
+ *
+ * Created by jrootham on 09/02/16.
+ *
+ * Copyright © 2016 Jim Rootham
+ */
 import React from "react";
 import ReactDOM from "react-dom";
 import RadioGroup from "react-radio";
 
 import "./../trytheseon.css"
 
-import {store, Constants} from "./data.js";
-import {Edit} from "./edit.js";
-import {setOverlay, paintAll} from "./paint.js";
-import {PictureEditor} from "./picture.js";
+import {show, hide} from "./index"
+import {store, Constants} from "./data";
+import {Edit} from "./edit";
+import {setOverlay, paintAll} from "./paint";
+import {PictureEditor} from "./picture";
 
 const THREESIXTY = Math.PI / 180;
 
-const Title = React.createClass({
-    render: function()  {
-        return <div id="title">
-            <h1>Try These On</h1>
-        </div>
-    }
-});
-
-const Before = React.createClass({
-    render: function() {
-        return <div id="before" >
-            <PictureEditor store = {this.props.store} />
-        </div>
-    }
-});
-
-export const show = name => {
-    let popup = document.getElementById(name);
-    popup.setAttribute("style", "display:block");
-};
-
-export const hide = name => {
-    let popup = document.getElementById(name);
-    popup.setAttribute("style", "display:none");
-};
-
-const Select = React.createClass({
-    render: function() {
+class Select extends React.Component {
+    render() {
         var which = [
             {
                 value: Constants.NONE,
-                label: "None\n"
+                label: "None"
             },
             {
                 value: Constants.SIZE,
-                label: "Size\n"
+                label: "Size"
             }
         ];
 
@@ -68,22 +50,22 @@ const Select = React.createClass({
                 defaultValue={Constants.NONE}
                 items={which}
                 onChange={makeChange(this.props.store)}
-                />
+            />
         </div>
     }
-});
+}
 
-const Size = React.createClass({
-    render: function() {
+class Size extends React.Component {
+    render() {
         return <div>
-                <div>Width {this.props.size.width}</div>
-                <div>Height {this.props.size.height}</div>
-            </div>
+            <div>Width {this.props.size.width}</div>
+            <div>Height {this.props.size.height}</div>
+        </div>
     }
-});
+}
 
-const PictureData = React.createClass({
-    plus: function() {
+class PictureData extends React.Component {
+    plus() {
         let pictureList = this.props.store.data.pictures;
         let index = this.props.store.display.which;
         let picture = pictureList[index];
@@ -97,9 +79,9 @@ const PictureData = React.createClass({
             picture.zIndex++;
         }
         redraw();
-    },
+    }
 
-    minus: function() {
+    minus() {
         let pictureList = this.props.store.data.pictures;
         let index = this.props.store.display.which;
         let picture = pictureList[index];
@@ -113,9 +95,9 @@ const PictureData = React.createClass({
             picture.zIndex--;
         }
         redraw();
-    },
+    }
 
-    render: function() {
+    render() {
         let index = this.props.store.display.which;
         let picture = this.props.store.data.pictures[index];
 
@@ -132,14 +114,15 @@ const PictureData = React.createClass({
             </div>
         </div>
     }
-});
+};
 
-const Display = React.createClass({
-    render: function() {
+class Display extends React.Component {
+    render() {
         let output = <div></div>
 
         switch (this.props.store.display.which) {
             case Constants.NONE:
+                output = <div></div>
                 break;
 
             case Constants.SIZE:
@@ -158,40 +141,23 @@ const Display = React.createClass({
 
         return output;
     }
-});
+};
 
-const After = React.createClass({
-    render: function() {
+class After extends React.Component{
+    render() {
         return <div id="after">
             <Select store = {this.props.store}/>
             <Display store = {this.props.store} />
         </div>
     }
-});
+};
 
-const Container = React.createClass({
-    render: function() {
+export default class Layout extends React.Component{
+    render() {
         return <div id="container">
-            <Before store = {this.props.store} />
             <Edit store = {this.props.store} />
             <After store = {this.props.store} />
         </div>
     }
-});
+};
 
-const Parent = React.createClass({
-    render: function() {
-
-        return <div id="parent">
-            <Title />
-            <Container store={this.props.store}/>
-        </div>
-    }
-});
-
-export const redraw = function() {
-    ReactDOM.render(<Parent store={store}/>, document.getElementById('bigbox'));
-    paintAll(store);
-}
-
-redraw();
