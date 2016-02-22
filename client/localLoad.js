@@ -20,7 +20,7 @@ export default class LocalLoad extends React.Component {
 
             if (fileList.length > 0) {
                 let file = fileList[0];
-                createImageBitmap(file).then(function(image) {
+                createImageBitmap(file).then(image => {
                     let pictureArray = store.data.pictures;
                     let localPicture = new Picture(image);
                     localPicture.name = `Picture ${pictureArray.length}`;

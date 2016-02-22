@@ -12,7 +12,7 @@ import RadioGroup from "react-radio";
 import {Constants} from "./data"
 import {redraw} from "./index";
 import {inBox, inRect, getPicturePoints ,PICTURE_RECT} from "./edit";
-import {expand} from "./imageProcess";
+import {expand, left, right, flip} from "./imageProcess";
 
 const BUFFER = 15;
 
@@ -43,21 +43,6 @@ class Zoom extends React.Component {
                 value: 1,
                 label: "1",
                 style: {display:"block"}
-            },
-            {
-                value: 2,
-                label: "2",
-                style: {display:"block"}
-            },
-            {
-                value: 4,
-                label: "4",
-                style: {display:"block"}
-            },
-            {
-                value: 8,
-                label: "8",
-                style: {display:"block"}
             }
         ];
 
@@ -81,31 +66,36 @@ class Zoom extends React.Component {
 }
 
 
-const makeLeft = store => {
+const makeTransform = (store, transform) => {
+    return () => {
+        let picture = store.data.pictures[store.display.which];
+        transform(picture.image).then(image =>{
+            picture.image = image;
+            redraw();
+        });
+        ;
+    }
 
 };
-
-const makeRight = store => {
-
-};
-
-const makeFlip = store => {
-
-};
-
 
 class Orient extends React.Component{
     render() {
         return <div className="control_container">
             <div>Orient</div>
             <div>
-                <button onClick={makeLeft(this.props.store)}>Left</button>
+                <button onClick={makeTransform(this.props.store, left)}>
+                    Left
+                </button>
             </div>
             <div>
-                <button onClick={makeRight(this.props.store)}>Right</button>
+                <button onClick={makeTransform(this.props.store, right)}>
+                    Right
+                </button>
             </div>
             <div>
-                <button onClick={makeFlip(this.props.store)}>Flip</button>
+                <button onClick={makeTransform(this.props.store, flip)}>
+                    Flip
+                </button>
             </div>
         </div>
     }
@@ -121,8 +111,8 @@ const transformImageData = (process, event) => {
 const fixXY = raw => {
     let canvas = document.getElementById("builder-canvas");
     let box = canvas.getBoundingClientRect();
-    let x = (raw.x - box.left) - BORDER_SIZE;
-    let y = (raw.y - box.top) - BORDER_SIZE;
+    let x = raw.x - box.left;
+    let y = raw.y - box.top;
     return [x, y];
 };
 
@@ -292,7 +282,6 @@ export const paintPicture = store => {
     canvas.height = height;
 
     let context = canvas.getContext("2d");
-    context.save();
 
     if (zoom > 1) {
         const invisible = document.getElementById("invisible");
@@ -301,6 +290,4 @@ export const paintPicture = store => {
 
     context.drawImage(image, 0, 0, image.width, image.height,
         0, 0, width, height);
-
-    context.restore();
 };
