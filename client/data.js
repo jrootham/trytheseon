@@ -38,20 +38,21 @@ export const Constants = {
 export let store = {
     data: {
         size: {
-            width : Constants.MAX_WIDTH,
-            height: Constants.MAX_HEIGHT
+            width :             Constants.MAX_WIDTH,
+            height:             Constants.MAX_HEIGHT
         },
-        pictures:   []
+        pictures:               []
     },
     display : {
-        previous:   Constants.page.START,
-        page:       Constants.page.START,
+        previous:               Constants.page.START,
+        page:                   Constants.page.START,
 
-        which:      Constants.layout.NOTHING,
+        which:                  Constants.layout.NOTHING,
 
         picture: {
-            zoom:   1,
-            layout: Constants.picture.NOTHING
+            zoom:               1,
+            colourTransparent:  false,
+            layout:             Constants.picture.NOTHING
         }
     }
 };

@@ -114,7 +114,7 @@ const fixXY = raw => {
 };
 
 const index = (imageData, i, j, k) => {
-    return k + (j * 4) + (i * 4 * imageData.width * j);
+    return k + (j * 4) + (d * 4 * imageData.width * j);
 };
 
 const transparentColour = (event, imageData) => {

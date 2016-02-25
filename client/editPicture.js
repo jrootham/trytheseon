@@ -13,6 +13,7 @@ import {Constants} from "./data"
 import {redraw} from "./index";
 import {inBox, inRect, getPicturePoints ,PICTURE_RECT} from "./edit";
 import {expand, left, right, flip} from "./imageProcess";
+import {transparentColour, transparentEdges, transparentSpeckles, reset} from "./imageProcess";
 
 const BUFFER = 15;
 
@@ -65,7 +66,6 @@ class Zoom extends React.Component {
     }
 }
 
-
 const makeTransform = (store, transform) => {
     return () => {
         let picture = store.data.pictures[store.display.which];
@@ -75,7 +75,6 @@ const makeTransform = (store, transform) => {
         });
         ;
     }
-
 };
 
 class Orient extends React.Component{
@@ -101,74 +100,72 @@ class Orient extends React.Component{
     }
 };
 
-const transformImageData = (process, event) => {
-    let canvas = document.getElementById("builder-canvas");
-    let imageData = canvas.getImageData(0, 0, canvas.width, canvas.height);
-    process(event, imageData);
-    canvas.putImageData(0, 0);
-};
-
-const fixXY = raw => {
-    let canvas = document.getElementById("builder-canvas");
-    let box = canvas.getBoundingClientRect();
-    let x = raw.x - box.left;
-    let y = raw.y - box.top;
-    return [x, y];
-};
-
-const index = (imageData, i, j, k) => {
-    return k + (j * 4) + (i * 4 * imageData.width * j);
-};
-
-const transparentColour = (event, imageData) => {
-
-};
-
-const transparentEdges = (event, imageData) => {
-
-};
-
-const transparentSpeckles = (event, imageData) => {
-
-};
-
-class Transparent extends React.Component{
-    flood(event) {
-        transformImageData(transparentColour, event);
-    }
-
-    edges(event) {
-        transformImageData(transparentEdges, event);
-    }
-
-    despeckle(event) {
-        transformImageData(transparentSpeckles, event);
-    }
-
-    reset(event) {
-
-    }
-
-    done(event) {
-        this.props.store.display.which = Constants.NONE;
-        hide("picture");
+const makeFlood = store => {
+    return () => {
+        store.display.picture.colourTransparent = true;
         redraw();
     }
+}
 
+const makeTransparent = (store, x, y) => {
+    return () => {
+        let picture = store.data.pictures[store.display.which];
+        transparentColour(picture.image, x , y);
+    }
+};
+
+
+const makeEdges = store => {
+    return () => {
+        transparentEdges(store.data.pictures[store.display.which]);
+    }
+}
+
+const makeDespeckle = store => {
+    return () => {
+        transparentSpeckles(store.data.pictures[store.display.which]);
+    }
+}
+
+const makeReset = store => {
+    return () => {
+        reset(store.data.pictures[store.display.which]);
+    }
+}
+
+const makeDone = store => {
+    return () => {
+        store.display.page = Constants.page.LAYOUT;
+        redraw();
+    }
+}
+
+class Transparent extends React.Component{
     render() {
+        const setTransparent = this.props.store.display.picture.colourTransparent;
+
+        const transparentStyle = {
+            style:  {
+                border:  setTransparent ? "solid green 2px" : "none"
+            }
+        }
+
+        const message = setTransparent ? "Pick spot" : "";
+
         return <div className="control_container">
             <div>Transparent</div>
+            <div style={transparentStyle}>
+                <button onClick={makeFlood(this.props.store)}>Colour</button>
+            </div>
+            <div>{message}</div>
             <div>
-                <button onClick={this.flood}>Colour</button>
+                <button onClick={makeEdges(this.props.store)}>Edges</button>
             </div>
             <div>
-                <button onClick={this.edges}>Edges</button>
+                <button onClick={makeDespeckle(this.props.store)}>Speckles</button>
             </div>
             <div>
-                <button onClick={this.despeckle}>Speckles</button>
-            </div>
-            <div>
-                <button onClick={this.reset}>Reset</button>
+                <button onClick={makeReset(this.props.store)}>Reset</button>
             </div>
         </div>
     }
@@ -222,13 +219,86 @@ class Features extends React.Component {
             <Transparent store={this.props.store}/>
             <Overlay store={this.props.store}/>
             <div>
-                <button onClick={this.done}>Done</button>
+                <button onClick={makeDone(this.props.store)}>Done</button>
             </div>
         </div>
     }
 }
 
 export default class EditPicture extends React.Component {
+    start = {
+        x: 0,
+        y :0
+    };
+
+    point = {
+        x: 0,
+        y: 0
+    };
+
+    continue = false;
+
+    makeOnPointerDown() {
+        const that = this;
+        return event => {
+            that.point.x = event.clientX;
+            that.point.y = event.clientY;
+
+            const store = that.props.store;
+            const index = store.display.which;
+
+            const picture = store.data.pictures[index];
+            let [x, y] = that.fixXY(that.point, store.display.picture.zoom);
+
+            that.start.x = x;
+            that.start.y = y;
+
+            if (store.display.picture.colourTransparent) {
+                transparentColour(picture, x, y);
+                store.display.picture.colourTransparent = false;
+            }
+            else {
+                switch (store.display.picture.layout) {
+                    case Constants.picture.NOTHING:
+                        break;
+                }
+            }
+        }
+    }
+
+    fixXY(raw, zoom) {
+        let box = this.canvasRef.getBoundingClientRect();
+        let x = raw.x - box.left;
+        let y = raw.y - box.top;
+        return [Math.round(x / zoom), Math.round(y /zoom)];
+    }
+
+    makeOnPointerMove() {
+        const that = this;
+        return event => {
+            if (that.continue) {
+                that.point.x = event.clientX;
+                that.point.y = event.clientY;
+            }
+        }
+    }
+
+    makeOnPointerUp() {
+        const that = this;
+        return event => {
+            that.continue = false;
+            that.point.x = event.clientX;
+            that.point.y = event.clientY;
+        }
+    }
+
+    makeOnPointerOut() {
+        const that = this;
+        return event => {
+            that.continue = false;
+        }
+    }
+
     render() {
         const builderStyle = {
             height:     95 + "vh"
@@ -254,9 +324,21 @@ export default class EditPicture extends React.Component {
             verticalAlign:  "top"
         };
 
+        const store = this.props.store;
+
         return <div style={builderStyle}>
             <div style={containerStyle}>
-                <canvas id="builder-canvas" style={canvasStyle}>
+                <canvas id="builder-canvas"
+                        style={canvasStyle}
+                        ref={(ref) => this.canvasRef = ref}
+                        onMouseMove={this.makeOnPointerMove()}
+                        onMouseDown={this.makeOnPointerDown()}
+                        onMouseUp={this.makeOnPointerUp()}
+                        onMouseLeave={this.makeOnPointerOut()}
+                        onTouchMove={this.makeOnPointerMove()}
+                        onTouchDown={this.makeOnPointerDown()}
+                        onTouchUp={this.makeOnPointerUp()}
+                >
                     Canvas not supported
                 </canvas>
                 <div style={invisible}>

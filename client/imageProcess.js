@@ -6,7 +6,18 @@
  * Copyright © 2016 Jim Rootham
  */
 
+import {redraw} from "./index";
+
 const DEPTH = 4;
+const COLOURS = 3;
+const OPACITY = 3;
+const TRANSPARENT = 0;
+const OPAQUE = 255;
+const DISTANCE = 32;
+
+const map = (width, x, y, d) => {
+    return d + DEPTH * (x + width * y);
+}
 
 export const expand = (invisible, image, zoom) => {
     invisible.width = image.width;
@@ -152,6 +163,98 @@ export const flip = image => {
     return rotate(getInputData(image), plain, newX, newY);
 };
 
-const map = (width, x, y, d) => {
-    return d + DEPTH * (x + width * y);
+let result, index;
+const isToBeCleared = (data, base, point) => {
+    result = data.data[map(data.width, point.x, point.y, OPACITY)] === OPAQUE;
+    index = map(data.width, point.x, point.y, 0);
+    result = result && Math.abs(data.data[index] - base[0]) < DISTANCE;
+    index = map(data.width, point.x, point.y, 1);
+    result = result && Math.abs(data.data[index] - base[1]) < DISTANCE;
+    index = map(data.width, point.x, point.y, 2);
+    result = result && Math.abs(data.data[index] - base[2]) < DISTANCE;
+
+    return result;
+};
+
+const setPicture = (picture, data) => {
+    const invisible = document.getElementById("invisible");
+    const context = invisible.getContext("2d");
+    context.putImageData(data, 0, 0);
+
+    createImageBitmap(invisible).then(image =>{
+        picture.image = image;
+        redraw();
+    });
+};
+
+export const transparentColour = (picture, x, y) => {
+    let data = getInputData(picture.image);
+    let base = [];
+
+    for (let d = 0 ; d < COLOURS ; d++) {
+        base.push(data.data[map(data.width, x, y, d)])
+    }
+
+    let stack = [];
+    stack.push({x:x, y:y});
+
+    let point;
+    while (stack.length > 0) {
+        point = stack.pop();
+        if (isToBeCleared(data, base, point)) {
+            data.data[map(data.width, point.x, point.y, OPACITY)] = TRANSPARENT;
+            stack.push({x:point.x, y:point.y + 1});
+            stack.push({x:point.x, y:point.y - 1});
+            stack.push({x:point.x + 1, y:point.y});
+            stack.push({x:point.x - 1, y:point.y});
+        }
+    }
+
+    setPicture(picture, data);
+};
+
+export const transparentEdges = picture => {
+    let data = getInputData(picture.image);
+    let x, y, index;
+
+    for (y = 0 ; y < data.height ; y++) {
+        for (x = 0 ; x < data.width ; x ++) {
+            index = map(data.width, x, y, OPACITY);
+            if (data.data[index] === OPAQUE) {
+                data.data[index] = TRANSPARENT;
+            }
+            else {
+                break;
+            }
+        }
+
+        for (x = data.width -1 ; x >= 0 ; x--) {
+            index = map(data.width, x, y, OPACITY);
+            if (data.data[index] === OPAQUE) {
+                data.data[index] = TRANSPARENT;
+            }
+            else {
+                break;
+            }
+        }
+    }
+
+    setPicture(picture, data);
+};
+
+export const transparentSpeckles = picture => {
+
+};
+
+export const reset = picture => {
+    let data = getInputData(picture.image);
+    let x, y;
+
+    for (x = 0 ; x < data.width ; x ++) {
+        for (y = 0 ; y < data.height ; y++) {
+            data.data[map(data.width, x, y, OPACITY)] = OPAQUE;
+        }
+    }
+
+    setPicture(picture, data);
 }

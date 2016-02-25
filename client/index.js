@@ -176,7 +176,7 @@ class Container extends React.Component {
 
             case Constants.page.LAYOUT:
                 contents = <Layout store={this.props.store}/>
-                paint.setPaintFn(paintLayout);
+                paint.setPaintFn(paintAll);
                 break;
 
             default: {
