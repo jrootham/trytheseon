@@ -13,7 +13,7 @@ import SaveAs from "./saveAs";
 import EditPicture from "./editPicture";
 import Layout from "./layout";
 import {paintAll} from "./paint";
-import {paintPicture} from "./editPicture";
+import {paintAllPicture} from "./editPicture";
 
 class Paint {
     constructor() {
@@ -171,7 +171,7 @@ class Container extends React.Component {
 
             case Constants.page.EDIT_PICTURE:
                 contents = <EditPicture store={this.props.store}/>
-                paint.setPaintFn(paintPicture);
+                paint.setPaintFn(paintAllPicture);
                 break;
 
             case Constants.page.LAYOUT:

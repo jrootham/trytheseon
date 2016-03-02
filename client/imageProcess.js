@@ -14,6 +14,7 @@ const OPACITY = 3;
 const TRANSPARENT = 0;
 const OPAQUE = 255;
 const DISTANCE = 32;
+const SPECKLE = 10000;
 
 const map = (width, x, y, d) => {
     return d + DEPTH * (x + width * y);
@@ -243,6 +244,45 @@ export const transparentEdges = picture => {
 };
 
 export const transparentSpeckles = picture => {
+    let data = getInputData(picture.image);
+    let stack = [];
+    let count = [];
+    let keep = [];
+    let point, index;
+
+    let x, y;
+    for (y = 0 ; y < data.height ; y++) {
+        for (x = 0; x < data.width; x++) {
+            stack.push({x: x, y: y});
+
+            while (stack.length > 0) {
+                point = stack.pop();
+                index = map(data.width, point.x, point.y, OPACITY);
+                if (data.data[index] != TRANSPARENT) {
+                    count.push(index);
+                    data.data[index] = TRANSPARENT;
+                    stack.push({x: point.x, y: point.y + 1});
+                    stack.push({x: point.x, y: point.y - 1});
+                    stack.push({x: point.x + 1, y: point.y});
+                    stack.push({x: point.x - 1, y: point.y});
+                }
+            }
+
+            if (count.length > SPECKLE) {
+                count.forEach(index => {
+                    keep.push(index);
+                });
+            }
+
+            count = [];
+        }
+    }
+
+    keep.forEach(index => {
+        data.data[index] = OPAQUE;
+    })
+
+    setPicture(picture, data);
 
 };
 

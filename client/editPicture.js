@@ -9,13 +9,15 @@ import React from "react";
 import ReactDOM from "react-dom";
 import RadioGroup from "react-radio";
 
-import {Constants} from "./data"
+import {Constants, setFactor} from "./data"
 import {redraw} from "./index";
 import {inBox, inRect, getPicturePoints ,PICTURE_RECT} from "./edit";
 import {expand, left, right, flip} from "./imageProcess";
 import {transparentColour, transparentEdges, transparentSpeckles, reset} from "./imageProcess";
+import {dashedLine, drawBox} from "./common";
 
 const BUFFER = 15;
+const TARGET = 30;
 
 class Zoom extends React.Component {
     render() {
@@ -71,6 +73,7 @@ const makeTransform = (store, transform) => {
         let picture = store.data.pictures[store.display.which];
         transform(picture.image).then(image =>{
             picture.image = image;
+            setFactor(picture);
             redraw();
         });
         ;
@@ -164,9 +167,11 @@ class Transparent extends React.Component{
             <div>
                 <button onClick={makeDespeckle(this.props.store)}>Speckles</button>
             </div>
-            <div>
-                <button onClick={makeReset(this.props.store)}>Reset</button>
-            </div>
+            {
+//              <div>
+//                  <button onClick={makeReset(this.props.store)}>Reset</button>
+//              </div>
+            }
         </div>
     }
 }
@@ -225,6 +230,37 @@ class Features extends React.Component {
     }
 }
 
+const onPointerDown = event => {
+    this.point.x = event.clientX;
+    this.point.y = event.clientY;
+
+    const store = this.props.store;
+    const index = store.display.which;
+
+    const picture = store.data.pictures[index];
+    let [x, y] = this.fixXY(this.point, store.display.picture.zoom);
+
+    this.start.x = x;
+    this.start.y = y;
+
+    if (store.display.picture.colourTransparent) {
+        transparentColour(picture, x, y);
+        store.display.picture.colourTransparent = false;
+    }
+    else {
+        switch (store.display.picture.layout) {
+            case Constants.picture.NOTHING:
+                break;
+
+            case Constants.picture.CENTROID:
+                break;
+
+            case Constants.picture.CLIP:
+                break;
+        }
+    }
+}
+
 export default class EditPicture extends React.Component {
     start = {
         x: 0,
@@ -239,31 +275,7 @@ export default class EditPicture extends React.Component {
     continue = false;
 
     makeOnPointerDown() {
-        const that = this;
-        return event => {
-            that.point.x = event.clientX;
-            that.point.y = event.clientY;
-
-            const store = that.props.store;
-            const index = store.display.which;
-
-            const picture = store.data.pictures[index];
-            let [x, y] = that.fixXY(that.point, store.display.picture.zoom);
-
-            that.start.x = x;
-            that.start.y = y;
-
-            if (store.display.picture.colourTransparent) {
-                transparentColour(picture, x, y);
-                store.display.picture.colourTransparent = false;
-            }
-            else {
-                switch (store.display.picture.layout) {
-                    case Constants.picture.NOTHING:
-                        break;
-                }
-            }
-        }
+        return onPointerDown.bind(this);
     }
 
     fixXY(raw, zoom) {
@@ -352,23 +364,98 @@ export default class EditPicture extends React.Component {
     }
 }
 
-export const paintPicture = store => {
+export const paintAllPicture = store => {
+    console.log("All");
+    paintPicture(store);
+    paintOverlay(store);
+};
+
+const paintOverlay = store => {
+    console.log("Overlay", store.display.picture.layout);
+    switch (store.display.picture.layout) {
+        case Constants.picture.NOTHING:
+            break;
+
+        case Constants.picture.CENTROID:
+            paintCentroid(store);
+            break;
+
+        case Constants.picture.CLIP:
+            paintClip(store);
+            break;
+    }
+};
+
+const getInfo = store => {
     let canvas = document.getElementById("builder-canvas");
+    let context = canvas.getContext("2d");
+
     let picture = store.data.pictures[store.display.which];
     let image = picture.image;
     let zoom = store.display.picture.zoom;
     let width = image.width * zoom;
     let height = image.height * zoom;
 
+    return [canvas, context, picture, zoom, width, height]
+};
+
+const paintCentroid = store => {
+    let [canvas, context, picture, zoom, width, height] = getInfo(store);
+
+    context.save();
+
+    let x = picture.centroidX * zoom;
+    dashedLine(context, x, 0, x, height);
+    drawBox(context, x - TARGET / 2, 0, TARGET);
+    drawBox(context, x - TARGET / 2, height - TARGET, TARGET);
+
+    let y = picture.centroidY * zoom;
+    dashedLine(context, 0, y, width, y);
+    drawBox(context, 0, y - TARGET / 2, TARGET);
+    drawBox(context, width - TARGET, y - TARGET / 2, TARGET);
+
+    context.restore();
+};
+
+const paintClip = store => {
+    let [canvas, context, picture, zoom, width, height] = getInfo(store);
+
+    context.save();
+
+    let x = picture.clipX * zoom;
+    dashedLine(context, x, 0, x, height);
+    drawBox(context, x - TARGET / 2, 0, TARGET);
+    drawBox(context, x - TARGET / 2, (height - TARGET) / 2 , TARGET);
+    drawBox(context, x - TARGET / 2, height - TARGET, TARGET);
+
+    x = (picture.clipX + picture.clipWidth) * zoom;
+    dashedLine(context, x, 0, x, height);
+    drawBox(context, x - TARGET / 2, 0, TARGET);
+    drawBox(context, x - TARGET / 2, (height - TARGET) / 2, TARGET);
+    drawBox(context, x - TARGET / 2, height - TARGET, TARGET);
+
+    let y = picture.clipY * zoom;
+    dashedLine(context, 0, y, width, y);
+    drawBox(context, 0, y - TARGET / 2, TARGET);
+    drawBox(context, (width - TARGET) / 2, y - TARGET / 2, TARGET);
+    drawBox(context, width - TARGET, y - TARGET / 2, TARGET);
+
+    y = (picture.clipY + picture.clipHeight) * zoom;
+    dashedLine(context, 0, y, width, y);
+    drawBox(context, 0, y - TARGET / 2, TARGET);
+    drawBox(context, (width - TARGET) / 2, y - TARGET / 2, TARGET);
+    drawBox(context, width - TARGET, y - TARGET / 2, TARGET);
+
+    context.restore();
+};
+
+const paintPicture = store => {
+    let [canvas, context, picture, zoom, width, height] = getInfo(store);
+
     canvas.width = width;
     canvas.height = height;
 
-    let context = canvas.getContext("2d");
-
-    if (zoom > 1) {
-        const invisible = document.getElementById("invisible");
-        image = expand(invisible, image, zoom);
-    }
+    let image = picture.image;
 
     context.drawImage(image, 0, 0, image.width, image.height,
         0, 0, width, height);

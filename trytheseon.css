@@ -15,17 +15,6 @@
     margin-right:   2px;
 }
 
-#after
-{
-    width: 14vw;
-    border: solid 1px black;
-}
-
-#edit
-{
-    overflow: auto;
-}
-
 #canvas
 {
     border: solid 15px red;

@@ -30,6 +30,7 @@ export default class LocalLoad extends React.Component {
                     pictureArray.push(localPicture);
 
                     store.display.picture.zoom = 1;
+                    store.display.picture.layout = Constants.picture.NOTHING;
 
                     store.display.page = Constants.page.EDIT_PICTURE;
                     store.display.previous = store.display.page;

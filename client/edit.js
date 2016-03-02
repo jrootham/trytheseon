@@ -31,26 +31,28 @@ export default class Edit extends React.Component{
 
     continue = false;
 
-    onPointerDown(event) {
-        this.point.x = event.clientX;
-        this.point.y = event.clientY;
+    makeOnPointerDown() {
+        return event => {
+            this.point.x = event.clientX;
+            this.point.y = event.clientY;
 
-        let [x, y] = this.fixXY(this.point);
+            let [x, y] = this.fixXY(this.point);
 
-        this.start.x = x;
-        this.start.y = y;
+            this.start.x = x;
+            this.start.y = y;
 
-        switch (this.props.store.display.which) {
-            case Constants.NONE:
-                break;
+            switch (this.props.store.display.which) {
+                case Constants.NONE:
+                    break;
 
-            case Constants.SIZE:
-                EditSize.start(this);
-                break;
+                case Constants.SIZE:
+                    EditSize.start(this);
+                    break;
 
-            default:
-                EditPicture.start(this);
-                break;
+                default:
+                    EditPicture.start(this);
+                    break;
+            }
         }
     }
 
@@ -61,21 +63,27 @@ export default class Edit extends React.Component{
         return [x, y];
     }
 
-    onPointerMove(event) {
-        if (this.continue) {
+    makeOnPointerMove(event) {
+        return event => {
+            if (this.continue) {
+                this.point.x = event.clientX;
+                this.point.y = event.clientY;
+            }
+        }
+    }
+
+    makeOnPointerUp(event) {
+        return event => {
+            this.continue = false;
             this.point.x = event.clientX;
             this.point.y = event.clientY;
         }
     }
 
-    onPointerUp(event) {
-        this.continue = false;
-        this.point.x = event.clientX;
-        this.point.y = event.clientY;
-    }
-
-    onPointerOut(event) {
-        this.continue = false;
+    makeOnPointerOut(event) {
+        return event => {
+            this.continue = false;
+        }
     }
 
     render() {
@@ -83,17 +91,28 @@ export default class Edit extends React.Component{
         let width = size.width;
         let height = size.height;
 
-        return <div id="edit">
-            <canvas id="canvas" width={width} height={height}
+        const style = {
+            display:  "inline-block",
+            overflow: "auto"
+        };
+
+        const canvasStyle = {
+            borderStyle:    "solid",
+            borderWidth:    BORDER_SIZE + "px",
+            borderColor:    "red"
+        };
+
+        return <div style={style}>
+            <canvas id="canvas" style={canvasStyle} width={width} height={height}
                     ref={(ref) => this.canvasRef = ref}
-                    onMouseMove={this.onPointerMove}
-                    onMouseDown={this.onPointerDown}
-                    onMouseUp={this.onPointerUp}
-                    onMouseLeave={this.onPointerOut}
-                    onTouchMove={this.onPointerMove}
-                    onTouchDown={this.onPointerDown}
-                    onTouchUp={this.onPointerUp}
-                >
+                    onMouseMove={this.makeOnPointerMove()}
+                    onMouseDown={this.makeOnPointerDown()}
+                    onMouseUp={this.makeOnPointerUp()}
+                    onMouseLeave={this.makeOnPointerOut()}
+                    onTouchMove={this.makeOnPointerMove()}
+                    onTouchDown={this.makeOnPointerDown()}
+                    onTouchUp={this.makeOnPointerUp()}
+            >
                 Canvas not supported
             </canvas>
         </div>

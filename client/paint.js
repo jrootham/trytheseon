@@ -9,8 +9,6 @@
 import {Constants} from "./data.js";
 import {SIZE_RECT, PICTURE_RECT, getSizePoints} from "./edit.js";
 
-const DASH = 10;
-
 const onlyPaint = store => {
     paint(store);
 };
@@ -34,32 +32,6 @@ export const setOverlay = store => {
             paintAll(store);
             break;
     }
-};
-
-const dashedBox = (context, width, height) => {
-    context.strokeStyle = "black";
-    context.setLineDash([DASH, DASH]);
-    context.lineDashOffset = 0;
-    context.strokeRect(0, 0, width, height);
-
-    context.lineDashOffset = DASH;
-    context.strokeStyle = "white";
-    context.strokeRect(0, 0, width, height);
-};
-
-const dashedLine = (context, startX, startY, endX, endY) => {
-    context.strokeStyle = "black";
-    context.setLineDash([DASH, DASH]);
-    context.lineDashOffset = 0;
-
-    context.beginPath();
-    context.moveTo(startX, startY);
-    context.lineTo(endX, endY);
-    context.stroke();
-
-    context.lineDashOffset = DASH;
-    context.strokeStyle = "white";
-    context.stroke();
 };
 
 const pictureOverlay = store => {
@@ -97,14 +69,6 @@ const sizeOverlay = store => {
     drawBox(context, midBottom, top, SIZE_RECT);
 
     context.restore();
-};
-
-const drawBox = (context, left, top, size) => {
-    context.strokeStyle = "black";
-    context.strokeRect(left, top, size, size);
-
-    context.fillStyle = "white";
-    context.fillRect(left, top, size, size);
 };
 
 const transform = (context, picture) => {

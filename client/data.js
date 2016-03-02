@@ -63,15 +63,15 @@ export class Picture {
         this.rotate = 0;
         this.translateX = 0;
         this.translateY = 0;
-        this.scale = 1.0;
         this.zIndex = 0;
         this.clipX = 0;
         this.clipY = 0;
         this.clipWidth = image.width;
         this.clipHeight = image.height;
-        this.centroidX = Math.min(image.width, Constants.MAX_WIDTH) / 2;
-        this.centroidY = Math.min(image.height, Constants.MAX_HEIGHT) / 2;
+        this.centroidX = image.width / 2;
+        this.centroidY = image.height / 2;
         this.name = "";
+        setFactor(this);
     }
 
     copy() {
@@ -89,7 +89,14 @@ export class Picture {
         other.centroidX = this.centroidX;
         other.centroidY = this.centroidY;
         other.name = this.name;
+        other.factor = this.factor;
 
         return other;
     }
+}
+
+export const setFactor = picture => {
+    const width = Math.min(1.0, Constants.MAX_WIDTH / picture.image.width);
+    const height = Math.min(1.0, Constants.MAX_HEIGHT / picture.image.height);
+    picture.factor = Math.min(width, height);
 }

@@ -13,7 +13,7 @@ import "./../trytheseon.css"
 
 import {show, hide} from "./index"
 import {store, Constants} from "./data";
-import {Edit} from "./edit";
+import Edit from "./edit";
 import {setOverlay, paintAll} from "./paint";
 import {PictureEditor} from "./picture";
 
@@ -24,16 +24,22 @@ class Select extends React.Component {
         var which = [
             {
                 value: Constants.NONE,
-                label: "None"
+                label: "None",
+                style: {display:"block"}
             },
             {
                 value: Constants.SIZE,
-                label: "Size"
+                label: "Size",
+                style: {display:"block"}
             }
         ];
 
         this.props.store.data.pictures.forEach((element, index) => {
-            which.push({value:index, label:element.name})
+            which.push({
+                value:index,
+                label:element.name,
+                style: {display:"block"}
+            });
         });
 
         const makeChange = store => {
@@ -47,7 +53,7 @@ class Select extends React.Component {
         return <div>
             <RadioGroup
                 name="which"
-                defaultValue={Constants.NONE}
+                defaultValue={Constants.NOTHING}
                 items={which}
                 onChange={makeChange(this.props.store)}
             />
@@ -105,7 +111,7 @@ class PictureData extends React.Component {
             <div>Name: {picture.name}</div>
             <div>X: {picture.translateX}</div>
             <div>Y: {picture.translateY}</div>
-            <div>Scale: {picture.scale}</div>
+            <div>Scale: {Math.round(picture.scale * 100) / 100}</div>
             <div>Rotate: {Math.round(picture.rotate / THREESIXTY)}</div>
             <div>Z: {picture.zIndex}</div>
             <div>
@@ -121,7 +127,7 @@ class Display extends React.Component {
         let output = <div></div>
 
         switch (this.props.store.display.which) {
-            case Constants.NONE:
+            case Constants.NOTHING:
                 output = <div></div>
                 break;
 
@@ -145,7 +151,12 @@ class Display extends React.Component {
 
 class After extends React.Component{
     render() {
-        return <div id="after">
+        const style = {
+            display:        "inline-block",
+            verticalAlign:  "top"
+        };
+
+        return <div className="control-container" style={style}>
             <Select store = {this.props.store}/>
             <Display store = {this.props.store} />
         </div>
@@ -155,6 +166,7 @@ class After extends React.Component{
 export default class Layout extends React.Component{
     render() {
         return <div id="container">
+            {console.log("which", this.props.store.display.which)}
             <Edit store = {this.props.store} />
             <After store = {this.props.store} />
         </div>
