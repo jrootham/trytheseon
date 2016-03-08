@@ -66,12 +66,21 @@ export class Picture {
         this.zIndex = 0;
         this.clipX = 0;
         this.clipY = 0;
-        this.clipWidth = image.width;
-        this.clipHeight = image.height;
-        this.centroidX = image.width / 2;
-        this.centroidY = image.height / 2;
+        this.setPoints();
         this.name = "";
         setFactor(this);
+    }
+
+    setPoints() {
+        this.clipWidth = this.image.width;
+        this.clipHeight = this.image.height;
+        this.centroidX = this.image.width / 2;
+        this.centroidY = this.image.height / 2;
+    }
+
+    setImage(image) {
+        this.image = image;
+        this.setPoints();
     }
 
     copy() {

@@ -73,3 +73,28 @@ export const drawBox = (context, left, top, size) => {
     context.restore();
 };
 
+export const drawBoxList = (context, boxList) => {
+    boxList.forEach(element => {
+        drawBox(context, element.left, element.top, element.size);
+    });
+}
+
+export const inBox = (point, left, top, size) => {
+    return inRect(point, left, top, size, size);
+}
+
+export const inRect = (point, left, top, width, height) => {
+    let x = point.x;
+    let y = point.y;
+    let result = x > left && y > top && x < left + width && y < top + height;
+
+    return result;
+};
+
+export const inBoxList = (point, boxList) => {
+    return boxList.reduce((previous, element) => {
+        return previous ||
+            inBox(point, element.left, element.top, element.size);
+    }, false);
+}
+

@@ -14,7 +14,7 @@ import {redraw} from "./index";
 import {inBox, inRect, getPicturePoints ,PICTURE_RECT} from "./edit";
 import {expand, left, right, flip} from "./imageProcess";
 import {transparentColour, transparentEdges, transparentSpeckles, reset} from "./imageProcess";
-import {dashedLine, drawBox} from "./common";
+import {dashedLine, drawBoxList, inBoxList} from "./common";
 
 const BUFFER = 15;
 const TARGET = 30;
@@ -72,7 +72,7 @@ const makeTransform = (store, transform) => {
     return () => {
         let picture = store.data.pictures[store.display.which];
         transform(picture.image).then(image =>{
-            picture.image = image;
+            picture.setImage(image);
             setFactor(picture);
             redraw();
         });
@@ -230,37 +230,6 @@ class Features extends React.Component {
     }
 }
 
-const onPointerDown = event => {
-    this.point.x = event.clientX;
-    this.point.y = event.clientY;
-
-    const store = this.props.store;
-    const index = store.display.which;
-
-    const picture = store.data.pictures[index];
-    let [x, y] = this.fixXY(this.point, store.display.picture.zoom);
-
-    this.start.x = x;
-    this.start.y = y;
-
-    if (store.display.picture.colourTransparent) {
-        transparentColour(picture, x, y);
-        store.display.picture.colourTransparent = false;
-    }
-    else {
-        switch (store.display.picture.layout) {
-            case Constants.picture.NOTHING:
-                break;
-
-            case Constants.picture.CENTROID:
-                break;
-
-            case Constants.picture.CLIP:
-                break;
-        }
-    }
-}
-
 export default class EditPicture extends React.Component {
     start = {
         x: 0,
@@ -272,43 +241,122 @@ export default class EditPicture extends React.Component {
         y: 0
     };
 
+    startCentroidX = 0;
+    startCentroidY = 0;
+    startLeftClipX = 0;
+    startTopClipY = 0;
+    startRightClipX = 0;
+    startBottomClipY = 0;
+
     continue = false;
 
-    makeOnPointerDown() {
-        return onPointerDown.bind(this);
+    getPictureData() {
+        const store = this.props.store;
+        const picture = store.data.pictures[store.display.which];
+        const [x, y] = this.fixXY(this.point);
+
+        const zoom = store.display.picture.zoom;
+
+        return [store, zoom, picture, x, y];
     }
 
-    fixXY(raw, zoom) {
-        let box = this.canvasRef.getBoundingClientRect();
-        let x = raw.x - box.left;
-        let y = raw.y - box.top;
-        return [Math.round(x / zoom), Math.round(y /zoom)];
+    setCentroidX(time) {
+        const [store, zoom, picture, x, y] = this.getPictureData();
+        let dX = (x - this.start.x) / zoom;
+        picture.centroidX = this.startCentroidX + dX;
+
+        if (this.continue) {
+            paintAllPicture(store);
+            window.requestAnimationFrame(this.setCentroidX.bind(this));
+        }
+        else {
+            redraw();
+        }
     }
 
-    makeOnPointerMove() {
-        const that = this;
-        return event => {
-            if (that.continue) {
-                that.point.x = event.clientX;
-                that.point.y = event.clientY;
+    setCentroidY(time) {
+        const [store, zoom, picture, x, y] = this.getPictureData();
+        let dY = (y - this.start.y) / zoom;
+        picture.centroidY = this.startCentroidY + dY;
+
+        if (this.continue) {
+            paintAllPicture(store);
+            window.requestAnimationFrame(this.setCentroidY.bind(this));
+        }
+        else {
+            redraw();
+        }
+    }
+
+    onPointerDown(event) {
+        this.point.x = event.clientX;
+        this.point.y = event.clientY;
+
+        const store = this.props.store;
+        const index = store.display.which;
+
+        const picture = store.data.pictures[index];
+        let [x, y] = this.fixXY(this.point);
+
+        this.start.x = x;
+        this.start.y = y;
+
+        if (store.display.picture.colourTransparent) {
+            transparentColour(picture, x, y);
+            store.display.picture.colourTransparent = false;
+        }
+        else {
+            switch (store.display.picture.layout) {
+                case Constants.picture.NOTHING:
+                    break;
+
+                case Constants.picture.CENTROID:
+                    let [canvas, context, picture, zoom, width, height] = getInfo(store);
+                    let x = picture.centroidX * zoom;
+                    let y = picture.centroidY * zoom;
+
+                    if (inBoxList(this.start, makeCentroidXList(x, height))) {
+                        this.startCentroidX = picture.centroidX;
+                        this.continue = true;
+                        window.requestAnimationFrame(this.setCentroidX.bind(this));
+                    }
+                    else {
+                        if (inBoxList(this.start, makeCentroidYList(y, width))) {
+                            this.startCentroidY = picture.centroidY;
+                            this.continue = true;
+                            window.requestAnimationFrame(this.setCentroidY.bind(this));
+                        }
+                    }
+                    break;
+
+                case Constants.picture.CLIP:
+                    break;
             }
         }
     }
 
-    makeOnPointerUp() {
-        const that = this;
-        return event => {
-            that.continue = false;
-            that.point.x = event.clientX;
-            that.point.y = event.clientY;
+    fixXY(raw) {
+        let box = this.canvasRef.getBoundingClientRect();
+        let x = raw.x - box.left;
+        let y = raw.y - box.top;
+        return [x, y];
+    }
+
+    onPointerMove(event) {
+        if (this.continue) {
+            this.point.x = event.clientX;
+            this.point.y = event.clientY;
         }
     }
 
-    makeOnPointerOut() {
-        const that = this;
-        return event => {
-            that.continue = false;
-        }
+    onPointerUp(event) {
+        this.continue = false;
+        this.point.x = event.clientX;
+        this.point.y = event.clientY;
+    }
+
+    onPointerOut(event) {
+        this.continue = false;
     }
 
     render() {
@@ -343,13 +391,13 @@ export default class EditPicture extends React.Component {
                 <canvas id="builder-canvas"
                         style={canvasStyle}
                         ref={(ref) => this.canvasRef = ref}
-                        onMouseMove={this.makeOnPointerMove()}
-                        onMouseDown={this.makeOnPointerDown()}
-                        onMouseUp={this.makeOnPointerUp()}
-                        onMouseLeave={this.makeOnPointerOut()}
-                        onTouchMove={this.makeOnPointerMove()}
-                        onTouchDown={this.makeOnPointerDown()}
-                        onTouchUp={this.makeOnPointerUp()}
+                        onMouseMove={this.onPointerMove.bind(this)}
+                        onMouseDown={this.onPointerDown.bind(this)}
+                        onMouseUp={this.onPointerUp.bind(this)}
+                        onMouseLeave={this.onPointerOut.bind(this)}
+                        onTouchMove={this.onPointerMove.bind(this)}
+                        onTouchDown={this.onPointerDown.bind(this)}
+                        onTouchUp={this.onPointerUp.bind(this)}
                 >
                     Canvas not supported
                 </canvas>
@@ -365,13 +413,11 @@ export default class EditPicture extends React.Component {
 }
 
 export const paintAllPicture = store => {
-    console.log("All");
     paintPicture(store);
     paintOverlay(store);
 };
 
 const paintOverlay = store => {
-    console.log("Overlay", store.display.picture.layout);
     switch (store.display.picture.layout) {
         case Constants.picture.NOTHING:
             break;
@@ -399,6 +445,20 @@ const getInfo = store => {
     return [canvas, context, picture, zoom, width, height]
 };
 
+const makeCentroidXList = (x, height) => {
+    return [
+        {left:x - TARGET / 2, top:1, size:TARGET},
+        {left:x - TARGET / 2, top:height - (TARGET +1), size:TARGET}
+    ];
+}
+
+const makeCentroidYList = (y, width) => {
+    return [
+        {left:1, top:y - TARGET / 2, size:TARGET},
+        {left:width - (TARGET + 1), top:y - TARGET / 2, size:TARGET}
+    ];
+}
+
 const paintCentroid = store => {
     let [canvas, context, picture, zoom, width, height] = getInfo(store);
 
@@ -406,13 +466,11 @@ const paintCentroid = store => {
 
     let x = picture.centroidX * zoom;
     dashedLine(context, x, 0, x, height);
-    drawBox(context, x - TARGET / 2, 0, TARGET);
-    drawBox(context, x - TARGET / 2, height - TARGET, TARGET);
+    drawBoxList(context, makeCentroidXList(x, height));
 
     let y = picture.centroidY * zoom;
     dashedLine(context, 0, y, width, y);
-    drawBox(context, 0, y - TARGET / 2, TARGET);
-    drawBox(context, width - TARGET, y - TARGET / 2, TARGET);
+    drawBoxList(context, makeCentroidYList(y, width));
 
     context.restore();
 };

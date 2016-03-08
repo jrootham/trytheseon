@@ -119,18 +119,6 @@ export default class Edit extends React.Component{
     }
 };
 
-export const inBox = (point, left, top, size) => {
-    return inRect(point, left, top, size, size);
-}
-
-export const inRect = (point, left, top, width, height) => {
-    let x = point.x;
-    let y = point.y;
-    let result = x > left && y > top && x < left + width && y < top + height;
-
-    return result;
-};
-
 export const getSizePoints = size => {
     let left = size.width - SIZE_RECT;
     let top = size.height - SIZE_RECT;
