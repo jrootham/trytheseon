@@ -110,14 +110,6 @@ const makeFlood = store => {
     }
 }
 
-const makeTransparent = (store, x, y) => {
-    return () => {
-        let picture = store.data.pictures[store.display.which];
-        transparentColour(picture.image, x , y);
-    }
-};
-
-
 const makeEdges = store => {
     return () => {
         transparentEdges(store.data.pictures[store.display.which]);
@@ -243,10 +235,10 @@ export default class EditPicture extends React.Component {
 
     startCentroidX = 0;
     startCentroidY = 0;
-    startLeftClipX = 0;
-    startTopClipY = 0;
-    startRightClipX = 0;
-    startBottomClipY = 0;
+    startClipX = 0;
+    startClipY = 0;
+    startClipWidth = 0;
+    startClipHeight = 0;
 
     continue = false;
 
@@ -288,21 +280,94 @@ export default class EditPicture extends React.Component {
         }
     }
 
+    setClipX(time) {
+        const [store, zoom, picture, x, y] = this.getPictureData();
+        const dX = (x - this.start.x) / zoom;
+        let newClipX = this.startClipX + dX;
+        let newClipWidth = this.startClipWidth - dX;
+
+        picture.clipX = newClipX;
+        picture.clipWidth = newClipWidth;
+
+        if (this.continue) {
+            paintAllPicture(store);
+            window.requestAnimationFrame(this.setClipX.bind(this));
+        }
+        else {
+            redraw();
+        }
+    }
+
+    setClipWidth(time) {
+        const [store, zoom, picture, x, y] = this.getPictureData();
+        let dX = (x - this.start.x) / zoom;
+        let newClipX = this.startClipX;
+        let newClipWidth = this.startClipWidth + dX;
+
+        picture.clipX = newClipX;
+        picture.clipWidth = newClipWidth;
+
+        if (this.continue) {
+            paintAllPicture(store);
+            window.requestAnimationFrame(this.setClipWidth.bind(this));
+        }
+        else {
+            redraw();
+        }
+    }
+
+    setClipY(time) {
+        const [store, zoom, picture, x, y] = this.getPictureData();
+        const dY = (y - this.start.y) / zoom;
+
+        let newClipY = this.startClipY + dY;
+        let newClipHeight = this.startClipHeight - dY;
+
+        picture.clipY = newClipY;
+        picture.clipHeight = newClipHeight;
+
+        if (this.continue) {
+            paintAllPicture(store);
+            window.requestAnimationFrame(this.setClipY.bind(this));
+        }
+        else {
+            redraw();
+        }
+    }
+
+    setClipHeight(time) {
+        const [store, zoom, picture, x, y] = this.getPictureData();
+        const dY = (y - this.start.y) / zoom;
+
+        let newClipY = this.startClipY;
+        let newClipHeight = this.startClipHeight + dY;
+
+        picture.clipY = newClipY;
+        picture.clipHeight = newClipHeight;
+
+        if (this.continue) {
+            paintAllPicture(store);
+            window.requestAnimationFrame(this.setClipHeight.bind(this));
+        }
+        else {
+            redraw();
+        }
+    }
+
     onPointerDown(event) {
         this.point.x = event.clientX;
         this.point.y = event.clientY;
 
-        const store = this.props.store;
-        const index = store.display.which;
-
-        const picture = store.data.pictures[index];
         let [x, y] = this.fixXY(this.point);
 
         this.start.x = x;
         this.start.y = y;
 
+        const store = this.props.store;
+        const [canvas, context, picture, zoom, width, height] = getInfo(store);
+
         if (store.display.picture.colourTransparent) {
-            transparentColour(picture, x, y);
+            transparentColour(picture, Math.round(x/zoom), Math.round(y/zoom));
             store.display.picture.colourTransparent = false;
         }
         else {
@@ -311,25 +376,51 @@ export default class EditPicture extends React.Component {
                     break;
 
                 case Constants.picture.CENTROID:
-                    let [canvas, context, picture, zoom, width, height] = getInfo(store);
-                    let x = picture.centroidX * zoom;
-                    let y = picture.centroidY * zoom;
+                    const x = picture.centroidX * zoom;
+                    const y = picture.centroidY * zoom;
 
                     if (inBoxList(this.start, makeCentroidXList(x, height))) {
                         this.startCentroidX = picture.centroidX;
                         this.continue = true;
                         window.requestAnimationFrame(this.setCentroidX.bind(this));
                     }
-                    else {
-                        if (inBoxList(this.start, makeCentroidYList(y, width))) {
-                            this.startCentroidY = picture.centroidY;
-                            this.continue = true;
-                            window.requestAnimationFrame(this.setCentroidY.bind(this));
-                        }
+                    else if (inBoxList(this.start, makeCentroidYList(y, width))) {
+                        this.startCentroidY = picture.centroidY;
+                        this.continue = true;
+                        window.requestAnimationFrame(this.setCentroidY.bind(this));
                     }
                     break;
 
                 case Constants.picture.CLIP:
+                    const leftX = picture.clipX * zoom;
+                    const rightX = (picture.clipX + picture.clipWidth) * zoom;
+                    const topY = picture.clipY * zoom;
+                    const bottomY = (picture.clipY + picture.clipHeight) * zoom;
+
+                    if (inBoxList(this.start, makeClipLeftList(leftX, height))) {
+                        this.startClipX = picture.clipX;
+                        this.startClipWidth = picture.clipWidth;
+                        this.continue = true;
+                        window.requestAnimationFrame(this.setClipX.bind(this));
+                    }
+                    else if (inBoxList(this.start, makeClipRightList(rightX, height))) {
+                        this.startClipX = picture.clipX;
+                        this.startClipWidth = picture.clipWidth;
+                        this.continue = true;
+                        window.requestAnimationFrame(this.setClipWidth.bind(this));
+                    }
+                    else if (inBoxList(this.start, makeClipTopList(topY, width))) {
+                        this.startClipY = picture.clipY;
+                        this.startClipHeight = picture.clipHeight;
+                        this.continue = true;
+                        window.requestAnimationFrame(this.setClipY.bind(this));
+                    }
+                    else if (inBoxList(this.start, makeClipBottomList(bottomY, width))) {
+                        this.startClipY = picture.clipY;
+                        this.startClipHeight = picture.clipHeight;
+                        this.continue = true;
+                        window.requestAnimationFrame(this.setClipHeight.bind(this));
+                    }
                     break;
             }
         }
@@ -475,6 +566,38 @@ const paintCentroid = store => {
     context.restore();
 };
 
+const makeClipLeftList = (x, height) => {
+    return [
+        {left:x - TARGET / 2, top:1, size:TARGET},
+        {left:x - TARGET / 2, top:(height - TARGET) / 2, size:TARGET},
+        {left:x - TARGET / 2, top:height - (TARGET + 1), size:TARGET}
+    ];
+}
+
+const makeClipRightList = (x, height) => {
+    return [
+        {left: x - TARGET / 2, top: 1, size: TARGET},
+        {left: x - TARGET / 2, top: (height - TARGET) / 2, size: TARGET},
+        {left: x - TARGET / 2, top: height - (TARGET + 1), size: TARGET}
+    ];
+}
+
+const makeClipTopList = (y, width) => {
+    return [
+        {left:1, top:y - TARGET / 2, size:TARGET},
+        {left:(width - TARGET) / 2, top:y - TARGET / 2, size:TARGET},
+        {left:width - (TARGET + 1), top:y - TARGET / 2, size:TARGET}
+    ];
+}
+
+const makeClipBottomList = (y, width) => {
+    return [
+        {left: 1, top: y - TARGET / 2, size: TARGET},
+        {left: (width - TARGET) / 2, top: y - TARGET / 2, size: TARGET},
+        {left: width - (TARGET + 1), top: y - TARGET / 2, size: TARGET}
+    ];
+}
+
 const paintClip = store => {
     let [canvas, context, picture, zoom, width, height] = getInfo(store);
 
@@ -482,27 +605,19 @@ const paintClip = store => {
 
     let x = picture.clipX * zoom;
     dashedLine(context, x, 0, x, height);
-    drawBox(context, x - TARGET / 2, 0, TARGET);
-    drawBox(context, x - TARGET / 2, (height - TARGET) / 2 , TARGET);
-    drawBox(context, x - TARGET / 2, height - TARGET, TARGET);
+    drawBoxList(context, makeClipLeftList(x, height));
 
     x = (picture.clipX + picture.clipWidth) * zoom;
     dashedLine(context, x, 0, x, height);
-    drawBox(context, x - TARGET / 2, 0, TARGET);
-    drawBox(context, x - TARGET / 2, (height - TARGET) / 2, TARGET);
-    drawBox(context, x - TARGET / 2, height - TARGET, TARGET);
+    drawBoxList(context, makeClipRightList(x, height));
 
     let y = picture.clipY * zoom;
     dashedLine(context, 0, y, width, y);
-    drawBox(context, 0, y - TARGET / 2, TARGET);
-    drawBox(context, (width - TARGET) / 2, y - TARGET / 2, TARGET);
-    drawBox(context, width - TARGET, y - TARGET / 2, TARGET);
+    drawBoxList(context, makeClipTopList(y, width));
 
     y = (picture.clipY + picture.clipHeight) * zoom;
     dashedLine(context, 0, y, width, y);
-    drawBox(context, 0, y - TARGET / 2, TARGET);
-    drawBox(context, (width - TARGET) / 2, y - TARGET / 2, TARGET);
-    drawBox(context, width - TARGET, y - TARGET / 2, TARGET);
+    drawBoxList(context, makeClipBottomList(y, width));
 
     context.restore();
 };
@@ -517,4 +632,4 @@ const paintPicture = store => {
 
     context.drawImage(image, 0, 0, image.width, image.height,
         0, 0, width, height);
-};
+}
