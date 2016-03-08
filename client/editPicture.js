@@ -73,7 +73,7 @@ const makeTransform = (store, transform) => {
         let picture = store.data.pictures[store.display.which];
         transform(picture.image).then(image =>{
             picture.setImage(image);
-            setFactor(picture);
+            picture.setFactor();
             redraw();
         });
         ;
@@ -288,6 +288,7 @@ export default class EditPicture extends React.Component {
 
         picture.clipX = newClipX;
         picture.clipWidth = newClipWidth;
+        picture.setFactor();
 
         if (this.continue) {
             paintAllPicture(store);
@@ -306,6 +307,7 @@ export default class EditPicture extends React.Component {
 
         picture.clipX = newClipX;
         picture.clipWidth = newClipWidth;
+        picture.setFactor();
 
         if (this.continue) {
             paintAllPicture(store);
@@ -325,6 +327,7 @@ export default class EditPicture extends React.Component {
 
         picture.clipY = newClipY;
         picture.clipHeight = newClipHeight;
+        picture.setFactor();
 
         if (this.continue) {
             paintAllPicture(store);
@@ -344,6 +347,7 @@ export default class EditPicture extends React.Component {
 
         picture.clipY = newClipY;
         picture.clipHeight = newClipHeight;
+        picture.setFactor();
 
         if (this.continue) {
             paintAllPicture(store);

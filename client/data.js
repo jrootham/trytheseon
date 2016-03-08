@@ -68,7 +68,7 @@ export class Picture {
         this.clipY = 0;
         this.setPoints();
         this.name = "";
-        setFactor(this);
+        this.setFactor();
     }
 
     setPoints() {
@@ -81,6 +81,12 @@ export class Picture {
     setImage(image) {
         this.image = image;
         this.setPoints();
+    }
+
+    setFactor() {
+        const width = Math.min(1.0, Constants.MAX_WIDTH / this.clipWidth);
+        const height = Math.min(1.0, Constants.MAX_HEIGHT / this.clipHeight);
+        this.factor = Math.min(width, height);
     }
 
     copy() {
@@ -102,10 +108,4 @@ export class Picture {
 
         return other;
     }
-}
-
-export const setFactor = picture => {
-    const width = Math.min(1.0, Constants.MAX_WIDTH / picture.image.width);
-    const height = Math.min(1.0, Constants.MAX_HEIGHT / picture.image.height);
-    picture.factor = Math.min(width, height);
-}
+};
