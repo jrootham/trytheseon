@@ -45,7 +45,6 @@ class Select extends React.Component {
         const makeChange = store => {
             return (value, event) => {
                 this.props.store.display.which = parseInt(value);
-                setOverlay(store);
                 redraw();
             }
         }

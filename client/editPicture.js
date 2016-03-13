@@ -131,7 +131,6 @@ const makeReset = store => {
 const makeDone = store => {
     return () => {
         store.display.page = Constants.page.LAYOUT;
-        console.log("Done");
         redraw();
     }
 }
