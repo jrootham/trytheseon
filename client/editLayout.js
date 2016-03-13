@@ -6,24 +6,35 @@
  * Copyright © 2016 Jim Rootham
  */
 
-class Foo {
+import {PICTURE_RECT, getPicturePoints} from "./edit";
+import {inBox, inRect} from "./common";
+import {paintAll} from "./paint";
+import {redraw} from "./index";
+
+export const EditLayout = {
     start(parent) {
         this.parent = parent;
         let index = this.parent.props.store.display.which;
         this.picture = this.parent.props.store.data.pictures[index];
-        let pictureWidth = this.picture.image.width;
-        let pictureHeight = this.picture.image.height;
+
+        let pictureWidth = this.picture.clipWidth;
+        let pictureHeight = this.picture.clipHeight;
+
         let [left, top, midSide] = getPicturePoints(this.picture);
+
         this.constant = this.picture.copy();
         this.startPoint = map(this.constant, this.parent.start, true);
+
+        const centroidX = this.picture.centroidX - this.picture.clipX;
+        const centroidY = this.picture.centroidX - this.picture.clipY;
 
         let boxSize = PICTURE_RECT / this.picture.scale;
 
         if (inBox(this.startPoint, left, top, boxSize)
             || inBox(this.startPoint, left, 0, boxSize)) {
             this.parent.continue = true;
-            let dx = this.startPoint.x - this.picture.centroidX;
-            let dy = this.startPoint.y - this.picture.centroidY;
+            let dx = this.startPoint.x - centroidX;
+            let dy = this.startPoint.y - centroidY;
 
             this.startLength = dist(dx, dy);
             this.startScale = this.picture.scale;
@@ -31,8 +42,8 @@ class Foo {
         }
         else if (inBox(this.startPoint, 0, midSide, boxSize)) {
             this.parent.continue = true;
-            let dx = this.startPoint.x - this.picture.centroidX;
-            let dy = this.startPoint.y - this.picture.centroidY;
+            let dx = this.startPoint.x - centroidX;
+            let dy = this.startPoint.y - centroidY;
             this.startRotate = Math.atan2(dy, dx);
             window.requestAnimationFrame(setRotate.bind(this));
         }
@@ -49,11 +60,14 @@ const map = (picture, point, flag) => {
     let x = point.x;
     let y = point.y;
 
+    const centroidX = picture.centroidX - picture.clipX;
+    const centroidY = picture.centroidX - picture.clipY;
+
     x -= picture.translateX;
     y -= picture.translateY;
 
-    x -= picture.centroidX;
-    y -= picture.centroidY;
+    x -= centroidX;
+    y -= centroidY;
 
     const minusRotate = - picture.rotate;
 
@@ -66,8 +80,8 @@ const map = (picture, point, flag) => {
     x /= picture.scale;
     y /= picture.scale;
 
-    x += picture.centroidX;
-    y += picture.centroidY;
+    x += centroidX;
+    y += centroidY;
 
     return {x:x, y:y};
 };

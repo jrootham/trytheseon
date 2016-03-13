@@ -131,6 +131,7 @@ const makeReset = store => {
 const makeDone = store => {
     return () => {
         store.display.page = Constants.page.LAYOUT;
+        console.log("Done");
         redraw();
     }
 }
@@ -508,8 +509,10 @@ export default class EditPicture extends React.Component {
 }
 
 export const paintAllPicture = store => {
-    paintPicture(store);
-    paintOverlay(store);
+    if (store.display.which >= 0) {
+        paintPicture(store);
+        paintOverlay(store);
+    }
 };
 
 const paintOverlay = store => {

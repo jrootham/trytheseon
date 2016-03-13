@@ -11,7 +11,7 @@ import RadioGroup from "react-radio";
 
 import "./../trytheseon.css"
 
-import {show, hide} from "./index"
+import {redraw} from "./index"
 import {store, Constants} from "./data";
 import Edit from "./edit";
 import {setOverlay, paintAll} from "./paint";
@@ -21,14 +21,14 @@ const THREESIXTY = Math.PI / 180;
 
 class Select extends React.Component {
     render() {
-        var which = [
+        const which = [
             {
-                value: Constants.NONE,
+                value: Constants.layout.NOTHING,
                 label: "None",
                 style: {display:"block"}
             },
             {
-                value: Constants.SIZE,
+                value: Constants.layout.SIZE,
                 label: "Size",
                 style: {display:"block"}
             }
@@ -44,7 +44,7 @@ class Select extends React.Component {
 
         const makeChange = store => {
             return (value, event) => {
-                store.display.which = parseInt(value);
+                this.props.store.display.which = parseInt(value);
                 setOverlay(store);
                 redraw();
             }
@@ -53,7 +53,7 @@ class Select extends React.Component {
         return <div>
             <RadioGroup
                 name="which"
-                defaultValue={Constants.NOTHING}
+                defaultValue={this.props.store.display.which}
                 items={which}
                 onChange={makeChange(this.props.store)}
             />
@@ -115,8 +115,8 @@ class PictureData extends React.Component {
             <div>Rotate: {Math.round(picture.rotate / THREESIXTY)}</div>
             <div>Z: {picture.zIndex}</div>
             <div>
-                <button onClick={this.plus}>+</button>
-                <button onClick={this.minus}>-</button>
+                <button onClick={this.plus.bind(this)}>+</button>
+                <button onClick={this.minus.bind(this)}>-</button>
             </div>
         </div>
     }
@@ -127,11 +127,11 @@ class Display extends React.Component {
         let output = <div></div>
 
         switch (this.props.store.display.which) {
-            case Constants.NOTHING:
+            case Constants.layout.NOTHING:
                 output = <div></div>
                 break;
 
-            case Constants.SIZE:
+            case Constants.layout.SIZE:
                 output = <div id="display">
                     <Size size = {this.props.store.data.size} />
                 </div>
@@ -164,9 +164,12 @@ class After extends React.Component{
 };
 
 export default class Layout extends React.Component{
+    componentDidMount() {
+        paintAll(this.props.store);
+    }
+
     render() {
         return <div id="container">
-            {console.log("which", this.props.store.display.which)}
             <Edit store = {this.props.store} />
             <After store = {this.props.store} />
         </div>

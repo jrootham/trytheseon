@@ -25,6 +25,7 @@ class Paint {
     }
 
     paint(store) {
+        console.log(this.paintFn);
         if (this.paintFn) {
             this.paintFn(store);
         }
@@ -138,6 +139,8 @@ class Container extends React.Component {
         let contents;
         const page = this.props.store.display.page;
 
+        console.log("Page", page);
+
         switch (page) {
             case Constants.page.START:
                 contents = <Start />
@@ -204,6 +207,7 @@ class Parent extends React.Component {
 
 export const redraw = function() {
     ReactDOM.render(<Parent store={store}/>, document.getElementById('bigbox'));
+    console.log("Redraw");
     paint.paint(store);
 }
 

@@ -10,7 +10,7 @@ import ReactDOM from "react-dom";
 
 import {Constants} from "./data";
 import {EditSize} from "./editSize";
-import {EditPicture} from "./editPicture";
+import {EditLayout} from "./editLayout";
 
 export const SIZE_RECT = 20;
 export const PICTURE_RECT = 40;
@@ -31,28 +31,26 @@ export default class Edit extends React.Component{
 
     continue = false;
 
-    makeOnPointerDown() {
-        return event => {
-            this.point.x = event.clientX;
-            this.point.y = event.clientY;
+    onPointerDown(event) {
+        this.point.x = event.clientX;
+        this.point.y = event.clientY;
 
-            let [x, y] = this.fixXY(this.point);
+        let [x, y] = this.fixXY(this.point);
 
-            this.start.x = x;
-            this.start.y = y;
+        this.start.x = x;
+        this.start.y = y;
 
-            switch (this.props.store.display.which) {
-                case Constants.NONE:
-                    break;
+        switch (this.props.store.display.which) {
+            case Constants.NONE:
+                break;
 
-                case Constants.SIZE:
-                    EditSize.start(this);
-                    break;
+            case Constants.SIZE:
+                EditSize.start(this);
+                break;
 
-                default:
-                    EditPicture.start(this);
-                    break;
-            }
+            default:
+                EditLayout.start(this);
+                break;
         }
     }
 
@@ -63,27 +61,21 @@ export default class Edit extends React.Component{
         return [x, y];
     }
 
-    makeOnPointerMove(event) {
-        return event => {
-            if (this.continue) {
-                this.point.x = event.clientX;
-                this.point.y = event.clientY;
-            }
-        }
-    }
-
-    makeOnPointerUp(event) {
-        return event => {
-            this.continue = false;
+    onPointerMove(event) {
+        if (this.continue) {
             this.point.x = event.clientX;
             this.point.y = event.clientY;
         }
     }
 
-    makeOnPointerOut(event) {
-        return event => {
-            this.continue = false;
-        }
+    onPointerUp(event) {
+        this.continue = false;
+        this.point.x = event.clientX;
+        this.point.y = event.clientY;
+    }
+
+    onPointerOut(event) {
+        this.continue = false;
     }
 
     render() {
@@ -105,13 +97,13 @@ export default class Edit extends React.Component{
         return <div style={style}>
             <canvas id="canvas" style={canvasStyle} width={width} height={height}
                     ref={(ref) => this.canvasRef = ref}
-                    onMouseMove={this.makeOnPointerMove()}
-                    onMouseDown={this.makeOnPointerDown()}
-                    onMouseUp={this.makeOnPointerUp()}
-                    onMouseLeave={this.makeOnPointerOut()}
-                    onTouchMove={this.makeOnPointerMove()}
-                    onTouchDown={this.makeOnPointerDown()}
-                    onTouchUp={this.makeOnPointerUp()}
+                    onMouseMove={this.onPointerMove.bind(this)}
+                    onMouseDown={this.onPointerDown.bind(this)}
+                    onMouseUp={this.onPointerUp.bind(this)}
+                    onMouseLeave={this.onPointerOut.bind(this)}
+                    onTouchMove={this.onPointerMove.bind(this)}
+                    onTouchDown={this.onPointerDown.bind(this)}
+                    onTouchUp={this.onPointerUp.bind(this)}
             >
                 Canvas not supported
             </canvas>
@@ -129,10 +121,12 @@ export const getSizePoints = size => {
 };
 
 export const getPicturePoints = picture => {
-    let boxSize = PICTURE_RECT / picture.scale;
+    const boxSize = PICTURE_RECT / picture.scale;
+    const width = picture.clipWidth * picture.factor;
+    const height = picture.clipHeight * picture.factor;
 
-    let left = picture.image.width - boxSize;
-    let top = picture.image.height - boxSize;
+    let left = width - boxSize;
+    let top = height - boxSize;
     let midSide = Math.round(top / 2);
 
     return [left, top, midSide];

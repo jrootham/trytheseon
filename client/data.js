@@ -63,6 +63,7 @@ export class Picture {
         this.rotate = 0;
         this.translateX = 0;
         this.translateY = 0;
+        this.scale = 1.0;
         this.zIndex = 0;
         this.clipX = 0;
         this.clipY = 0;
@@ -84,9 +85,9 @@ export class Picture {
     }
 
     setFactor() {
-        const width = Math.min(1.0, Constants.MAX_WIDTH / this.clipWidth);
-        const height = Math.min(1.0, Constants.MAX_HEIGHT / this.clipHeight);
-        this.factor = Math.min(width, height);
+        const width = Constants.MAX_WIDTH / this.clipWidth;
+        const height = Constants.MAX_HEIGHT / this.clipHeight;
+        this.factor = Math.min(1.0, Math.min(width, height));
     }
 
     copy() {
