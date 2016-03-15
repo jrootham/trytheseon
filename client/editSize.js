@@ -9,7 +9,8 @@
 import {Constants} from "./data"
 import {paintAll} from "./paint";
 import {redraw} from "./index";
-import {getSizePoints, inBox, SIZE_RECT} from "./edit";
+import {getSizePoints, SIZE_RECT} from "./edit";
+import {inBox} from "./common";
 
 export const EditSize = {
     start: function (parent) {

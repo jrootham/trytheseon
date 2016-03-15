@@ -1,5 +1,5 @@
 /**
- * other.js
+ * editLayout.js
  *
  * Created by jrootham on 17/02/16.
  *

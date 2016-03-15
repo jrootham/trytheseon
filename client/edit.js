@@ -41,10 +41,10 @@ export default class Edit extends React.Component{
         this.start.y = y;
 
         switch (this.props.store.display.which) {
-            case Constants.NONE:
+            case Constants.layout.NOTHING:
                 break;
 
-            case Constants.SIZE:
+            case Constants.layout.SIZE:
                 EditSize.start(this);
                 break;
 
