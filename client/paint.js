@@ -50,8 +50,8 @@ const sizeOverlay = store => {
 };
 
 const transform = (context, picture) => {
-    const centroidX = picture.centroidX - picture.clipX;
-    const centroidY = picture.centroidY - picture.clipY;
+    const centroidX = (picture.centroidX - picture.clipX) * picture.factor;
+    const centroidY = (picture.centroidY - picture.clipY) * picture.factor;
     context.translate(picture.translateX, picture.translateY);
     context.translate(centroidX, centroidY);
     context.rotate(picture.rotate);

@@ -208,6 +208,30 @@ class Overlay extends React.Component {
     }
 }
 
+class Values extends React.Component {
+    render() {
+        let result = <div></div>
+
+        const store = this.props.store;
+        const index = store.display.which;
+
+        if (index >= 0) {
+            const picture = store.data.pictures[index];
+            result = <div>
+                <div>Values</div>
+                <div>Left:{picture.clipX}</div>
+                <div>Top:{picture.clipY}</div>
+                <div>Wdith:{picture.clipWidth}</div>
+                <div>Height:{picture.clipHeight}</div>
+                <div>Centroid X:{picture.centroidX}</div>
+                <div>Centroid Y:{picture.centroidY}</div>
+            </div>
+        }
+
+        return result;
+    }
+}
+
 class Features extends React.Component {
     render() {
         return <div>
@@ -218,6 +242,7 @@ class Features extends React.Component {
             <div>
                 <button onClick={makeDone(this.props.store)}>Done</button>
             </div>
+            <Values store={this.props.store}/>
         </div>
     }
 }

@@ -16,6 +16,7 @@ import {store, Constants} from "./data";
 import Edit from "./edit";
 import {setOverlay, paintAll} from "./paint";
 import {PictureEditor} from "./picture";
+import {intParse, floatParse} from "./common";
 
 const THREESIXTY = Math.PI / 180;
 
@@ -69,6 +70,78 @@ class Size extends React.Component {
     }
 }
 
+class InputTranslateX extends React.Component {
+    handleChange(event) {
+        this.props.picture.translateX = intParse(event.target.value, 0);
+        redraw();
+    }
+
+    render() {
+        return (
+            <input
+                type="text"
+                className="input_box"
+                value={this.props.picture.translateX}
+                onChange={this.handleChange.bind(this)}
+            />
+        );
+    }
+}
+
+class InputTranslateY extends React.Component {
+    handleChange(event) {
+        this.props.picture.translateY = intParse(event.target.value, 0);
+        redraw();
+    }
+
+    render() {
+        return (
+            <input
+                type="text"
+                className="input_box"
+                value={this.props.picture.translateY}
+                onChange={this.handleChange.bind(this)}
+            />
+        );
+    }
+}
+
+class InputScale extends React.Component {
+    handleChange(event) {
+        this.props.picture.scale = floatParse(event.target.value, 0);
+        redraw();
+    }
+
+    render() {
+        return (
+            <input
+                type="text"
+                className="input_box"
+                value={Math.round((100 * this.props.picture.scale)) / 100}
+                onChange={this.handleChange.bind(this)}
+            />
+        );
+    }
+}
+
+class InputRotate extends React.Component {
+    handleChange(event) {
+        this.props.picture.rotate = intParse(event.target.value, 0) * THREESIXTY;
+        redraw();
+    }
+
+    render() {
+        return (
+            <input
+                type="text"
+                className="input_box"
+                value={Math.round(this.props.picture.rotate / THREESIXTY)}
+                onChange={this.handleChange.bind(this)}
+            />
+        );
+    }
+}
+
 class PictureData extends React.Component {
     plus() {
         let pictureList = this.props.store.data.pictures;
@@ -108,10 +181,10 @@ class PictureData extends React.Component {
 
         return <div>
             <div>Name: {picture.name}</div>
-            <div>X: {picture.translateX}</div>
-            <div>Y: {picture.translateY}</div>
-            <div>Scale: {Math.round(picture.scale * 100) / 100}</div>
-            <div>Rotate: {Math.round(picture.rotate / THREESIXTY)}</div>
+            <div>X:<InputTranslateX picture={picture}/></div>
+            <div>Y:<InputTranslateY picture={picture}/></div>
+            <div>Scale:<InputScale picture={picture}/></div>
+            <div>Rotate:<InputRotate picture={picture}/></div>
             <div>Z: {picture.zIndex}</div>
             <div>
                 <button onClick={this.plus.bind(this)}>+</button>

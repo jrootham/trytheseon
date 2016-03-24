@@ -63,7 +63,7 @@ export class Picture {
         this.rotate = 0;
         this.translateX = 0;
         this.translateY = 0;
-        this.scale = 1.0;
+        this.scale = 1;
         this.zIndex = 0;
         this.clipX = 0;
         this.clipY = 0;

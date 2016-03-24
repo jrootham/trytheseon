@@ -98,3 +98,12 @@ export const inBoxList = (point, boxList) => {
     }, false);
 }
 
+export const intParse = (string, defaultValue) => {
+    const result = parseInt(string);
+    return (!isNaN(result) ? result : defaultValue);
+}
+
+export const floatParse = (string, defaultValue) => {
+    const result = parseFloat(string);
+    return (!isNaN(result) ? result : defaultValue);
+}

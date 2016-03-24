@@ -121,9 +121,9 @@ export const getSizePoints = size => {
 };
 
 export const getPicturePoints = picture => {
-    const boxSize = PICTURE_RECT / picture.scale;
-    const width = picture.clipWidth * picture.factor;
-    const height = picture.clipHeight * picture.factor;
+    const boxSize = PICTURE_RECT / (picture.scale * picture.factor);
+    const width = picture.clipWidth;
+    const height = picture.clipHeight;
 
     let left = width - boxSize;
     let top = height - boxSize;

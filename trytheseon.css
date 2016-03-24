@@ -38,3 +38,8 @@
     border:     solid 1px black;
     padding:    3px;
 }
+
+.input_box
+{
+    width: 5em;
+}

@@ -23,18 +23,18 @@ export const EditLayout = {
         let [left, top, midSide] = getPicturePoints(this.picture);
 
         this.constant = this.picture.copy();
-        this.startPoint = map(this.constant, this.parent.start, true);
+        this.startPoint = map(this.constant, this.parent.start);
 
         const centroidX = this.picture.centroidX - this.picture.clipX;
-        const centroidY = this.picture.centroidX - this.picture.clipY;
+        const centroidY = this.picture.centroidY - this.picture.clipY;
 
-        let boxSize = PICTURE_RECT / this.picture.scale;
+        let boxSize = PICTURE_RECT / (this.picture.scale * this.picture.factor);
 
         if (inBox(this.startPoint, left, top, boxSize)
             || inBox(this.startPoint, left, 0, boxSize)) {
             this.parent.continue = true;
-            let dx = this.startPoint.x - centroidX;
-            let dy = this.startPoint.y - centroidY;
+            let dx = (this.startPoint.x - centroidX);
+            let dy = (this.startPoint.y - centroidY);
 
             this.startLength = dist(dx, dy);
             this.startScale = this.picture.scale;
@@ -56,15 +56,15 @@ export const EditLayout = {
     }
 }
 
-const map = (picture, point, flag) => {
-    let x = point.x;
-    let y = point.y;
+const map = (picture, point) => {
+    let x = point.x / picture.factor;
+    let y = point.y / picture.factor;
 
     const centroidX = picture.centroidX - picture.clipX;
-    const centroidY = picture.centroidX - picture.clipY;
+    const centroidY = picture.centroidY - picture.clipY;
 
-    x -= picture.translateX;
-    y -= picture.translateY;
+    x -= picture.translateX / picture.factor;
+    y -= picture.translateY / picture.factor;
 
     x -= centroidX;
     y -= centroidY;
@@ -91,9 +91,12 @@ const dist = (dx, dy) => {return Math.sqrt(dx * dx + dy * dy)};
 function setScale(timestamp) {
     let [x, y] = this.parent.fixXY(this.parent.point);
     let point = map(this.constant, {x:x, y:y});
-    let dx = point.x - this.picture.centroidX;
-    let dy = point.y - this.picture.centroidY;
+
+    let dx = point.x - (this.picture.centroidX - this.picture.clipX);
+    let dy = point.y - (this.picture.centroidY - this.picture.clipY);
+
     let currentLength = dist(dx, dy);
+
     let newScale = this.constant.scale * (currentLength / this.startLength);
 
     this.picture.scale = Math.max(0.1, Math.min(1.0, newScale));
