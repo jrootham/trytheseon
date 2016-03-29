@@ -127,7 +127,7 @@ export const getPicturePoints = picture => {
 
     let left = width - boxSize;
     let top = height - boxSize;
-    let midSide = Math.round(top / 2);
+    let midSide = picture.centroidY - picture.clipY - Math.round(boxSize / 2);
 
     return [left, top, midSide];
 };

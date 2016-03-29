@@ -113,8 +113,8 @@ function setScale(timestamp) {
 function setRotate(timestamp) {
     let [x, y] = this.parent.fixXY(this.parent.point);
     let point = map(this.constant, {x:x, y:y});
-    let dx = point.x - this.picture.centroidX;
-    let dy = point.y - this.picture.centroidY;
+    let dx = point.x - (this.picture.centroidX - this.picture.clipX);
+    let dy = point.y - (this.picture.centroidY - this.picture.clipY);
 
     let deltaRotate = Math.atan2(dy, dx) - this.startRotate;
 
