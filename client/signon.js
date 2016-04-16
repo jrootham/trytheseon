@@ -9,14 +9,15 @@ import React from "react";
 import ReactDOM from "react-dom";
 
 import {redraw} from "./index";
-import {makeGoBack} from "./common";
+import {makeGoBack,send} from "./common";
 
 const setNamePassword = (name, password) => {
 
 }
 
 const registerCustomer = (name, password) => {
-    send(`mutation registerCustomer { ${setNamePassword(name, password)} }`)
+//    send(`mutation registerCustomer { ${setNamePassword(name, password)} }`)
+    send(`{ hello }`).then(value => {value.json().then(value => {console.log(value)})});
 }
 
 export default class Signon extends React.Component {

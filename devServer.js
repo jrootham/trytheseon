@@ -9,6 +9,9 @@ import path from "path";
 import express from "express";
 import webpack from "webpack";
 import config from "./webpack.development.config.js";
+import graphqlHTTP from "express-graphql";
+
+import schema from "./server/schema";
 
 const app = express();
 const compiler = webpack(config);
@@ -19,6 +22,15 @@ app.use(require("webpack-dev-middleware")(compiler, {
 }));
 
 app.use(require("webpack-hot-middleware")(compiler));
+
+app.use('/graphql', graphqlHTTP({
+    schema: schema,
+    formatError: error => ({
+        message: error.message,
+        locations: error.locations,
+        stack: error.stack
+    }) 
+}));
 
 app.get("*", function(req, res) {
     res.sendFile(path.join(__dirname, "public", "index.html"));
