@@ -28,14 +28,19 @@ export const Constants = {
         SIGNON:         1,
         LOCAL_LOAD:     2,
         SERVER_LOAD:    3,
-        SAVE_AS:        4,
-        CATALOGUE:      5,
-        EDIT_PICTURE:   6,
-        LAYOUT:         7
+        CATALOGUE:      4,
+        EDIT_PICTURE:   5,
+        LAYOUT:         6
     }
 };
 
 export let store = {
+    signon: {
+        on:     false,
+        name:   "",
+        id:     0
+    },
+
     data: {
         size: {
             width :             Constants.MAX_WIDTH,
@@ -43,6 +48,7 @@ export let store = {
         },
         pictures:               []
     },
+
     display : {
         previous:               Constants.page.START,
         page:                   Constants.page.START,

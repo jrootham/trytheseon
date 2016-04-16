@@ -46,65 +46,29 @@ class Title extends React.Component{
 };
 
 class Before extends React.Component{
-    makeSignOn() {
+    signOnOff() {
         let store = this.props.store;
-
-        return () => {
-            store.display.page = Constants.page.SIGNON;
-            redraw();
-        }
+        store.display.page = Constants.page.SIGNON;
+        redraw();
     }
 
-    makeSignOff() {
+    loadLocal() {
         let store = this.props.store;
-
-        return () => {
-            redraw();
-        }
+        store.display.page = Constants.page.LOCAL_LOAD;
+        redraw();
     }
 
-    makeLoadLocal() {
+    catalogue() {
         let store = this.props.store;
-
-        return () => {
-            store.display.page = Constants.page.LOCAL_LOAD;
-            redraw();
-        }
+        store.display.page = Constants.page.CATALOGUE;
+        redraw();
     }
 
-    makeLoadServer() {
+
+    loadServer() {
         let store = this.props.store;
-
-        return () => {
-            store.display.page = Constants.page.SERVER_LOAD;
-            redraw();
-        }
-    }
-
-    makeCatalogue() {
-        let store = this.props.store;
-
-        return () => {
-            store.display.page = Constants.page.CATALOGUE;
-            redraw();
-        }
-    }
-
-    makeSave() {
-        let store = this.props.store;
-
-        return () => {
-            redraw();
-        }
-    }
-
-    makeSaveAs() {
-        let store = this.props.store;
-
-        return () => {
-            store.display.page = Constants.page.SAVE_AS;
-            redraw();
-        }
+        store.display.page = Constants.page.SERVER_LOAD;
+        redraw();
     }
 
     render() {
@@ -114,14 +78,13 @@ class Before extends React.Component{
             border:     "solid 1px black"
         }
 
+        const signOnOff = "Sign On";
+
         return <div style={style}>
-            <div><button onClick={this.makeSignOn()}>Sign On</button></div>
-            <div><button onClick={this.makeSignOff()}>Sign Off</button></div>
-            <div><button onClick={this.makeLoadLocal()}>Load Local Picture</button></div>
-            <div><button onClick={this.makeLoadServer()}>Load Server Picture</button></div>
-            <div><button onClick={this.makeCatalogue()}>Catalogue</button></div>
-            <div><button onClick={this.makeSave()}>Save</button></div>
-            <div><button onClick={this.makeSaveAs()}>Save As</button></div>
+            <div><button onClick={this.signOnOff.bind(this)}>{signOnOff}</button></div>
+            <div><button onClick={this.loadLocal.bind(this)}>Load Local Picture</button></div>
+            <div><button onClick={this.loadServer.bind(this)}>Load Server Picture</button></div>
+            <div><button onClick={this.catalogue.bind(this)}>Catalogue</button></div>
         </div>
     }
 };
@@ -161,11 +124,6 @@ class Container extends React.Component {
 
             case Constants.page.CATALOGUE:
                 contents = <Catalogue store={this.props.store}/>
-                paint.setPaintFn(undefined);
-                break;
-
-            case Constants.page.SAVE_AS:
-                contents = <SaveAs store={this.props.store}/>
                 paint.setPaintFn(undefined);
                 break;
 
