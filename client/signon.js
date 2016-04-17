@@ -17,7 +17,7 @@ const setNamePassword = (name, password) => {
 
 const registerCustomer = (name, password) => {
 //    send(`mutation registerCustomer { ${setNamePassword(name, password)} }`)
-    send(`{ hello }`).then(value => {value.json().then(value => {console.log(value)})});
+    send(`{ hello }`).then(response => {response.json().then(json => {console.log(json.data)})});
 }
 
 export default class Signon extends React.Component {
