@@ -108,6 +108,3 @@ export const floatParse = (string, defaultValue) => {
     return (!isNaN(result) ? result : defaultValue);
 }
 
-export const send = message => {
-    return fetch(`http://localhost:1447/graphql?query=${message}`);
-}

@@ -9,27 +9,22 @@ import React from "react";
 import ReactDOM from "react-dom";
 
 import {redraw} from "./index";
-import {makeGoBack,send} from "./common";
-
-const setNamePassword = (name, password) => {
-
-}
-
-const registerCustomer = (name, password) => {
-//    send(`mutation registerCustomer { ${setNamePassword(name, password)} }`)
-    send(`{ hello }`).then(response => {response.json().then(json => {console.log(json.data)})});
-}
+import {makeGoBack} from "./common";
+import persistence from "./persistence";
 
 export default class Signon extends React.Component {
     signon() {
+        const name = document.getElementById("registerName").value;
+        const password = document.getElementById("registerPassword").value;
 
+        persistence.signOn(name, password);
     }
 
     register() {
         const name = document.getElementById("registerName").value;
         const password = document.getElementById("registerPassword").value;
 
-        registerCustomer(name, password);
+        persistence.registerCustomer(name, password);
     }
 
     render() {
