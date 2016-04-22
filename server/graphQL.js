@@ -65,6 +65,7 @@ const mutation = new GraphQLObjectType({
                 },
                 resolve(_, args) {
                     console.log(args.name, args.password);
+                    return User;
                 }
             }
         }

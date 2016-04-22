@@ -26,7 +26,7 @@ class Persistence {
             .then(this.status)
             .then(this.json)
             .then(function(data) {
-                console.log('Request succeeded with JSON response', data.data);
+                console.log(data.data.registerUser);
             }).catch(function(error) {
             console.log('Request failed', error);
         });
@@ -45,17 +45,15 @@ class Persistence {
 }
 
     setNamePassword(name, password) {
-            return `(name: "${name}", password:"${password}") { name
-        }`
-
+        return `(name: "${name}", password:"${password}") {name signedOn}`
     }
 
     registerCustomer(name, password){
-        this.send(`mutation registerCustomer{registerCustomer${this.setNamePassword(name, password)}}`);
+        this.send(`mutation registerUser{registerUser${this.setNamePassword(name, password)}}`);
     }
 
     signOn(name, password){
-        this.send(`query user {{user} name}`);
+        this.send(`{__schema {types {name fields {name type {name kind}}}}}`);
     }
 
 }
