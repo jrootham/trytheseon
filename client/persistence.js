@@ -26,6 +26,8 @@ class Persistence {
             .then(this.status)
             .then(this.json)
             .then(function(data) {
+                console.log(data);
+                console.log(data.data);
                 console.log(data.data.registerUser);
             }).catch(function(error) {
             console.log('Request failed', error);

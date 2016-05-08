@@ -15,22 +15,39 @@ import {
     GraphQLNonNull,
     GraphQLBoolean
 } from 'graphql';
+import {hash} from "bcrypt"
+import {connect, User} from "../database/defineDB";
 
-const User = new GraphQLObjectType({
-    name: "User",
+const GraphUser = new GraphQLObjectType({
+    name: "GraphUser",
     description: "A user object",
     fields: () => {
         return {
             name: {
                 type: GraphQLString,
-                resolve: () => {
-                    return "Name";
+                resolve: (_, __, session) => {
+                    console.log("resolve name", session);
+                    let name = "";
+                    if (session.signedOn) {
+                        return User.findById(session.userId).then (user => {
+                            return user.name;
+                        });
+                    }
+
+                    console.log("name", name);
+                    return name;
                 }
             },
             signedOn: {
                 type: GraphQLBoolean,
-                resolve: () => {
-                    return true;
+                resolve: (_, __, session) => {
+                    return session.signedOn;
+                }
+            },
+            existed: {
+                type: GraphQLBoolean,
+                resolve: (_, __, session) => {
+                    return session.existed;
                 }
             }
         }
@@ -41,8 +58,8 @@ const query = new GraphQLObjectType({
     name: 'Queries',
     fields: () => {
         return {
-            user: {
-                type: User
+            graphUser: {
+                type: GraphUser
             }
         }
     }
@@ -54,7 +71,7 @@ const mutation = new GraphQLObjectType({
     fields() {
         return {
             registerUser: {
-                type: User,
+                type: GraphUser,
                 args: {
                     name: {
                         type: new GraphQLNonNull(GraphQLString)
@@ -63,9 +80,41 @@ const mutation = new GraphQLObjectType({
                         type: new GraphQLNonNull(GraphQLString)
                     }
                 },
-                resolve(_, args) {
-                    console.log(args.name, args.password);
-                    return User;
+                resolve(_, args, session) {
+                    console.log("resolve", args);
+                    User.findOne({where:{name:args.name}}).then(user => {
+                        console.log("After find", user);
+                        if (user === null) {
+                            const getHash = new Promise(
+                                resolve => {
+                                    hash(args.password, 10, (err, hash) => {
+                                        resolve(hash);
+                                    });
+                                }
+                            );
+
+                            const result = getHash.then(hash => {
+                                connect.models.user.create({
+                                    name: args.name,
+                                    password: hash
+                                }).then(user => {
+                                    session.userId = user.id;
+                                    session.signedOn = true;
+                                    session.existed = false;
+
+                                    console.log("session user", session.userId);
+                                    return user;
+                                });
+
+                                console.log(result);
+                                return result;
+                            });
+                        }
+                        else {
+                            console.log("existed");
+                                return GraphUser;
+                        }
+                    });
                 }
             }
         }
