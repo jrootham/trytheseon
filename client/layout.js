@@ -175,6 +175,18 @@ class PictureData extends React.Component {
         redraw();
     }
 
+    edit() {
+        const display = this.props.store.display;
+        display.page = Constants.page.EDIT_PICTURE;
+
+        const picture = display.picture;
+        picture.zoom = 1;
+        picture.colourTransparent = false;
+        picture.layout = Constants.picture.NOTHING;
+
+        redraw();
+    }
+
     render() {
         let index = this.props.store.display.which;
         let picture = this.props.store.data.pictures[index];
@@ -189,6 +201,9 @@ class PictureData extends React.Component {
             <div>
                 <button onClick={this.plus.bind(this)}>+</button>
                 <button onClick={this.minus.bind(this)}>-</button>
+            </div>
+            <div>
+                <button onClick={this.edit.bind(this)}>Edit</button>
             </div>
         </div>
     }

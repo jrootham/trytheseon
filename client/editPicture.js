@@ -530,6 +530,10 @@ export default class EditPicture extends React.Component {
             </div>
         </div>
     }
+
+    componentDidMount() {
+        paintAllPicture(this.props.store);
+    }
 }
 
 export const paintAllPicture = store => {

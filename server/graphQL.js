@@ -59,11 +59,25 @@ const query = new GraphQLObjectType({
     fields: () => {
         return {
             graphUser: {
-                type: GraphUser
+                type: GraphUser,
+                resolve: (root, args, session) => {
+                    console.log("root", root);
+                    console.log("args", args);
+                    console.log("session", session);
+                }
             }
         }
     }
 });
+
+const credentials = {
+    name: {
+        type: new GraphQLNonNull(GraphQLString)
+    },
+    password: {
+        type: new GraphQLNonNull(GraphQLString)
+    }
+};
 
 const mutation = new GraphQLObjectType({
     name: 'Mutations',
@@ -72,14 +86,7 @@ const mutation = new GraphQLObjectType({
         return {
             registerUser: {
                 type: GraphUser,
-                args: {
-                    name: {
-                        type: new GraphQLNonNull(GraphQLString)
-                    },
-                    password: {
-                        type: new GraphQLNonNull(GraphQLString)
-                    }
-                },
+                args: credentials,
                 resolve(_, args, session) {
                     console.log("resolve", args);
                     User.findOne({where:{name:args.name}}).then(user => {
@@ -94,16 +101,9 @@ const mutation = new GraphQLObjectType({
                             );
 
                             const result = getHash.then(hash => {
-                                connect.models.user.create({
+                                User.create({
                                     name: args.name,
                                     password: hash
-                                }).then(user => {
-                                    session.userId = user.id;
-                                    session.signedOn = true;
-                                    session.existed = false;
-
-                                    console.log("session user", session.userId);
-                                    return user;
                                 });
 
                                 console.log(result);
@@ -111,8 +111,35 @@ const mutation = new GraphQLObjectType({
                             });
                         }
                         else {
+                            session.userId = 0;
+                            session.signedOn = false;
+                            session.existed = true;
                             console.log("existed");
-                                return GraphUser;
+                            return user;
+                        }
+                    });
+                }
+            },
+            signonUser: {
+                type: GraphUser,
+                args: credentials,
+                resolve(_, args, session) {
+                    console.log("resolve", args);
+                    User.findOne({where:{name:args.name}}).then(user => {
+                        console.log("After find", user);
+                        if (user != null) {
+                            bcrypt.compare(args.password, user.password, (err, res) => {
+                                if (res) {
+                                    session.userId = user.id;
+                                    session.signedOn = true;
+                                    session.existed = true;
+                                    console.log(user);
+                                    return user;
+                                }
+                                else {
+                                    session.userId = 0;
+                                }
+                            });
                         }
                     });
                 }

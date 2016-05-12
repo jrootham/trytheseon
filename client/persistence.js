@@ -47,11 +47,13 @@ class Persistence {
 }
 
     setNamePassword(name, password) {
-        return `(name: "${name}", password:"${password}") {name signedOn}`
+        return `(name: "${name}", password:"${password}")`;
     }
 
     registerCustomer(name, password){
-        this.send(`mutation registerUser{registerUser${this.setNamePassword(name, password)}}`);
+        const credentials = this.setNamePassword(name, password);
+        const result = "{name signedOn existed}";
+        this.send(`mutation registerUser{registerUser${credentials} ${result}}`);
     }
 
     signOn(name, password){
