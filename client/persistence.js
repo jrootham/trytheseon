@@ -22,14 +22,10 @@ class Persistence {
 
         const query = "";
 
-        fetch(`${origin}/graphql${query}`, options)
+        return fetch(`${origin}/graphql${query}`, options)
             .then(this.status)
             .then(this.json)
-            .then(function(data) {
-                console.log(data);
-                console.log(data.data);
-                console.log(data.data.registerUser);
-            }).catch(function(error) {
+            .catch(function(error) {
             console.log('Request failed', error);
         });
     }
@@ -52,12 +48,16 @@ class Persistence {
 
     registerCustomer(name, password){
         const credentials = this.setNamePassword(name, password);
-        const result = "{name signedOn existed}";
-        this.send(`mutation registerUser{registerUser${credentials} ${result}}`);
+        const values = "{name signedOn}";
+        const base = "mutation registerUser";
+        return this.send(`${base}{registerUser${credentials} ${values}}`);
     }
 
     signOn(name, password){
-        this.send(`{__schema {types {name fields {name type {name kind}}}}}`);
+        const credentials = this.setNamePassword(name, password);
+        const values = "{name signedOn}";
+        const base = "mutation signonUser";
+        return this.send(`${base}{signonUser${credentials} ${values}}`);
     }
 
 }

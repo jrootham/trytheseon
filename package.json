@@ -12,9 +12,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "jrootham@tjddev.net:gitreps/trytheseon"
+    "url": "jrootham@tjddev.net:gitreps/trytheseon",
+    "author": "jrootham"
   },
-  "author": "jrootham",
   "license": "UNLICENSED",
   "dependencies": {
     "babel-core": "<6.0.0",

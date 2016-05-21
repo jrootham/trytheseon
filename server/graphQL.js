@@ -15,7 +15,9 @@ import {
     GraphQLNonNull,
     GraphQLBoolean
 } from 'graphql';
-import {hash} from "bcrypt"
+import {maskErrors, UserError} from "graphql-errors";
+
+import {hash, compareSync} from "bcrypt"
 import {connect, User} from "../database/defineDB";
 
 const GraphUser = new GraphQLObjectType({
@@ -25,29 +27,20 @@ const GraphUser = new GraphQLObjectType({
         return {
             name: {
                 type: GraphQLString,
-                resolve: (_, __, session) => {
-                    console.log("resolve name", session);
-                    let name = "";
-                    if (session.signedOn) {
-                        return User.findById(session.userId).then (user => {
-                            return user.name;
-                        });
+                resolve: (user, _, session) => {
+                    if (session.userId === user.id) {
+                        return user.name;
                     }
-
-                    console.log("name", name);
-                    return name;
-                }
+                    else {
+                        return "";
+                    }
+                } 
             },
+
             signedOn: {
                 type: GraphQLBoolean,
-                resolve: (_, __, session) => {
-                    return session.signedOn;
-                }
-            },
-            existed: {
-                type: GraphQLBoolean,
-                resolve: (_, __, session) => {
-                    return session.existed;
+                resolve(user, _, session) {
+                    return session.userId === user.id;
                 }
             }
         }
@@ -59,12 +52,7 @@ const query = new GraphQLObjectType({
     fields: () => {
         return {
             graphUser: {
-                type: GraphUser,
-                resolve: (root, args, session) => {
-                    console.log("root", root);
-                    console.log("args", args);
-                    console.log("session", session);
-                }
+                type: GraphUser
             }
         }
     }
@@ -88,60 +76,65 @@ const mutation = new GraphQLObjectType({
                 type: GraphUser,
                 args: credentials,
                 resolve(_, args, session) {
-                    console.log("resolve", args);
-                    User.findOne({where:{name:args.name}}).then(user => {
-                        console.log("After find", user);
-                        if (user === null) {
+                    if (args.name === "") {
+                        session.userId = 0;
+                        throw new UserError(`Name may not be blank`);
+                    }
+
+                    if (args.password === "") {
+                        session.userId = 0;
+                        throw new UserError(`Password may not be blank`);
+                    }
+
+                    return User.findOne({where:{name:args.name}}).then(user => {
+
+                        console.log("After find", user === null);
+                        if (user != null) {
+                            session.userId = 0;
+                            throw new UserError(`Name ${args.name} already exists`);
+                        }
+                        else {
                             const getHash = new Promise(
                                 resolve => {
-                                    hash(args.password, 10, (err, hash) => {
-                                        resolve(hash);
+                                                hash(args.password, 10, (err, hash) => {
+                                                    resolve(hash);
                                     });
                                 }
                             );
 
-                            const result = getHash.then(hash => {
+                            getHash.then(hash => {
                                 User.create({
                                     name: args.name,
                                     password: hash
-                                });
-
-                                console.log(result);
-                                return result;
+                                }).then(newUser =>{
+                                    session.userId = newUser.id;
+                                    return newUser;
+                                })
                             });
-                        }
-                        else {
-                            session.userId = 0;
-                            session.signedOn = false;
-                            session.existed = true;
-                            console.log("existed");
-                            return user;
                         }
                     });
                 }
             },
+
             signonUser: {
                 type: GraphUser,
                 args: credentials,
                 resolve(_, args, session) {
-                    console.log("resolve", args);
-                    User.findOne({where:{name:args.name}}).then(user => {
-                        console.log("After find", user);
-                        if (user != null) {
-                            bcrypt.compare(args.password, user.password, (err, res) => {
-                                if (res) {
-                                    session.userId = user.id;
-                                    session.signedOn = true;
-                                    session.existed = true;
-                                    console.log(user);
-                                    return user;
-                                }
-                                else {
-                                    session.userId = 0;
-                                }
-                            });
+                    const result = User.findOne({where:{name:args.name}}).then(user => {
+                        if (user === null) {
+                            throw new UserError(`Name ${args.name} not found`)
                         }
-                    });
+
+                        if (!compareSync(args.password, user.password)) {
+                            throw new UserError(`Bad password`);
+                        }
+
+                        session.userId = user.id;
+
+                        return user;
+                        });
+
+                    return result;
                 }
             }
         }
@@ -153,15 +146,12 @@ const schema = new GraphQLSchema({
     mutation: mutation
 });
 
+maskErrors(schema);
+
 export const useGraphQL = app => {
     app.use('/graphql', graphqlHTTP(request =>({
         schema: schema,
         context: request.session,
-        formatError: error => ({
-            message: error.message,
-            locations: error.locations,
-            stack: error.stack
-        }),
         graphiql:true
     })));
 };

@@ -26,24 +26,24 @@ export const Constants = {
     page: {
         START:          0,
         SIGNON:         1,
-        LOCAL_LOAD:     2,
-        SERVER_LOAD:    3,
-        CATALOGUE:      4,
-        EDIT_PICTURE:   5,
-        LAYOUT:         6
+        REGISTER:       2,
+        LOCAL_LOAD:     3,
+        SERVER_LOAD:    4,
+        CATALOGUE:      5,
+        EDIT_PICTURE:   6,
+        LAYOUT:         7
     }
 };
 
 export let store = {
     signon: {
         on:     false,
-        name:   "",
-        id:     0
+        name:   ""
     },
 
     data: {
         size: {
-            width :             Constants.MAX_WIDTH,
+            width:              Constants.MAX_WIDTH,
             height:             Constants.MAX_HEIGHT
         },
         pictures:               []
@@ -52,6 +52,8 @@ export let store = {
     display : {
         previous:               Constants.page.START,
         page:                   Constants.page.START,
+
+        error:                  "",
 
         which:                  Constants.layout.NOTHING,
 

@@ -108,6 +108,7 @@ class Container extends React.Component {
                 break;
 
             case Constants.page.SIGNON:
+            case Constants.page.REGISTER:
                 contents = <Signon store={this.props.store}/>
                 paint.setPaintFn(undefined);
                 break;

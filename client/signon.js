@@ -14,8 +14,8 @@ import persistence from "./persistence";
 
 export default class Signon extends React.Component {
     signon() {
-        const name = document.getElementById("registerName").value;
-        const password = document.getElementById("registerPassword").value;
+        const name = document.getElementById("signonName").value;
+        const password = document.getElementById("signonPassword").value;
 
         persistence.signOn(name, password);
     }
