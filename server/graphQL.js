@@ -17,7 +17,7 @@ import {
 } from 'graphql';
 import {maskErrors, UserError} from "graphql-errors";
 
-import {hash, compareSync} from "bcrypt"
+import {hash, compare} from "bcrypt"
 import {connect, User} from "../database/defineDB";
 
 const GraphUser = new GraphQLObjectType({
@@ -67,6 +67,26 @@ const credentials = {
     }
 };
 
+const makeHash = password => {
+    return new Promise(
+        resolve => {
+            hash(password, 10, (err, hash) => {
+                resolve(hash);
+            });
+        }
+    );
+}
+
+const makeCompare = (password, hash) => {
+    return new Promise(
+        resolve => {
+            compare(password, hash, (err, match) => {
+                resolve(match);
+            });
+        }
+    );
+}
+
 const mutation = new GraphQLObjectType({
     name: 'Mutations',
     description: "Modification actions",
@@ -88,22 +108,13 @@ const mutation = new GraphQLObjectType({
 
                     return User.findOne({where:{name:args.name}}).then(user => {
 
-                        console.log("After find", user === null);
                         if (user != null) {
                             session.userId = 0;
                             throw new UserError(`Name ${args.name} already exists`);
                         }
                         else {
-                            const getHash = new Promise(
-                                resolve => {
-                                                hash(args.password, 10, (err, hash) => {
-                                                    resolve(hash);
-                                    });
-                                }
-                            );
-
-                            getHash.then(hash => {
-                                User.create({
+                            return makeHash(args.password).then(hash => {
+                                return User.create({
                                     name: args.name,
                                     password: hash
                                 }).then(newUser =>{
@@ -124,14 +135,15 @@ const mutation = new GraphQLObjectType({
                         if (user === null) {
                             throw new UserError(`Name ${args.name} not found`)
                         }
+                            return makeCompare(args.password, user.password).then (match => {
+                                if (!match) {
+                                    throw new UserError(`Bad password`);
+                                }
+                                session.userId = user.id;
 
-                        if (!compareSync(args.password, user.password)) {
-                            throw new UserError(`Bad password`);
-                        }
+                                return user;
 
-                        session.userId = user.id;
-
-                        return user;
+                            });
                         });
 
                     return result;

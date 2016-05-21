@@ -32,7 +32,7 @@
     "react": "^0.14.3",
     "react-dom": "^0.14.3",
     "react-radio": "^1.0.8",
-    "sequelize": "^3.22.0",
+    "sequelize": "^3.23.1",
     "style-loader": "^0.13.0",
     "webpack": "^1.12.9"
   },
