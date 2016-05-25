@@ -6,6 +6,7 @@ import "./../trytheseon.css"
 import {store, Constants} from "./data";
 import Start from "./start";
 import Signon from "./signon";
+import persistence from "./persistence";
 import LocalLoad from "./localLoad";
 import ServerlLoad from "./serverLoad";
 import Catalogue from "./catalogue";
@@ -39,8 +40,11 @@ class Title extends React.Component{
             textAlign: "center"
         }
 
+        const signon = this.props.store.signon;
+
         return <div style={style}>
             <h1>Try These</h1>
+            <h2>{signon.on ? signon.name : ""}</h2>
         </div>
     }
 };
@@ -48,7 +52,21 @@ class Title extends React.Component{
 class Before extends React.Component{
     signOnOff() {
         let store = this.props.store;
-        store.display.page = Constants.page.SIGNON;
+        if (store.signon.on) {
+            const promise = persistence.signOff(store.signon.name);
+            promise.then(result => {
+                const store = this.props.store;
+
+                store.display.error = undefined;
+                store.signon.name = result.data.signoffUser.name;
+                store.signon.on = result.data.signoffUser.signedOn;
+                store.display.page = store.display.previous;
+                redraw();
+            });
+        }
+        else {
+            store.display.page = Constants.page.SIGNON;
+        }
         redraw();
     }
 
@@ -78,10 +96,10 @@ class Before extends React.Component{
             border:     "solid 1px black"
         }
 
-        const signOnOff = "Sign On";
+        const signOnOffMsg = this.props.store.signon.on ? "Sign Off" : "Sign On";
 
         return <div style={style}>
-            <div><button onClick={this.signOnOff.bind(this)}>{signOnOff}</button></div>
+            <div><button onClick={this.signOnOff.bind(this)}>{signOnOffMsg}</button></div>
             <div><button onClick={this.loadLocal.bind(this)}>Load Local Picture</button></div>
             <div><button onClick={this.loadServer.bind(this)}>Load Server Picture</button></div>
             <div><button onClick={this.catalogue.bind(this)}>Catalogue</button></div>
@@ -103,7 +121,8 @@ class Container extends React.Component {
 
         switch (page) {
             case Constants.page.START:
-                contents = <Start />
+                this.props.store.display.previous = Constants.page.START;
+                contents = <Start />;
                 paint.setPaintFn(undefined);
                 break;
 
@@ -119,6 +138,7 @@ class Container extends React.Component {
                 break;
 
             case Constants.page.SERVER_LOAD:
+                this.props.store.display.previous = Constants.page.SERVER_LOAD;
                 contents = <ServerlLoad store={this.props.store}/>
                 paint.setPaintFn(undefined);
                 break;
@@ -129,11 +149,13 @@ class Container extends React.Component {
                 break;
 
             case Constants.page.EDIT_PICTURE:
+                this.props.store.display.previous = Constants.page.EDIT_PICTURE;
                 contents = <EditPicture store={this.props.store}/>
                 paint.setPaintFn(paintAllPicture);
                 break;
 
             case Constants.page.LAYOUT:
+                this.props.store.display.previous = Constants.page.LAYOUT;
                 contents = <Layout store={this.props.store}/>
                 paint.setPaintFn(paintAll);
                 break;
@@ -154,7 +176,7 @@ class Parent extends React.Component {
     render() {
 
         return <div id ="parent">
-            <Title />
+            <Title store = {this.props.store}/>
             <Before store = {this.props.store} />
             <Container store={this.props.store}/>
         </div>

@@ -8,7 +8,6 @@
 
 class Persistence {
     send(message) {
-        console.log(message);
         const origin = window.location.origin;
         const options = {
             credentials:    "include",
@@ -60,6 +59,12 @@ class Persistence {
         return this.send(`${base}{signonUser${credentials} ${values}}`);
     }
 
+    signOff(name){
+        const credentials = `(name: "${name}")`;
+        const values = "{name signedOn}";
+        const base = "mutation signoffUser";
+        return this.send(`${base}{signoffUser${credentials} ${values}}`);
+    }
 }
 
 const persistence = new Persistence();

@@ -8,7 +8,6 @@
 
 import graphqlHTTP from "express-graphql";
 import {
-    graphql,
     GraphQLSchema,
     GraphQLObjectType,
     GraphQLString,
@@ -145,6 +144,28 @@ const mutation = new GraphQLObjectType({
 
                             });
                         });
+
+                    return result;
+                }
+            },
+
+            signoffUser: {
+                type: GraphUser,
+                args: {
+                    name: {
+                        type: new GraphQLNonNull(GraphQLString)
+                    }
+                },
+                resolve(_, args, session){
+                    const result = User.findOne({where:{id:session.userId}}).then(user => {
+                        if (user.name != args.name) {
+                            throw new Error(`Name ${args.name} not signed on`)
+                        }
+
+                        session.userId = 0;
+
+                        return user;
+                    })
 
                     return result;
                 }
