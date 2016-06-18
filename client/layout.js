@@ -12,7 +12,7 @@ import RadioGroup from "react-radio";
 import "./../trytheseon.css"
 
 import {redraw} from "./index"
-import {store, Constants} from "./data";
+import {store, Constants, Scene} from "./data";
 import Edit from "./edit";
 import {setOverlay, paintAll} from "./paint";
 import {PictureEditor} from "./picture";
@@ -35,7 +35,7 @@ class Select extends React.Component {
             }
         ];
 
-        this.props.store.data.pictures.forEach((element, index) => {
+        this.props.store.scene.placements.forEach((element, index) => {
             which.push({
                 value:index,
                 label:element.name,
@@ -64,15 +64,15 @@ class Select extends React.Component {
 class Size extends React.Component {
     render() {
         return <div>
-            <div>Width {this.props.size.width}</div>
-            <div>Height {this.props.size.height}</div>
+            <div>Width {this.props.store.scene.width}</div>
+            <div>Height {this.props.store.scene.height}</div>
         </div>
     }
 }
 
 class InputTranslateX extends React.Component {
     handleChange(event) {
-        this.props.picture.translateX = intParse(event.target.value, 0);
+        this.props.placement.translateX = intParse(event.target.value, 0);
         redraw();
     }
 
@@ -81,7 +81,7 @@ class InputTranslateX extends React.Component {
             <input
                 type="text"
                 className="input_box"
-                value={this.props.picture.translateX}
+                value={this.props.placement.translateX}
                 onChange={this.handleChange.bind(this)}
             />
         );
@@ -90,7 +90,7 @@ class InputTranslateX extends React.Component {
 
 class InputTranslateY extends React.Component {
     handleChange(event) {
-        this.props.picture.translateY = intParse(event.target.value, 0);
+        this.props.placement.translateY = intParse(event.target.value, 0);
         redraw();
     }
 
@@ -99,7 +99,7 @@ class InputTranslateY extends React.Component {
             <input
                 type="text"
                 className="input_box"
-                value={this.props.picture.translateY}
+                value={this.props.placement.translateY}
                 onChange={this.handleChange.bind(this)}
             />
         );
@@ -108,7 +108,7 @@ class InputTranslateY extends React.Component {
 
 class InputScale extends React.Component {
     handleChange(event) {
-        this.props.picture.scale = floatParse(event.target.value, 0);
+        this.props.placement.scale = floatParse(event.target.value, 0);
         redraw();
     }
 
@@ -117,7 +117,7 @@ class InputScale extends React.Component {
             <input
                 type="text"
                 className="input_box"
-                value={Math.round((100 * this.props.picture.scale)) / 100}
+                value={Math.round((100 * this.props.placement.scale)) / 100}
                 onChange={this.handleChange.bind(this)}
             />
         );
@@ -126,7 +126,7 @@ class InputScale extends React.Component {
 
 class InputRotate extends React.Component {
     handleChange(event) {
-        this.props.picture.rotate = intParse(event.target.value, 0) * THREESIXTY;
+        this.props.placement.rotate = intParse(event.target.value, 0) * THREESIXTY;
         redraw();
     }
 
@@ -135,7 +135,7 @@ class InputRotate extends React.Component {
             <input
                 type="text"
                 className="input_box"
-                value={Math.round(this.props.picture.rotate / THREESIXTY)}
+                value={Math.round(this.props.placement.rotate / THREESIXTY)}
                 onChange={this.handleChange.bind(this)}
             />
         );
@@ -144,33 +144,33 @@ class InputRotate extends React.Component {
 
 class PictureData extends React.Component {
     plus() {
-        let pictureList = this.props.store.data.pictures;
+        let placementList = this.props.store.scene.placements;
         let index = this.props.store.display.which;
-        let picture = pictureList[index];
-        let length = pictureList.length;
-        if (length > 1 && picture.zIndex < length - 1) {
-            let other = pictureList.find(element => {
-                return element.zIndex === picture.zIndex + 1;
+        let placement = placementList[index];
+        let length = placementList.length;
+        if (length > 1 && placement.zIndex < length - 1) {
+            let other = placementList.find(element => {
+                return element.zIndex === placement.zIndex + 1;
             });
 
             other.zIndex--;
-            picture.zIndex++;
+            placement.zIndex++;
         }
         redraw();
     }
 
     minus() {
-        let pictureList = this.props.store.data.pictures;
+        let placementList = this.props.store.scene.placements;
         let index = this.props.store.display.which;
-        let picture = pictureList[index];
-        let length = pictureList.length;
-        if (length > 1 && picture.zIndex > 0) {
-            let other = pictureList.find(element => {
-                return element.zIndex === picture.zIndex - 1;
+        let placement = placementList[index];
+        let length = placementList.length;
+        if (length > 1 && placement.zIndex > 0) {
+            let other = placementList.find(element => {
+                return element.zIndex === placement.zIndex - 1;
             });
 
             other.zIndex++;
-            picture.zIndex--;
+            placement.zIndex--;
         }
         redraw();
     }
@@ -189,15 +189,15 @@ class PictureData extends React.Component {
 
     render() {
         let index = this.props.store.display.which;
-        let picture = this.props.store.data.pictures[index];
+        let placement = this.props.store.scene.placements[index];
 
         return <div>
-            <div>Name: {picture.name}</div>
-            <div>X:<InputTranslateX picture={picture}/></div>
-            <div>Y:<InputTranslateY picture={picture}/></div>
-            <div>Scale:<InputScale picture={picture}/></div>
-            <div>Rotate:<InputRotate picture={picture}/></div>
-            <div>Z: {picture.zIndex}</div>
+            <div>Name: {placement.name}</div>
+            <div>X:<InputTranslateX placement={placement}/></div>
+            <div>Y:<InputTranslateY placement={placement}/></div>
+            <div>Scale:<InputScale placement={placement}/></div>
+            <div>Rotate:<InputRotate placement={placement}/></div>
+            <div>Z: {placement.zIndex}</div>
             <div>
                 <button onClick={this.plus.bind(this)}>+</button>
                 <button onClick={this.minus.bind(this)}>-</button>
@@ -219,14 +219,14 @@ class Display extends React.Component {
                 break;
 
             case Constants.layout.SIZE:
-                output = <div id="display">
-                    <Size size = {this.props.store.data.size} />
+                output = <div className="control_container" id="display">
+                    <Size store = {this.props.store} />
                 </div>
                 break;
 
             default:
                 if (this.props.store.display.which >= 0) {
-                    output = <div id="display">
+                    output = <div className="control_container" id="display">
                         <PictureData store ={this.props.store} />
                     </div>
                 }
@@ -234,7 +234,7 @@ class Display extends React.Component {
 
         return output;
     }
-};
+}
 
 class After extends React.Component{
     render() {
@@ -243,18 +243,36 @@ class After extends React.Component{
             verticalAlign:  "top"
         };
 
-        return <div className="control-container" style={style}>
+        return <div className="control_container" style={style}>
             <Select store = {this.props.store}/>
             <Display store = {this.props.store} />
         </div>
     }
+}
+
+const setup = store => {
+    if (!store.scene) {
+        store.scene = new Scene(Constants.MAX_WIDTH, Constants.MAX_HEIGHT, []);
+    }
 };
 
 export default class Layout extends React.Component{
+    componentWillMount() {
+        setup(this.props.store);
+    }
+
+    componentWillUpdate() {
+        setup(this.props.store);
+    }
+
     componentDidMount() {
         paintAll(this.props.store);
     }
 
+    componentDidUpdate() {
+        paintAll(this.props.store);
+    }
+    
     render() {
         return <div id="container">
             <Edit store = {this.props.store} />

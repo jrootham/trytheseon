@@ -69,8 +69,8 @@ const Orient = React.createClass({
         let localStore = this.props.store;
         createImageBitmap(canvas).then(function(image) {
             localPicture.image = image;
-            localStore.display.which = localStore.data.pictures.length;
-            localStore.data.pictures.push(localPicture.copy());
+            localStore.display.which = localStore.scene.placements.length;
+            localStore.scene.placements.push(localPicture.copy());
             hide("orient");
             show("features");
         });

@@ -12,6 +12,7 @@ const DASH = 10;
 
 export const makeGoBack = store => {
     return () => {
+        store.display.error = undefined;
         store.display.page = store.display.previous;
         redraw();
     }
@@ -75,7 +76,7 @@ export const drawBox = (context, left, top, size) => {
 
 export const drawBoxList = (context, boxList) => {
     boxList.forEach(element => {
-        drawBox(context, element.left, element.top, element.size);
+        drawBox(context, element.left, element.top, element.scene);
     });
 }
 
@@ -94,7 +95,7 @@ export const inRect = (point, left, top, width, height) => {
 export const inBoxList = (point, boxList) => {
     return boxList.reduce((previous, element) => {
         return previous ||
-            inBox(point, element.left, element.top, element.size);
+            inBox(point, element.left, element.top, element.scene);
     }, false);
 }
 

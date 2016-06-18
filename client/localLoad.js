@@ -21,15 +21,9 @@ export default class LocalLoad extends React.Component {
             if (fileList.length > 0) {
                 let file = fileList[0];
                 createImageBitmap(file).then(image => {
-                    let pictureArray = store.data.pictures;
-                    let localPicture = new Picture(image);
-                    localPicture.name = `Picture ${pictureArray.length}`;
-                    localPicture.zIndex = pictureArray.length;
+                    store.picture = new Picture(image);
+                    store.picture.name = `Picture`;
 
-                    store.display.which = pictureArray.length;
-                    pictureArray.push(localPicture);
-
-                    store.display.picture.zoom = 1;
                     store.display.picture.layout = Constants.picture.NOTHING;
 
                     store.display.page = Constants.page.EDIT_PICTURE;

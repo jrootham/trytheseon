@@ -84,9 +84,15 @@ class Before extends React.Component{
 
 
     loadServer() {
-        let store = this.props.store;
-        store.display.page = Constants.page.SERVER_LOAD;
-        redraw();
+        const list = persistence.getPictureList();
+        list.then(result => {
+            let store = this.props.store;
+            
+            store.display.pictureList = result;
+            store.display.page = Constants.page.SERVER_LOAD;
+            redraw();
+        });
+        
     }
 
     render() {
@@ -96,8 +102,8 @@ class Before extends React.Component{
             border:     "solid 1px black"
         }
 
-        const signOnOffMsg = this.props.store.signon.on ? "Sign Off" : "Sign On";
-
+        const signOnOffMsg = this.props.store.signon.on ? "Sign Off" : "Sign On/Register";
+        
         return <div style={style}>
             <div><button onClick={this.signOnOff.bind(this)}>{signOnOffMsg}</button></div>
             <div><button onClick={this.loadLocal.bind(this)}>Load Local Picture</button></div>
@@ -149,15 +155,15 @@ class Container extends React.Component {
                 break;
 
             case Constants.page.EDIT_PICTURE:
+                paint.setPaintFn(paintAllPicture);
                 this.props.store.display.previous = Constants.page.EDIT_PICTURE;
                 contents = <EditPicture store={this.props.store}/>
-                paint.setPaintFn(paintAllPicture);
                 break;
 
             case Constants.page.LAYOUT:
+                paint.setPaintFn(paintAll);
                 this.props.store.display.previous = Constants.page.LAYOUT;
                 contents = <Layout store={this.props.store}/>
-                paint.setPaintFn(paintAll);
                 break;
 
             default: {
@@ -170,7 +176,19 @@ class Container extends React.Component {
             {contents}
         </div>
     }
-};
+}
+
+class Invisible extends React.Component {
+    render(){
+        const invisible = {
+            display:    "none"
+        };
+
+        return <div style={invisible}>
+            <canvas id="invisible">Not supported</canvas>
+        </div>
+    }
+}
 
 class Parent extends React.Component {
     render() {
@@ -179,9 +197,10 @@ class Parent extends React.Component {
             <Title store = {this.props.store}/>
             <Before store = {this.props.store} />
             <Container store={this.props.store}/>
+            <Invisible />
         </div>
     }
-};
+}
 
 export const redraw = function() {
     ReactDOM.render(<Parent store={store}/>, document.getElementById('bigbox'));

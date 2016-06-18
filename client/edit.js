@@ -79,9 +79,9 @@ export default class Edit extends React.Component{
     }
 
     render() {
-        let size = this.props.store.data.size;
-        let width = size.width;
-        let height = size.height;
+        const scene = this.props.store.scene;
+        const width = scene.width;
+        const height = scene.height;
 
         const style = {
             display:  "inline-block",
@@ -111,23 +111,24 @@ export default class Edit extends React.Component{
     }
 };
 
-export const getSizePoints = size => {
-    let left = size.width - SIZE_RECT;
-    let top = size.height - SIZE_RECT;
+export const getSizePoints = (width, height) => {
+    let left = width - SIZE_RECT;
+    let top = height - SIZE_RECT;
     let midBottom = Math.round(left / 2);
     let midSide = Math.round(top / 2);
 
     return [left, top, midBottom, midSide];
 };
 
-export const getPicturePoints = picture => {
-    const boxSize = PICTURE_RECT / (picture.scale * picture.factor);
+export const getPicturePoints = placement => {
+    const picture = placement.picture;
+    const boxSize = PICTURE_RECT / (placement.scale * placement.factor);
     const width = picture.clipWidth;
     const height = picture.clipHeight;
 
-    let left = width - boxSize;
-    let top = height - boxSize;
-    let midSide = picture.centroidY - picture.clipY - Math.round(boxSize / 2);
+    const left = width - boxSize;
+    const top = height - boxSize;
+    const midSide = picture.centroidY - picture.clipY - Math.round(boxSize / 2);
 
     return [left, top, midSide];
 };

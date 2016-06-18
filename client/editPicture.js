@@ -9,12 +9,13 @@ import React from "react";
 import ReactDOM from "react-dom";
 import RadioGroup from "react-radio";
 
-import {Constants, setFactor} from "./data"
+import {Constants, setFactor,Scene,Placement} from "./data"
 import {redraw} from "./index";
-import {inBox, inRect, getPicturePoints ,PICTURE_RECT} from "./edit";
+import {inBox, inRect ,PICTURE_RECT} from "./edit";
 import {expand, left, right, flip} from "./imageProcess";
 import {transparentColour, transparentEdges, transparentSpeckles, reset} from "./imageProcess";
 import {dashedLine, drawBoxList, inBoxList} from "./common";
+import persistence from "./persistence";
 
 const BUFFER = 15;
 const TARGET = 30;
@@ -70,10 +71,9 @@ class Zoom extends React.Component {
 
 const makeTransform = (store, transform) => {
     return () => {
-        let picture = store.data.pictures[store.display.which];
+        const picture = store.picture;
         transform(picture.image).then(image =>{
             picture.setImage(image);
-            picture.setFactor();
             redraw();
         });
         ;
@@ -112,24 +112,34 @@ const makeFlood = store => {
 
 const makeEdges = store => {
     return () => {
-        transparentEdges(store.data.pictures[store.display.which]);
+        transparentEdges(store.picture);
     }
 }
 
 const makeDespeckle = store => {
     return () => {
-        transparentSpeckles(store.data.pictures[store.display.which]);
+        transparentSpeckles(store.picture);
     }
 }
 
 const makeReset = store => {
     return () => {
-        reset(store.data.pictures[store.display.which]);
+        reset(store.picture);
     }
 }
 
 const makeDone = store => {
     return () => {
+        const placement = new Placement(store.picture);
+        if (store.scene) {
+            store.scene.add(placement);
+            store.display.which = store.scene.placements.length - 1;
+        }
+        else {
+            const scene = new Scene(Constants.MAX_WIDTH, Constants.MAX_HEIGHT, [placement]);
+            store.scene = scene;
+            store.display.which = store.scene.placements.length - 1;
+        }
         store.display.page = Constants.page.LAYOUT;
         redraw();
     }
@@ -213,24 +223,86 @@ class Values extends React.Component {
         let result = <div></div>
 
         const store = this.props.store;
-        const index = store.display.which;
 
-        if (index >= 0) {
-            const picture = store.data.pictures[index];
-            result = <div>
-                <div>Values</div>
-                <div>Left:{picture.clipX}</div>
-                <div>Top:{picture.clipY}</div>
-                <div>Wdith:{picture.clipWidth}</div>
-                <div>Height:{picture.clipHeight}</div>
-                <div>Centroid X:{picture.centroidX}</div>
-                <div>Centroid Y:{picture.centroidY}</div>
-            </div>
-        }
+        const picture = store.picture;
+        result = <div className="control_container">
+            <div>Values</div>
+            <div>Left:{picture.clipX}</div>
+            <div>Top:{picture.clipY}</div>
+            <div>Wdith:{picture.clipWidth}</div>
+            <div>Height:{picture.clipHeight}</div>
+            <div>Centroid X:{picture.centroidX}</div>
+            <div>Centroid Y:{picture.centroidY}</div>
+        </div>
 
         return result;
     }
 }
+
+const handleError = (store, error) => {
+    store.display.error = error.message;
+    store.display.page = Constants.page.START;
+    redraw();
+};
+
+const makePictureURL = picture => {
+    let canvas = document.getElementById("invisible");
+    let context = canvas.getContext("2d");
+
+    let image = picture.image;
+
+    canvas.width = image.width;
+    canvas.height = image.height;
+
+    context.drawImage(image, 0, 0, image.width, image.height);
+
+    const result = canvas.toDataURL();
+    return `"${result}"`;
+};
+
+const convert = picture => {
+    return {
+        name: `"${picture.name}"`,
+        clipX: picture.clipX,
+        clipY: picture.clipY,
+        clipWidth: picture.clipWidth,
+        clipHeight: picture.clipHeight,
+        centroidX: picture.centroidX,
+        centroidY: picture.centroidY,
+        image: makePictureURL(picture)
+    }
+};
+
+
+const makeSavePicture = store => {
+    const savePicture = () => {
+
+        if (store.picture.id === 0) {
+            const promise = persistence.savePicture(convert(store.picture));
+            promise.then(result => {
+                if ("errors" in result) {
+                    handleError(store, result.errors[0]);
+                }
+                else {
+                    store.display.error = undefined;
+                    store.picture.id = result.data.savePicture.id;
+                }
+            });
+        }
+        else {
+            const promise = persistence.updatePicture(store.picture);
+            promise.then(result => {
+                store.display.error = undefined;
+
+                if ("errors" in result) {
+                    handleError(store, result.errors[0]);
+                }
+            });
+        }
+    };
+
+    return savePicture;
+};
 
 class Features extends React.Component {
     render() {
@@ -239,10 +311,13 @@ class Features extends React.Component {
             <Orient store={this.props.store}/>
             <Transparent store={this.props.store}/>
             <Overlay store={this.props.store}/>
+            <Values store={this.props.store}/>
             <div>
                 <button onClick={makeDone(this.props.store)}>Done</button>
             </div>
-            <Values store={this.props.store}/>
+            <div>
+                <button onClick={makeSavePicture(this.props.store)}>Save</button>
+            </div>
         </div>
     }
 }
@@ -269,7 +344,7 @@ export default class EditPicture extends React.Component {
 
     getPictureData() {
         const store = this.props.store;
-        const picture = store.data.pictures[store.display.which];
+        const picture = store.picture;
         const [x, y] = this.fixXY(this.point);
 
         const zoom = store.display.picture.zoom;
@@ -313,7 +388,6 @@ export default class EditPicture extends React.Component {
 
         picture.clipX = newClipX;
         picture.clipWidth = newClipWidth;
-        picture.setFactor();
 
         if (this.continue) {
             paintAllPicture(store);
@@ -332,7 +406,6 @@ export default class EditPicture extends React.Component {
 
         picture.clipX = newClipX;
         picture.clipWidth = newClipWidth;
-        picture.setFactor();
 
         if (this.continue) {
             paintAllPicture(store);
@@ -352,7 +425,6 @@ export default class EditPicture extends React.Component {
 
         picture.clipY = newClipY;
         picture.clipHeight = newClipHeight;
-        picture.setFactor();
 
         if (this.continue) {
             paintAllPicture(store);
@@ -372,7 +444,6 @@ export default class EditPicture extends React.Component {
 
         picture.clipY = newClipY;
         picture.clipHeight = newClipHeight;
-        picture.setFactor();
 
         if (this.continue) {
             paintAllPicture(store);
@@ -495,10 +566,6 @@ export default class EditPicture extends React.Component {
 
         };
 
-        const invisible = {
-            display:    "none"
-        };
-
         const controllersStyle = {
             display:        "inline-block",
             verticalAlign:  "top"
@@ -521,9 +588,6 @@ export default class EditPicture extends React.Component {
                 >
                     Canvas not supported
                 </canvas>
-                <div style={invisible}>
-                    <canvas id="invisible">Not supported</canvas>
-                </div>
             </div>
             <div style={controllersStyle} className="control_container">
                 <Features store={this.props.store} />
@@ -534,10 +598,14 @@ export default class EditPicture extends React.Component {
     componentDidMount() {
         paintAllPicture(this.props.store);
     }
+
+    componentDidUpdate(prevProps, prevState) {
+        paintAllPicture(this.props.store);
+    }
 }
 
 export const paintAllPicture = store => {
-    if (store.display.which >= 0) {
+    if (store.picture) {
         paintPicture(store);
         paintOverlay(store);
     }
@@ -562,7 +630,7 @@ const getInfo = store => {
     let canvas = document.getElementById("builder-canvas");
     let context = canvas.getContext("2d");
 
-    let picture = store.data.pictures[store.display.which];
+    let picture = store.picture;
     let image = picture.image;
     let zoom = store.display.picture.zoom;
     let width = image.width * zoom;
@@ -573,15 +641,15 @@ const getInfo = store => {
 
 const makeCentroidXList = (x, height) => {
     return [
-        {left:x - TARGET / 2, top:1, size:TARGET},
-        {left:x - TARGET / 2, top:height - (TARGET +1), size:TARGET}
+        {left:x - TARGET / 2, top:1, scene:TARGET},
+        {left:x - TARGET / 2, top:height - (TARGET +1), scene:TARGET}
     ];
 }
 
 const makeCentroidYList = (y, width) => {
     return [
-        {left:1, top:y - TARGET / 2, size:TARGET},
-        {left:width - (TARGET + 1), top:y - TARGET / 2, size:TARGET}
+        {left:1, top:y - TARGET / 2, scene:TARGET},
+        {left:width - (TARGET + 1), top:y - TARGET / 2, scene:TARGET}
     ];
 }
 
@@ -603,33 +671,33 @@ const paintCentroid = store => {
 
 const makeClipLeftList = (x, height) => {
     return [
-        {left:x - TARGET / 2, top:1, size:TARGET},
-        {left:x - TARGET / 2, top:(height - TARGET) / 2, size:TARGET},
-        {left:x - TARGET / 2, top:height - (TARGET + 1), size:TARGET}
+        {left:x - TARGET / 2, top:1, scene:TARGET},
+        {left:x - TARGET / 2, top:(height - TARGET) / 2, scene:TARGET},
+        {left:x - TARGET / 2, top:height - (TARGET + 1), scene:TARGET}
     ];
 }
 
 const makeClipRightList = (x, height) => {
     return [
-        {left: x - TARGET / 2, top: 1, size: TARGET},
-        {left: x - TARGET / 2, top: (height - TARGET) / 2, size: TARGET},
-        {left: x - TARGET / 2, top: height - (TARGET + 1), size: TARGET}
+        {left: x - TARGET / 2, top: 1, scene: TARGET},
+        {left: x - TARGET / 2, top: (height - TARGET) / 2, scene: TARGET},
+        {left: x - TARGET / 2, top: height - (TARGET + 1), scene: TARGET}
     ];
 }
 
 const makeClipTopList = (y, width) => {
     return [
-        {left:1, top:y - TARGET / 2, size:TARGET},
-        {left:(width - TARGET) / 2, top:y - TARGET / 2, size:TARGET},
-        {left:width - (TARGET + 1), top:y - TARGET / 2, size:TARGET}
+        {left:1, top:y - TARGET / 2, scene:TARGET},
+        {left:(width - TARGET) / 2, top:y - TARGET / 2, scene:TARGET},
+        {left:width - (TARGET + 1), top:y - TARGET / 2, scene:TARGET}
     ];
 }
 
 const makeClipBottomList = (y, width) => {
     return [
-        {left: 1, top: y - TARGET / 2, size: TARGET},
-        {left: (width - TARGET) / 2, top: y - TARGET / 2, size: TARGET},
-        {left: width - (TARGET + 1), top: y - TARGET / 2, size: TARGET}
+        {left: 1, top: y - TARGET / 2, scene: TARGET},
+        {left: (width - TARGET) / 2, top: y - TARGET / 2, scene: TARGET},
+        {left: width - (TARGET + 1), top: y - TARGET / 2, scene: TARGET}
     ];
 }
 
@@ -667,4 +735,5 @@ const paintPicture = store => {
 
     context.drawImage(image, 0, 0, image.width, image.height,
         0, 0, width, height);
-}
+};
+

@@ -14,14 +14,15 @@ const pictureOverlay = store => {
     const canvas = document.getElementById("canvas");
     const context = canvas.getContext("2d");
     context.save();
-    const element = store.data.pictures[store.display.which];
+    const element = store.scene.placements[store.display.which];
+    const picture = element.picture;
 
     const pictureRect = PICTURE_RECT / element.scale;
 
-    const width = element.clipWidth * element.factor;
-    const height = element.clipHeight * element.factor;
-    const centroidX = (element.centroidX - element.clipX) * element.factor;
-    const centroidY = (element.centroidY - element.clipY) * element.factor;
+    const width = picture.clipWidth * element.factor;
+    const height = picture.clipHeight * element.factor;
+    const centroidX = (picture.centroidX - picture.clipX) * element.factor;
+    const centroidY = (picture.centroidY - picture.clipY) * element.factor;
 
     transform(context, element);
     dashedBox(context, width, height);
@@ -40,7 +41,7 @@ const sizeOverlay = store => {
     const context = canvas.getContext("2d");
     context.save();
 
-    const [left, top, midBottom, midSide] = getSizePoints(store.data.size);
+    const [left, top, midBottom, midSide] = getSizePoints(store.scene.width, store.scene.height);
 
     drawBox(context, left, top, SIZE_RECT);
     drawBox(context, left, midSide, SIZE_RECT);
@@ -49,20 +50,22 @@ const sizeOverlay = store => {
     context.restore();
 };
 
-const transform = (context, picture) => {
-    const centroidX = (picture.centroidX - picture.clipX) * picture.factor;
-    const centroidY = (picture.centroidY - picture.clipY) * picture.factor;
-    context.translate(picture.translateX, picture.translateY);
+const transform = (context, placement) => {
+    const picture = placement.picture;
+
+    const centroidX = (picture.centroidX - picture.clipX) * placement.factor;
+    const centroidY = (picture.centroidY - picture.clipY) * placement.factor;
+    context.translate(placement.translateX, placement.translateY);
     context.translate(centroidX, centroidY);
-    context.rotate(picture.rotate);
-    context.scale(picture.scale, picture.scale);
+    context.rotate(placement.rotate);
+    context.scale(placement.scale, placement.scale);
     context.translate(-centroidX, -centroidY);
 };
 
 const paint = store => {
     const canvas = document.getElementById("canvas");
-    const width = store.data.size.width;
-    const height = store.data.size.height;
+    const width = store.scene.width;
+    const height = store.scene.height;
 
     canvas.width = width;
     canvas.height = height;
@@ -73,16 +76,17 @@ const paint = store => {
     context.fillStyle = "white";
     context.fillRect(0, 0, width, height);
 
-    for (let zOrder = 0 ; zOrder < store.data.pictures.length ; zOrder++) {
-        store.data.pictures.forEach((element, index) =>{
+    for (let zOrder = 0 ; zOrder < store.scene.placements.length ; zOrder++) {
+        store.scene.placements.forEach((element, index) =>{
             if (element.zIndex === zOrder) {
                 context.save();
+                const picture = element.picture;
                 transform(context, element);
-                const sizeWidth = element.factor * element.clipWidth;
-                const sizeHeight = element.factor * element.clipHeight;
+                const sizeWidth = element.factor * picture.clipWidth;
+                const sizeHeight = element.factor * picture.clipHeight;
 
-                context.drawImage(element.image, element.clipX, element.clipY,
-                    element.clipWidth, element.clipHeight, 0, 0, sizeWidth, sizeHeight);
+                context.drawImage(picture.image, picture.clipX, picture.clipY,
+                    picture.clipWidth, picture.clipHeight, 0, 0, sizeWidth, sizeHeight);
                 context.restore();
             }
         });

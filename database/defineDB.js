@@ -30,3 +30,87 @@ export const User = connect.define("user", {
         allowNull:false
     }
 });
+
+export const Picture = connect.define("picture", {
+    owner: {
+        type: Sequelize.INTEGER,
+        allowNull:false
+    },
+    name: {
+        type: Sequelize.STRING,
+        allowNull:false
+    },
+    placement: {
+        type: Sequelize.INTEGER
+    },
+    image: {
+        type: Sequelize.TEXT,
+        allowNull: false
+    },
+    clipX: {
+        type: Sequelize.INTEGER,
+        allowNull:false
+    },
+    clipY: {
+        type: Sequelize.INTEGER,
+        allowNull:false
+    },
+    clipHeight: {
+        type: Sequelize.INTEGER,
+        allowNull:false
+    },
+    clipWidth: {
+        type: Sequelize.INTEGER,
+        allowNull:false
+    },
+    centroidX: {
+        type: Sequelize.INTEGER,
+        allowNull:false
+    },
+    centroidY: {
+        type: Sequelize.INTEGER,
+        allowNull:false
+    }
+});
+
+export const Placement = connect.define("placement", {
+    picture: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+    },
+    scene: {
+        type: Sequelize.INTEGER
+    },
+    x: {
+        type: Sequelize.INTEGER,
+        allowNull:false
+    },
+    y: {
+        type: Sequelize.INTEGER,
+        allowNull:false
+    },
+    scale: {
+        type: Sequelize.FLOAT,
+        allowNull:false
+    },
+    rotate: {
+        type: Sequelize.FLOAT,
+        allowNull:false
+    }
+});
+
+export const Scene = connect.define("scene", {
+    name: {
+        type: Sequelize.STRING,
+        allowNull:false
+    },
+    height: {
+        type: Sequelize.INTEGER,
+        allowNull:false
+    },
+    width: {
+        type: Sequelize.INTEGER,
+        allowNull:false
+    }
+});
+

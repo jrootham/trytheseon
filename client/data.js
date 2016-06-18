@@ -41,19 +41,14 @@ export let store = {
         name:   ""
     },
 
-    data: {
-        size: {
-            width:              Constants.MAX_WIDTH,
-            height:             Constants.MAX_HEIGHT
-        },
-        pictures:               []
-    },
+    scene: undefined,
+    picture: undefined,
 
     display : {
         previous:               Constants.page.START,
         page:                   Constants.page.START,
 
-        error:                  "",
+        error:                  undefined,
 
         which:                  Constants.layout.NOTHING,
 
@@ -61,23 +56,77 @@ export let store = {
             zoom:               1,
             colourTransparent:  false,
             layout:             Constants.picture.NOTHING
-        }
+        },
+        
+        pictureList: []
     }
 };
 
-export class Picture {
-    constructor(image) {
-        this.image = image;
+export class Scene {
+    constructor(width, height, placements) {
+        this.id = 0;
+        this.width = width;
+        this.height = height;
+        this.placements = placements;
+    }
+
+    add(placement) {
+        placement.zIndex = this.placements.length
+        this.placements.push(placement);
+    }
+}
+
+export class Placement {
+    constructor(picture) {
+        this.id = 0;
+        this.name = picture.name;
+        this.picture = picture;
         this.rotate = 0;
         this.translateX = 0;
         this.translateY = 0;
         this.scale = 1;
         this.zIndex = 0;
+        this.setFactor();
+    }
+
+    setFactor() {
+        const width = Constants.MAX_WIDTH / this.picture.clipWidth;
+        const height = Constants.MAX_HEIGHT / this.picture.clipHeight;
+        this.factor = Math.min(1.0, Math.min(width, height));
+    }
+
+    // copy is used to create a temporary anchor for direct manipulation
+
+    copy() {
+        const other = new Placement(this.picture);
+        other.name = this.name;  // Only for completeness
+        other.rotate = this.rotate;
+        other.translateX = this.translateX;
+        other.translateY = this.translateY;
+        other.scale = this.scale;
+        other.zIndex = this.zIndex;
+
+        return other;
+    }
+}
+
+export class PictureLabel {
+    constructor(id, name) {
+        this.id = id;
+        this.name = name;
+    }    
+}
+
+export class Picture {
+    constructor(image) {
+        this.id = 0;
+        this.name = "Picture";
+        this.owned = true;
+        this.image = image;
         this.clipX = 0;
         this.clipY = 0;
         this.setPoints();
         this.name = "";
-        this.setFactor();
     }
 
     setPoints() {
@@ -92,15 +141,14 @@ export class Picture {
         this.setPoints();
     }
 
-    setFactor() {
-        const width = Constants.MAX_WIDTH / this.clipWidth;
-        const height = Constants.MAX_HEIGHT / this.clipHeight;
-        this.factor = Math.min(1.0, Math.min(width, height));
-    }
+    // Copy a picture into a scene (attached to a placement
+    // and with a new id and owner
 
     copy() {
         let other = new Picture(this.image);
 
+        other.id = 0;
+        other.owner = 0;
         other.rotate = this.rotate;
         other.translateX = this.translateX;
         other.translateY = this.translateY;

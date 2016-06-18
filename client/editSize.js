@@ -15,24 +15,24 @@ import {inBox} from "./common";
 export const EditSize = {
     start: function (parent) {
         this.parent = parent;
-        this.size = this.parent.props.store.data.size;
+        this.scene = this.parent.props.store.scene;
 
-        let [left, top, midBottom, midSide] = getSizePoints(this.size);
+        let [left, top, midBottom, midSide] = getSizePoints(this.scene.width, this.scene.height);
 
         if (inBox(this.parent.start, left, top, SIZE_RECT)) {
             this.parent.continue = true;
-            this.startWidth = this.size.width;
-            this.startHeight = this.size.height;
+            this.startWidth = this.scene.width;
+            this.startHeight = this.scene.height;
             window.requestAnimationFrame(setSize.bind(this));
         }
         else if (inBox(this.parent.start, left, midSide, SIZE_RECT)) {
             this.parent.continue = true;
-            this.startWidth = this.size.width;
+            this.startWidth = this.scene.width;
             window.requestAnimationFrame(setWidth.bind(this));
         }
         else if (inBox(this.parent.start, midBottom, top, SIZE_RECT)) {
             this.parent.continue = true;
-            this.startHeight = this.size.height;
+            this.startHeight = this.scene.height;
             window.requestAnimationFrame(setHeight.bind(this));
         }
     }
@@ -57,8 +57,8 @@ function setSize (timestamp) {
     scale = Math.min(Constants.MAX_HEIGHT / this.startHeight, scale);
     scale = Math.max(Constants.MIN_HEIGHT / this.startHeight, scale);
 
-    this.parent.props.store.data.size.width = Math.round(this.startWidth * scale);
-    this.parent.props.store.data.size.height = Math.round(this.startHeight * scale);
+    this.parent.props.store.scene.width = Math.round(this.startWidth * scale);
+    this.parent.props.store.scene.height = Math.round(this.startHeight * scale);
 
     if (this.parent.continue) {
         paintAll(this.parent.props.store);
@@ -75,7 +75,7 @@ function setWidth(timestamp) {
 
     width = Math.min(Constants.MAX_WIDTH, width);
     width = Math.max(Constants.MIN_WIDTH, width);
-    this.parent.props.store.data.size.width = width;
+    this.parent.props.store.scene.width = width;
     if (this.parent.continue) {
         paintAll(this.parent.props.store);
         window.requestAnimationFrame(setWidth.bind(this));
@@ -90,7 +90,7 @@ function setHeight(timestamp) {
     let height = this.startHeight + (y - this.parent.start.y);
     height = Math.min(Constants.MAX_HEIGHT, height);
     height = Math.max(Constants.MIN_HEIGHT, height);
-    this.parent.props.store.data.size.height = height;
+    this.parent.props.store.scene.height = height;
     if (this.parent.continue) {
         paintAll(this.parent.props.store);
         window.requestAnimationFrame(setHeight.bind(this));

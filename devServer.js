@@ -7,6 +7,7 @@
  */
 import path from "path";
 import express from "express";
+import bodyParser from "body-parser";
 import webpack from "webpack";
 import config from "./webpack.development.config.js";
 
@@ -22,6 +23,8 @@ app.use(require("webpack-dev-middleware")(compiler, {
 }));
 
 app.use(require("webpack-hot-middleware")(compiler));
+
+app.use(bodyParser.text({limit: "50mb", type:"application/graphql"}));
 
 useSession(app);
 useGraphQL(app);

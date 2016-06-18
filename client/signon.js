@@ -72,7 +72,6 @@ export default class Signon extends React.Component {
 
         const signonError = display.page === Constants.page.SIGNON ? error : "";
         const registerError = display.page === Constants.page.REGISTER ? error : "";
-        console.log("register error", registerError);
 
         return <div>
             <div>

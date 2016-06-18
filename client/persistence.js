@@ -65,6 +65,46 @@ class Persistence {
         const base = "mutation signoffUser";
         return this.send(`${base}{signoffUser${credentials} ${values}}`);
     }
+    
+    makePictureData(picture) {
+        const name = `name:"${picture.name}"`;
+        const clipX = `clipX:${picture.clipX}`;
+        const clipY = `clipY:${picture.clipY}`;
+        const clipWidth = `clipWidth:${picture.clipWidth}`;
+        const clipHeight = `clipHeight:${picture.clipHeight}`;
+        const centroidX = `centroidX:${picture.centroidX}`;
+        const centroidY = `centroidY:${picture.centroidY}`;
+        
+        const first =`${name} ${clipX} ${clipY} ${clipHeight} ${clipWidth} `;
+        const second = `${centroidX} ${centroidY}`;
+        return `${first} ${second}`;
+    }
+    
+    savePicture(picture) {
+        const pictureData =`(image:${picture.image} ${this.makePictureData(picture)})`;
+        const values = "{id}";
+        const base = "mutation savePicture";
+        return this.send(`${base} {savePicture ${pictureData} ${values}}`);
+    }
+
+    updatePicture(picture) {
+        const pictureData = `(${this.makePictureData(picture)} id:${picture.id})`
+        const values = "{id}";
+        const base = "mutation updatePicture";
+        return this.send(`${base} {updatePicture${pictureData} ${values}}`);
+    }
+
+    getPictureList() {
+        const message = "query getPictureList{getPictureList {id name}}";
+        return this.send(message);
+    }
+
+    getPicture(id) {
+        const which = `(id:${id})`;
+        const list = "id owned image name clipX clipY clipWidth clipHeight centroidX centroidY";
+        const message = `query getPicture{getPicture ${which} {${list}}}`;
+        return this.send(message);
+    }
 }
 
 const persistence = new Persistence();
