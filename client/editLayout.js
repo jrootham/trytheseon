@@ -15,22 +15,22 @@ export const EditLayout = {
     start(parent) {
         this.parent = parent;
         let index = this.parent.props.store.display.which;
-        this.placement = this.parent.props.store.scene.placements[index];
+        this.scenePicture = this.parent.props.store.scene.scenePictures[index];
 
-        let pictureWidth = this.placement.picture.clipWidth;
-        let pictureHeight = this.placement.picture.clipHeight;
+        let pictureWidth = this.scenePicture.picture.clipWidth;
+        let pictureHeight = this.scenePicture.picture.clipHeight;
 
-        let [left, top, midSide] = getPicturePoints(this.placement);
+        let [left, top, midSide] = getPicturePoints(this.scenePicture);
 
-        this.constant = this.placement.copy();
+        this.constant = this.scenePicture.copy();
 
         this.startPoint = map(this.constant, this.parent.start);
 
-        const picture = this.placement.picture;
+        const picture = this.scenePicture.picture;
         const centroidX = picture.centroidX - picture.clipX;
         const centroidY = picture.centroidY - picture.clipY;
 
-        let boxSize = PICTURE_RECT / (this.placement.scale * this.placement.factor);
+        let boxSize = PICTURE_RECT / (this.scenePicture.scale * this.scenePicture.factor);
 
         if (inBox(this.startPoint, left, top, boxSize)
             || inBox(this.startPoint, left, 0, boxSize)) {
@@ -39,7 +39,7 @@ export const EditLayout = {
             let dy = (this.startPoint.y - centroidY);
 
             this.startLength = dist(dx, dy);
-            this.startScale = this.placement.scale;
+            this.startScale = this.scenePicture.scale;
             window.requestAnimationFrame(setScale.bind(this));
         }
         else if (inBox(this.startPoint, 0, midSide, boxSize)) {
@@ -51,27 +51,27 @@ export const EditLayout = {
         }
         else if (inRect(this.startPoint, 0, 0, pictureWidth, pictureHeight)){
             this.parent.continue = true;
-            this.startX = this.placement.translateX;
-            this.startY = this.placement.translateY;
+            this.startX = this.scenePicture.translateX;
+            this.startY = this.scenePicture.translateY;
             window.requestAnimationFrame(setTranslate.bind(this));
         }
     }
 }
 
-const map = (placement, point) => {
-    let x = point.x / placement.factor;
-    let y = point.y / placement.factor;
+const map = (scenePicture, point) => {
+    let x = point.x / scenePicture.factor;
+    let y = point.y / scenePicture.factor;
 
-    const centroidX = placement.picture.centroidX - placement.picture.clipX;
-    const centroidY = placement.picture.centroidY - placement.picture.clipY;
+    const centroidX = scenePicture.picture.centroidX - scenePicture.picture.clipX;
+    const centroidY = scenePicture.picture.centroidY - scenePicture.picture.clipY;
 
-    x -= placement.translateX / placement.factor;
-    y -= placement.translateY / placement.factor;
+    x -= scenePicture.translateX / scenePicture.factor;
+    y -= scenePicture.translateY / scenePicture.factor;
 
     x -= centroidX;
     y -= centroidY;
 
-    const minusRotate = - placement.rotate;
+    const minusRotate = - scenePicture.rotate;
 
     let xPrime = x * Math.cos(minusRotate) - y * Math.sin(minusRotate);
     let yPrime = x * Math.sin(minusRotate) + y * Math.cos(minusRotate);
@@ -79,8 +79,8 @@ const map = (placement, point) => {
     x = xPrime;
     y = yPrime;
 
-    x /= placement.scale;
-    y /= placement.scale;
+    x /= scenePicture.scale;
+    y /= scenePicture.scale;
 
     x += centroidX;
     y += centroidY;
@@ -94,7 +94,7 @@ function setScale(timestamp) {
     const [x, y] = this.parent.fixXY(this.parent.point);
     const point = map(this.constant, {x:x, y:y});
 
-    const picture = this.placement.picture;
+    const picture = this.scenePicture.picture;
     const dx = point.x - (picture.centroidX - picture.clipX);
     const dy = point.y - (picture.centroidY - picture.clipY);
 
@@ -102,7 +102,7 @@ function setScale(timestamp) {
 
     const newScale = this.constant.scale * (currentLength / this.startLength);
 
-    this.placement.scale = Math.max(0.1, Math.min(1.0, newScale));
+    this.scenePicture.scale = Math.max(0.1, Math.min(1.0, newScale));
 
     if (this.parent.continue) {
         paintAll(this.parent.props.store);
@@ -116,7 +116,7 @@ function setScale(timestamp) {
 function setRotate(timestamp) {
     let [x, y] = this.parent.fixXY(this.parent.point);
     let point = map(this.constant, {x:x, y:y});
-    const picture = this.placement.picture;
+    const picture = this.scenePicture.picture;
     const dx = point.x - (picture.centroidX - picture.clipX);
     const dy = point.y - (picture.centroidY - picture.clipY);
 
@@ -124,7 +124,7 @@ function setRotate(timestamp) {
 
     let newRotate = this.constant.rotate + deltaRotate;
     const MAX_ROTATE = 2 * Math.PI;
-    this.placement.rotate = (newRotate + MAX_ROTATE) % MAX_ROTATE;
+    this.scenePicture.rotate = (newRotate + MAX_ROTATE) % MAX_ROTATE;
 
     if (this.parent.continue) {
         paintAll(this.parent.props.store);
@@ -142,8 +142,8 @@ function setTranslate(timestamp) {
     let dx = x - this.parent.start.x;
     let dy = y - this.parent.start.y;
 
-    this.placement.translateX = this.constant.translateX + dx;
-    this.placement.translateY = this.constant.translateY + dy;
+    this.scenePicture.translateX = this.constant.translateX + dx;
+    this.scenePicture.translateY = this.constant.translateY + dy;
 
     if (this.parent.continue) {
         paintAll(this.parent.props.store);

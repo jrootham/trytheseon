@@ -9,7 +9,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import RadioGroup from "react-radio";
 
-import {Constants, setFactor,Scene,Placement} from "./data"
+import {Constants, setFactor,Scene,ScenePicture} from "./data"
 import {redraw} from "./index";
 import {inBox, inRect ,PICTURE_RECT} from "./edit";
 import {expand, left, right, flip} from "./imageProcess";
@@ -130,15 +130,15 @@ const makeReset = store => {
 
 const makeDone = store => {
     return () => {
-        const placement = new Placement(store.picture);
+        const scenePicture = new ScenePicture(store.picture);
         if (store.scene) {
-            store.scene.add(placement);
-            store.display.which = store.scene.placements.length - 1;
+            store.scene.add(scenePicture);
+            store.display.which = store.scene.scenePictures.length - 1;
         }
         else {
-            const scene = new Scene(Constants.MAX_WIDTH, Constants.MAX_HEIGHT, [placement]);
+            const scene = new Scene(Constants.MAX_WIDTH, Constants.MAX_HEIGHT, [scenePicture]);
             store.scene = scene;
-            store.display.which = store.scene.placements.length - 1;
+            store.display.which = store.scene.scenePictures.length - 1;
         }
         store.display.page = Constants.page.LAYOUT;
         redraw();
@@ -262,7 +262,7 @@ const makePictureURL = picture => {
 
 const convert = picture => {
     return {
-        name: `"${picture.name}"`,
+        name: `${picture.name}`,
         clipX: picture.clipX,
         clipY: picture.clipY,
         clipWidth: picture.clipWidth,

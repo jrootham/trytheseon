@@ -63,24 +63,30 @@ export let store = {
 };
 
 export class Scene {
-    constructor(width, height, placements) {
+    constructor(width, height, scenePictures) {
         this.id = 0;
         this.width = width;
         this.height = height;
-        this.placements = placements;
+        this.scenePictures = scenePictures;
     }
 
-    add(placement) {
-        placement.zIndex = this.placements.length
-        this.placements.push(placement);
+    add(scenePicture) {
+        scenePicture.zIndex = this.scenePictures.length
+        this.scenePictures.push(scenePicture);
     }
 }
 
-export class Placement {
+export class ScenePicture {
     constructor(picture) {
         this.id = 0;
         this.name = picture.name;
-        this.picture = picture;
+        this.image = picture.image.clone();
+        this.clipX = picture.clipX;
+        this.clipY = picture.clipY;
+        this.clipWidth = picture.clipWidth;
+        this.clipHeight = picture.clipHeight;
+        this.centroidX = picture.centroidX;
+        this.centroidY = picture.centroidY;
         this.rotate = 0;
         this.translateX = 0;
         this.translateY = 0;
@@ -90,16 +96,15 @@ export class Placement {
     }
 
     setFactor() {
-        const width = Constants.MAX_WIDTH / this.picture.clipWidth;
-        const height = Constants.MAX_HEIGHT / this.picture.clipHeight;
+        const width = Constants.MAX_WIDTH / this.clipWidth;
+        const height = Constants.MAX_HEIGHT / this.clipHeight;
         this.factor = Math.min(1.0, Math.min(width, height));
     }
 
-    // copy is used to create a temporary anchor for direct manipulation
+    // Partial copy is used to create a temporary anchor for direct manipulation
 
     copy() {
-        const other = new Placement(this.picture);
-        other.name = this.name;  // Only for completeness
+        const other = {};
         other.rotate = this.rotate;
         other.translateX = this.translateX;
         other.translateY = this.translateY;
@@ -141,28 +146,4 @@ export class Picture {
         this.setPoints();
     }
 
-    // Copy a picture into a scene (attached to a placement
-    // and with a new id and owner
-
-    copy() {
-        let other = new Picture(this.image);
-
-        other.id = 0;
-        other.owner = 0;
-        other.rotate = this.rotate;
-        other.translateX = this.translateX;
-        other.translateY = this.translateY;
-        other.scale = this.scale;
-        other.zIndex = this.zIndex;
-        other.clipX = this.clipX;
-        other.clipY = this.clipY;
-        other.clipWidth = this.clipWidth;
-        other.clipHeight = this.clipHeight;
-        other.centroidX = this.centroidX;
-        other.centroidY = this.centroidY;
-        other.name = this.name;
-        other.factor = this.factor;
-
-        return other;
-    }
 };

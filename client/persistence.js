@@ -81,7 +81,7 @@ class Persistence {
     }
     
     savePicture(picture) {
-        const pictureData =`(image:${picture.image} ${this.makePictureData(picture)})`;
+        const pictureData =`(${this.makePictureData(picture)} image:${picture.image})`;
         const values = "{id}";
         const base = "mutation savePicture";
         return this.send(`${base} {savePicture ${pictureData} ${values}}`);

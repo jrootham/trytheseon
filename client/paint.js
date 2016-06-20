@@ -14,7 +14,7 @@ const pictureOverlay = store => {
     const canvas = document.getElementById("canvas");
     const context = canvas.getContext("2d");
     context.save();
-    const element = store.scene.placements[store.display.which];
+    const element = store.scene.scenePictures[store.display.which];
     const picture = element.picture;
 
     const pictureRect = PICTURE_RECT / element.scale;
@@ -50,15 +50,15 @@ const sizeOverlay = store => {
     context.restore();
 };
 
-const transform = (context, placement) => {
-    const picture = placement.picture;
+const transform = (context, scenePicture) => {
+    const picture = scenePicture.picture;
 
-    const centroidX = (picture.centroidX - picture.clipX) * placement.factor;
-    const centroidY = (picture.centroidY - picture.clipY) * placement.factor;
-    context.translate(placement.translateX, placement.translateY);
+    const centroidX = (picture.centroidX - picture.clipX) * scenePicture.factor;
+    const centroidY = (picture.centroidY - picture.clipY) * scenePicture.factor;
+    context.translate(scenePicture.translateX, scenePicture.translateY);
     context.translate(centroidX, centroidY);
-    context.rotate(placement.rotate);
-    context.scale(placement.scale, placement.scale);
+    context.rotate(scenePicture.rotate);
+    context.scale(scenePicture.scale, scenePicture.scale);
     context.translate(-centroidX, -centroidY);
 };
 
@@ -76,8 +76,8 @@ const paint = store => {
     context.fillStyle = "white";
     context.fillRect(0, 0, width, height);
 
-    for (let zOrder = 0 ; zOrder < store.scene.placements.length ; zOrder++) {
-        store.scene.placements.forEach((element, index) =>{
+    for (let zOrder = 0 ; zOrder < store.scene.scenePictures.length ; zOrder++) {
+        store.scene.scenePictures.forEach((element, index) =>{
             if (element.zIndex === zOrder) {
                 context.save();
                 const picture = element.picture;

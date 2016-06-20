@@ -30,7 +30,7 @@ export const GraphPicture = new GraphQLObjectType({
             owned: {
                 type: GraphQLBoolean,
                 resolve: (picture, _, session) => {
-                    return "userId" in session  && picture.owner === session.userId;
+                    return "userId" in session  && picture.userId === session.userId;
                 }
             },
             image: {
@@ -134,8 +134,7 @@ export const savePicture = {
     resolve(_, args, session) {
         const data = copyBase(args);
         data.image = args.image;
-        data.owner = session.userId;
-        console.log(data);
+        data.userId = session.userId;
         return Picture.create(data);
     }
 };
@@ -152,8 +151,8 @@ export const updatePicture = {
     args: updateArgs(baseDataArgs),
     resolve(_, args, session) {
         return Picture.findById(args.id).then(result => {
-            if (session.userId != result.owner) {
-                throw new Error(`User ${session.userId} is not owner ${result.owner}`);
+            if (session.userId != result.userId) {
+                throw new Error(`User ${session.userId} is not owner ${result.userId}`);
             }
             const newData = copyBase(args);
             Picture.update(newData, {where:{id:args.id}});
@@ -181,7 +180,7 @@ export const getPictureList = {
         if (!"userId" in session) {
             throw Error("No userId in session")
         }
-        return Picture.findAll({where: {owner: session.userId}});
+        return Picture.findAll({where: {userId: session.userId}});
     }
 };
 

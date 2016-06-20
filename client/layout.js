@@ -35,7 +35,7 @@ class Select extends React.Component {
             }
         ];
 
-        this.props.store.scene.placements.forEach((element, index) => {
+        this.props.store.scene.scenePictures.forEach((element, index) => {
             which.push({
                 value:index,
                 label:element.name,
@@ -72,7 +72,7 @@ class Size extends React.Component {
 
 class InputTranslateX extends React.Component {
     handleChange(event) {
-        this.props.placement.translateX = intParse(event.target.value, 0);
+        this.props.scenePicture.translateX = intParse(event.target.value, 0);
         redraw();
     }
 
@@ -81,7 +81,7 @@ class InputTranslateX extends React.Component {
             <input
                 type="text"
                 className="input_box"
-                value={this.props.placement.translateX}
+                value={this.props.scenePicture.translateX}
                 onChange={this.handleChange.bind(this)}
             />
         );
@@ -90,7 +90,7 @@ class InputTranslateX extends React.Component {
 
 class InputTranslateY extends React.Component {
     handleChange(event) {
-        this.props.placement.translateY = intParse(event.target.value, 0);
+        this.props.scenePicture.translateY = intParse(event.target.value, 0);
         redraw();
     }
 
@@ -99,7 +99,7 @@ class InputTranslateY extends React.Component {
             <input
                 type="text"
                 className="input_box"
-                value={this.props.placement.translateY}
+                value={this.props.scenePicture.translateY}
                 onChange={this.handleChange.bind(this)}
             />
         );
@@ -108,7 +108,7 @@ class InputTranslateY extends React.Component {
 
 class InputScale extends React.Component {
     handleChange(event) {
-        this.props.placement.scale = floatParse(event.target.value, 0);
+        this.props.scenePicture.scale = floatParse(event.target.value, 0);
         redraw();
     }
 
@@ -117,7 +117,7 @@ class InputScale extends React.Component {
             <input
                 type="text"
                 className="input_box"
-                value={Math.round((100 * this.props.placement.scale)) / 100}
+                value={Math.round((100 * this.props.scenePicture.scale)) / 100}
                 onChange={this.handleChange.bind(this)}
             />
         );
@@ -126,7 +126,7 @@ class InputScale extends React.Component {
 
 class InputRotate extends React.Component {
     handleChange(event) {
-        this.props.placement.rotate = intParse(event.target.value, 0) * THREESIXTY;
+        this.props.scenePicture.rotate = intParse(event.target.value, 0) * THREESIXTY;
         redraw();
     }
 
@@ -135,7 +135,7 @@ class InputRotate extends React.Component {
             <input
                 type="text"
                 className="input_box"
-                value={Math.round(this.props.placement.rotate / THREESIXTY)}
+                value={Math.round(this.props.scenePicture.rotate / THREESIXTY)}
                 onChange={this.handleChange.bind(this)}
             />
         );
@@ -144,33 +144,33 @@ class InputRotate extends React.Component {
 
 class PictureData extends React.Component {
     plus() {
-        let placementList = this.props.store.scene.placements;
+        let scenePictureList = this.props.store.scene.scenePictures;
         let index = this.props.store.display.which;
-        let placement = placementList[index];
-        let length = placementList.length;
-        if (length > 1 && placement.zIndex < length - 1) {
-            let other = placementList.find(element => {
-                return element.zIndex === placement.zIndex + 1;
+        let scenePicture = scenePictureList[index];
+        let length = scenePictureList.length;
+        if (length > 1 && scenePicture.zIndex < length - 1) {
+            let other = scenePictureList.find(element => {
+                return element.zIndex === scenePicture.zIndex + 1;
             });
 
             other.zIndex--;
-            placement.zIndex++;
+            scenePicture.zIndex++;
         }
         redraw();
     }
 
     minus() {
-        let placementList = this.props.store.scene.placements;
+        let scenePictureList = this.props.store.scene.scenePictures;
         let index = this.props.store.display.which;
-        let placement = placementList[index];
-        let length = placementList.length;
-        if (length > 1 && placement.zIndex > 0) {
-            let other = placementList.find(element => {
-                return element.zIndex === placement.zIndex - 1;
+        let scenePicture = scenePictureList[index];
+        let length = scenePictureList.length;
+        if (length > 1 && scenePicture.zIndex > 0) {
+            let other = scenePictureList.find(element => {
+                return element.zIndex === scenePicture.zIndex - 1;
             });
 
             other.zIndex++;
-            placement.zIndex--;
+            scenePicture.zIndex--;
         }
         redraw();
     }
@@ -189,15 +189,15 @@ class PictureData extends React.Component {
 
     render() {
         let index = this.props.store.display.which;
-        let placement = this.props.store.scene.placements[index];
+        let scenePicture = this.props.store.scene.scenePictures[index];
 
         return <div>
-            <div>Name: {placement.name}</div>
-            <div>X:<InputTranslateX placement={placement}/></div>
-            <div>Y:<InputTranslateY placement={placement}/></div>
-            <div>Scale:<InputScale placement={placement}/></div>
-            <div>Rotate:<InputRotate placement={placement}/></div>
-            <div>Z: {placement.zIndex}</div>
+            <div>Name: {scenePicture.name}</div>
+            <div>X:<InputTranslateX scenePicture={scenePicture}/></div>
+            <div>Y:<InputTranslateY scenePicture={scenePicture}/></div>
+            <div>Scale:<InputScale scenePicture={scenePicture}/></div>
+            <div>Rotate:<InputRotate scenePicture={scenePicture}/></div>
+            <div>Z: {scenePicture.zIndex}</div>
             <div>
                 <button onClick={this.plus.bind(this)}>+</button>
                 <button onClick={this.minus.bind(this)}>-</button>

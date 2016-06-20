@@ -32,10 +32,6 @@ export const User = connect.define("user", {
 });
 
 export const Picture = connect.define("picture", {
-    owner: {
-        type: Sequelize.INTEGER,
-        allowNull:false
-    },
     name: {
         type: Sequelize.STRING,
         allowNull:false
@@ -70,14 +66,55 @@ export const Picture = connect.define("picture", {
     }
 });
 
-export const Placement = connect.define("placement", {
-    picture: {
+User.hasMany(Picture);
+
+export const Scene = connect.define("scene", {
+    name: {
+        type: Sequelize.STRING,
+        allowNull:false
+    },
+    height: {
         type: Sequelize.INTEGER,
+        allowNull:false
+    },
+    width: {
+        type: Sequelize.INTEGER,
+        allowNull:false
+    }
+});
+
+export const ScenePicture = connect.define("scenePicture", {
+    name: {
+        type: Sequelize.STRING,
+        allowNull:false
+    },
+    image: {
+        type: Sequelize.TEXT,
         allowNull: false
     },
-    scene: {
+    clipX: {
         type: Sequelize.INTEGER,
-        allowNull: false
+        allowNull:false
+    },
+    clipY: {
+        type: Sequelize.INTEGER,
+        allowNull:false
+    },
+    clipHeight: {
+        type: Sequelize.INTEGER,
+        allowNull:false
+    },
+    clipWidth: {
+        type: Sequelize.INTEGER,
+        allowNull:false
+    },
+    centroidX: {
+        type: Sequelize.INTEGER,
+        allowNull:false
+    },
+    centroidY: {
+        type: Sequelize.INTEGER,
+        allowNull:false
     },
     x: {
         type: Sequelize.INTEGER,
@@ -97,18 +134,15 @@ export const Placement = connect.define("placement", {
     }
 });
 
-export const Scene = connect.define("scene", {
+Scene.hasMany(ScenePicture);
+
+export const Tag = connect.define("tag", {
     name: {
         type: Sequelize.STRING,
-        allowNull:false
-    },
-    height: {
-        type: Sequelize.INTEGER,
-        allowNull:false
-    },
-    width: {
-        type: Sequelize.INTEGER,
-        allowNull:false
+        allowNull: false
     }
 });
+
+Tag.belongsToMany(Picture, {through: "PictureTag"});
+Picture.belongsToMany(Tag, {through: "PictureTag"});
 
