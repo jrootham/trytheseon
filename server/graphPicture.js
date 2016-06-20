@@ -33,12 +33,6 @@ export const GraphPicture = new GraphQLObjectType({
                     return "userId" in session  && picture.owner === session.userId;
                 }
             },
-            scene: {
-                type: GraphQLInt,
-                resolve: (picture) => {
-                    return picture.scene;
-                }
-            },
             image: {
                 type: GraphQLString,
                 resolve: (picture) => {
@@ -184,6 +178,9 @@ export const getPicture = {
 export const getPictureList = {
     type: new GraphQLList(GraphPicture),
     resolve(_, __, session) {
+        if (!"userId" in session) {
+            throw Error("No userId in session")
+        }
         return Picture.findAll({where: {owner: session.userId}});
     }
 };

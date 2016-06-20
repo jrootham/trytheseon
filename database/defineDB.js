@@ -40,9 +40,6 @@ export const Picture = connect.define("picture", {
         type: Sequelize.STRING,
         allowNull:false
     },
-    placement: {
-        type: Sequelize.INTEGER
-    },
     image: {
         type: Sequelize.TEXT,
         allowNull: false
@@ -79,7 +76,8 @@ export const Placement = connect.define("placement", {
         allowNull: false
     },
     scene: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        allowNull: false
     },
     x: {
         type: Sequelize.INTEGER,
