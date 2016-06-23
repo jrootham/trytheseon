@@ -83,6 +83,8 @@ export const Scene = connect.define("scene", {
     }
 });
 
+User.hasMany(Scene);
+
 export const ScenePicture = connect.define("scenePicture", {
     name: {
         type: Sequelize.STRING,

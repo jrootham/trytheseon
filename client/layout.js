@@ -17,6 +17,7 @@ import Edit from "./edit";
 import {setOverlay, paintAll} from "./paint";
 import {PictureEditor} from "./picture";
 import {intParse, floatParse} from "./common";
+import persistence from "./persistence";
 
 const THREESIXTY = Math.PI / 180;
 
@@ -236,6 +237,74 @@ class Display extends React.Component {
     }
 }
 
+class StoreControl extends React.Component {
+    saveScene(){
+        const store = this.props.store;
+        const scene = store.scene;
+        scene.name = document.getElementById("sceneName").value;
+
+        if (scene.id === 0) {
+            persistence.saveScene(scene).then(result => {
+                const saveScene = result.data.saveScene;
+                store.scene.id = saveScene.id;
+                store.scene.savedAt = saveScene.savedAt;
+                redraw();
+            })
+        }
+        else {
+            persistence.updateScene(scene).then(result => {
+                const saveScene = result.data.updateScene;
+                store.scene.id = saveScene.id;
+                store.scene.savedAt = saveScene.savedAt;
+                redraw();
+            })
+        }
+    }
+    
+    loadScene() {
+        
+    }
+
+    splitTime(timestamp) {
+        const timeList = timestamp.split(" ");
+        const date = timeList.slice(0, 3).join(" ");
+        return [date, timeList[4]];
+    }
+
+    render() {
+        const store = this.props.store;
+
+        const style = {
+            display:        "inline-block",
+            verticalAlign:  "top"
+        };
+
+        const input = {
+            width: "10em"
+        };
+
+        let id = "";
+        let date = "";
+        let time = "";
+        if (store.scene.id != 0) {
+            id = store.scene.id.toString();
+            [date, time] = this.splitTime(store.scene.savedAt);
+        }
+
+        return <div className="control_container" style={style}>
+            <div>
+                <div>{id}</div>
+                <div>Name: </div>
+                <div><input id="sceneName" style={input}/></div>
+                <div>{date}</div>
+                <div>{time}</div>
+            </div>
+            <div><button onClick={()=> this.saveScene()}>Save Scene</button></div>
+            <div><button onClick={()=> this.loadScene()}>Load Scene</button></div>
+        </div>
+    }
+}
+
 class After extends React.Component{
     render() {
         const style = {
@@ -244,6 +313,7 @@ class After extends React.Component{
         };
 
         return <div className="control_container" style={style}>
+            <StoreControl store = {this.props.store}/>
             <Select store = {this.props.store}/>
             <Display store = {this.props.store} />
         </div>

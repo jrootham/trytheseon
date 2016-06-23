@@ -47,6 +47,7 @@ export let store = {
     display : {
         previous:               Constants.page.START,
         page:                   Constants.page.START,
+        next:                   Constants.page.START,
 
         error:                  undefined,
 
@@ -65,6 +66,7 @@ export let store = {
 export class Scene {
     constructor(width, height, scenePictures) {
         this.id = 0;
+        this.savedAt = "";
         this.width = width;
         this.height = height;
         this.scenePictures = scenePictures;

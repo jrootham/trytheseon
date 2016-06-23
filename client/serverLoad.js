@@ -37,7 +37,7 @@ export default class ServerlLoad extends React.Component {
 
             store.picture = picture;
 
-            store.display.page = Constants.page.EDIT_PICTURE;
+            store.display.page = store.display.next;
             store.display.picture.layout = Constants.picture.NOTHING;
 
             redraw();

@@ -13,8 +13,9 @@ import {
 } from 'graphql';
 import {maskErrors} from "graphql-errors";
 
-import {GraphUser, registerUser, signonUser, signoffUser} from "./graphUser";
-import {GraphPicture, savePicture, updatePicture, getPictureList, getPicture} from "./graphPicture";
+import {registerUser, signonUser, signoffUser} from "./graphUser";
+import {savePicture, updatePicture, getPictureList, getPicture} from "./graphPicture";
+import {saveScene, updateScene} from "./graphScene";
 
 const query = new GraphQLObjectType({
     name: 'Queries',
@@ -37,7 +38,10 @@ const mutation = new GraphQLObjectType({
             signoffUser: signoffUser,
             
             savePicture: savePicture,
-            updatePicture: updatePicture
+            updatePicture: updatePicture,
+            
+            saveScene: saveScene,
+            updateScene: updateScene
         }
     }
 });

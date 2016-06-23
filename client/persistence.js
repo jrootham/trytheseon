@@ -105,6 +105,27 @@ class Persistence {
         const message = `query getPicture{getPicture ${which} {${list}}}`;
         return this.send(message);
     }
+
+    saveScene(scene) {
+        const base = "mutation saveScene";
+        const values = "{id savedAt}";
+        const name = `name:"${scene.name}"`;
+        const width = `width:${scene.width}`;
+        const height = `height:${scene.height}`;
+        const sceneData = `(${name} ${width} ${height})`
+        return this.send(`${base} {saveScene ${sceneData} ${values}}`);
+    }
+
+    updateScene(scene) {
+        const base = "mutation updateScene";
+        const values = "{id savedAt}";
+        const id = `id:${scene.id}`;
+        const name = `name:"${scene.name}"`;
+        const width = `width:${scene.width}`;
+        const height = `height:${scene.height}`;
+        const sceneData = `(${id} ${name} ${width} ${height})`
+        return this.send(`${base} {updateScene ${sceneData} ${values}}`);
+    }
 }
 
 const persistence = new Persistence();

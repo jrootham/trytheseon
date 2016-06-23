@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 
 import "./../trytheseon.css"
 
-import {store, Constants} from "./data";
+import {store, Constants, Scene} from "./data";
 import Start from "./start";
 import Signon from "./signon";
 import persistence from "./persistence";
@@ -87,12 +87,24 @@ class Before extends React.Component{
         const list = persistence.getPictureList();
         list.then(result => {
             let store = this.props.store;
-            
+
             store.display.pictureList = result;
             store.display.page = Constants.page.SERVER_LOAD;
             redraw();
         });
         
+    }
+
+    newScene() {
+        const store = this.props.store;
+        store.display.scene = new Scene(Constants.MAX_WIDTH, Constants.MAX_HEIGHT, []);
+        store.display.page = Constants.page.LAYOUT;
+        store.display.previous = Constants.page.LAYOUT;
+        redraw();
+    }
+
+    loadScene() {
+
     }
 
     render() {
@@ -105,10 +117,12 @@ class Before extends React.Component{
         const signOnOffMsg = this.props.store.signon.on ? "Sign Off" : "Sign On/Register";
         
         return <div style={style}>
-            <div><button onClick={this.signOnOff.bind(this)}>{signOnOffMsg}</button></div>
-            <div><button onClick={this.loadLocal.bind(this)}>Load Local Picture</button></div>
-            <div><button onClick={this.loadServer.bind(this)}>Load Server Picture</button></div>
-            <div><button onClick={this.catalogue.bind(this)}>Catalogue</button></div>
+            <div><button onClick={()=> this.signOnOff()}>{signOnOffMsg}</button></div>
+            <div><button onClick={()=> this.loadLocal()}>Load Local Picture</button></div>
+            <div><button onClick={()=> this.loadServer()}>Load Server Picture</button></div>
+            <div><button onClick={()=> this.newScene()}>New Scene</button></div>
+            <div><button onClick={()=> this.loadScene()}>Load Scene</button></div>
+            <div><button onClick={()=> this.catalogue()}>Catalogue</button></div>
         </div>
     }
 };
@@ -145,6 +159,7 @@ class Container extends React.Component {
 
             case Constants.page.SERVER_LOAD:
                 this.props.store.display.previous = Constants.page.SERVER_LOAD;
+                this.props.store.display.next = Constants.page.EDIT_PICTURE;
                 contents = <ServerlLoad store={this.props.store}/>
                 paint.setPaintFn(undefined);
                 break;
