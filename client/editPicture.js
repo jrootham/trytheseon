@@ -227,9 +227,10 @@ class Values extends React.Component {
         const picture = store.picture;
         result = <div className="control_container">
             <div>Values</div>
+            <div>Name:{picture.name}</div>
             <div>Left:{picture.clipX}</div>
             <div>Top:{picture.clipY}</div>
-            <div>Wdith:{picture.clipWidth}</div>
+            <div>Width:{picture.clipWidth}</div>
             <div>Height:{picture.clipHeight}</div>
             <div>Centroid X:{picture.centroidX}</div>
             <div>Centroid Y:{picture.centroidY}</div>
@@ -277,27 +278,34 @@ const convert = picture => {
 const makeSavePicture = store => {
     const savePicture = () => {
 
-        if (store.picture.id === 0) {
-            const promise = persistence.savePicture(convert(store.picture));
-            promise.then(result => {
-                if ("errors" in result) {
-                    handleError(store, result.errors[0]);
-                }
-                else {
+        if (store.signon.on) {
+            if (store.picture.id === 0) {
+                const promise = persistence.savePicture(convert(store.picture));
+                promise.then(result => {
+                    if ("errors" in result) {
+                        handleError(store, result.errors[0]);
+                    }
+                    else {
+                        store.display.error = undefined;
+                        store.picture.id = result.data.savePicture.id;
+                    }
+                });
+            }
+            else {
+                const data = convert(store.picture);
+                data.id = store.picture.id;
+                const promise = persistence.updatePicture(data);
+                promise.then(result => {
                     store.display.error = undefined;
-                    store.picture.id = result.data.savePicture.id;
-                }
-            });
+
+                    if ("errors" in result) {
+                        handleError(store, result.errors[0]);
+                    }
+                });
+            }
         }
         else {
-            const promise = persistence.updatePicture(store.picture);
-            promise.then(result => {
-                store.display.error = undefined;
-
-                if ("errors" in result) {
-                    handleError(store, result.errors[0]);
-                }
-            });
+            handleError(store, new Error("Not signed on"));
         }
     };
 

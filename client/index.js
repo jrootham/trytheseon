@@ -8,31 +8,11 @@ import Start from "./start";
 import Signon from "./signon";
 import persistence from "./persistence";
 import LocalLoad from "./localLoad";
-import ServerlLoad from "./serverLoad";
+import ServerlLoad from "./serverBase";
 import Catalogue from "./catalogue";
 import SaveAs from "./saveAs";
 import EditPicture from "./editPicture";
 import Layout from "./layout";
-import {paintAll} from "./paint";
-import {paintAllPicture} from "./editPicture";
-
-class Paint {
-    constructor() {
-        this.paintFn = undefined;
-    }
-
-    setPaintFn(fn) {
-        this.paintFn = fn;
-    }
-
-    paint(store) {
-        if (this.paintFn) {
-            this.paintFn(store);
-        }
-    }
-}
-
-const paint = new Paint();
 
 class Title extends React.Component{
     render()  {
@@ -75,14 +55,7 @@ class Before extends React.Component{
         store.display.page = Constants.page.LOCAL_LOAD;
         redraw();
     }
-
-    catalogue() {
-        let store = this.props.store;
-        store.display.page = Constants.page.CATALOGUE;
-        redraw();
-    }
-
-
+    
     loadServer() {
         const list = persistence.getPictureList();
         list.then(result => {
@@ -122,7 +95,6 @@ class Before extends React.Component{
             <div><button onClick={()=> this.loadServer()}>Load Server Picture</button></div>
             <div><button onClick={()=> this.newScene()}>New Scene</button></div>
             <div><button onClick={()=> this.loadScene()}>Load Scene</button></div>
-            <div><button onClick={()=> this.catalogue()}>Catalogue</button></div>
         </div>
     }
 };
@@ -142,48 +114,50 @@ class Container extends React.Component {
         switch (page) {
             case Constants.page.START:
                 this.props.store.display.previous = Constants.page.START;
-                contents = <Start />;
-                paint.setPaintFn(undefined);
+                contents = <Start store={this.props.store}/>;
                 break;
 
             case Constants.page.SIGNON:
             case Constants.page.REGISTER:
                 contents = <Signon store={this.props.store}/>
-                paint.setPaintFn(undefined);
                 break;
 
             case Constants.page.LOCAL_LOAD:
                 contents = <LocalLoad store={this.props.store}/>
-                paint.setPaintFn(undefined);
+                break;
+
+            case Constants.page.SERVER_LAYOUT:
+                contents = <ServerLayout store={this.props.store}/>
                 break;
 
             case Constants.page.SERVER_LOAD:
                 this.props.store.display.previous = Constants.page.SERVER_LOAD;
                 this.props.store.display.next = Constants.page.EDIT_PICTURE;
                 contents = <ServerlLoad store={this.props.store}/>
-                paint.setPaintFn(undefined);
+                break;
+            
+            case Constants.page.SERVER_LAYOUT:
+                this.props.store.display.previous = Constants.page.SERVER_LAYOUT;
+                this.props.store.display.next = Constants.page.LAYOUT;
+                contents = <ServerLayout store={this.props.store}/>
                 break;
 
             case Constants.page.CATALOGUE:
                 contents = <Catalogue store={this.props.store}/>
-                paint.setPaintFn(undefined);
                 break;
 
             case Constants.page.EDIT_PICTURE:
-                paint.setPaintFn(paintAllPicture);
                 this.props.store.display.previous = Constants.page.EDIT_PICTURE;
                 contents = <EditPicture store={this.props.store}/>
                 break;
 
             case Constants.page.LAYOUT:
-                paint.setPaintFn(paintAll);
                 this.props.store.display.previous = Constants.page.LAYOUT;
                 contents = <Layout store={this.props.store}/>
                 break;
 
             default: {
                 contents = `Internal error, bad page id ${page}`;
-                paint.setPaintFn(undefined);
             }
 
         }
@@ -219,7 +193,6 @@ class Parent extends React.Component {
 
 export const redraw = function() {
     ReactDOM.render(<Parent store={store}/>, document.getElementById('bigbox'));
-    paint.paint(store);
 }
 
 redraw();

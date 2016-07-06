@@ -74,14 +74,15 @@ class Persistence {
         const clipHeight = `clipHeight:${picture.clipHeight}`;
         const centroidX = `centroidX:${picture.centroidX}`;
         const centroidY = `centroidY:${picture.centroidY}`;
+        const image = `image:${picture.image}`;
         
         const first =`${name} ${clipX} ${clipY} ${clipHeight} ${clipWidth} `;
-        const second = `${centroidX} ${centroidY}`;
+        const second = `${centroidX} ${centroidY} ${image}`;
         return `${first} ${second}`;
     }
     
     savePicture(picture) {
-        const pictureData =`(${this.makePictureData(picture)} image:${picture.image})`;
+        const pictureData =`(${this.makePictureData(picture)})`;
         const values = "{id}";
         const base = "mutation savePicture";
         return this.send(`${base} {savePicture ${pictureData} ${values}}`);

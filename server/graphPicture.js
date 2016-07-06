@@ -106,6 +106,9 @@ const baseDataArgs = {
     },
     centroidY: {
         type: new GraphQLNonNull(GraphQLInt)
+    },
+    image: {
+        type: new GraphQLNonNull(GraphQLString)
     }
 };
 
@@ -117,23 +120,16 @@ const copyBase = src => {
         clipWidth: src.clipWidth,
         clipHeight: src.clipHeight,
         centroidX: src.centroidX,
-        centroidY: src.centroidY
+        centroidY: src.centroidY,
+        image: src.image
     }
-};
-
-const saveArgs = base => {
-    const result = copyBase(base);
-    result.image = {type: new GraphQLNonNull(GraphQLString)};
-    
-    return result;
 };
 
 export const savePicture = {
     type: GraphPicture,
-    args: saveArgs(baseDataArgs),
+    args: baseDataArgs,
     resolve(_, args, session) {
         const data = copyBase(args);
-        data.image = args.image;
         data.userId = session.userId;
         return Picture.create(data);
     }

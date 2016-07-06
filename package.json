@@ -4,6 +4,7 @@
   "description": "App to virtually try on things to wear (check matching)",
   "main": "index.js",
   "scripts": {
+    "dbinstall": "babel-node ./database/createDB.js",
     "start": "babel-node server.js",
     "dev": "babel-node devServer.js",
     "build": "webpack -p --config ./webpack.production.config.js",

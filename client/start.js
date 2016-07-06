@@ -10,6 +10,16 @@ import React from "react";
 
 export default class Start extends React.Component {
     render() {
-        return <div>Introductory text.</div>
+        const store = this.props.store;
+        console.log(store);
+        let message = "";
+        if (store.display.error) {
+            message = store.display.error;
+        }
+
+        return <div>
+            <div className="error">{message}</div>
+            <div>Introductory text.</div>
+            </div>
     }
 }

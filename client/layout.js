@@ -271,6 +271,12 @@ class StoreControl extends React.Component {
         return [date, timeList[4]];
     }
 
+    catalogue() {
+        let store = this.props.store;
+        store.display.page = Constants.page.CATALOGUE;
+        redraw();
+    }
+
     render() {
         const store = this.props.store;
 
@@ -299,6 +305,9 @@ class StoreControl extends React.Component {
                 <div>{date}</div>
                 <div>{time}</div>
             </div>
+            <div><button onClick={()=> this.catalogue()}>Catalogue</button></div>
+            <div><button onClick={()=> this.loadServer()}>Load Server Picture</button></div>
+            <div><button onClick={()=> this.loadLocal()}>Load Local Picture</button></div>
             <div><button onClick={()=> this.saveScene()}>Save Scene</button></div>
             <div><button onClick={()=> this.loadScene()}>Load Scene</button></div>
         </div>

@@ -28,10 +28,12 @@ export const Constants = {
         SIGNON:         1,
         REGISTER:       2,
         LOCAL_LOAD:     3,
-        SERVER_LOAD:    4,
-        CATALOGUE:      5,
-        EDIT_PICTURE:   6,
-        LAYOUT:         7
+        LOCAL_LAYOUT:   4,
+        SERVER_LOAD:    5,
+        SERVER_LAYOUT:  6,
+        CATALOGUE:      7,
+        EDIT_PICTURE:   8,
+        LAYOUT:         9
     }
 };
 
