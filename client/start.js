@@ -11,7 +11,6 @@ import React from "react";
 export default class Start extends React.Component {
     render() {
         const store = this.props.store;
-        console.log(store);
         let message = "";
         if (store.display.error) {
             message = store.display.error;

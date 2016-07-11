@@ -238,6 +238,13 @@ class Display extends React.Component {
 }
 
 class StoreControl extends React.Component {
+    constructor() {
+        super();
+        this.saveScene = this.saveScene.bind(this);
+        this.catalogue = this.catalogue.bind(this);
+        this.loadServer = this.loadServer.bind(this);
+    }
+
     saveScene(){
         const store = this.props.store;
         const scene = store.scene;
@@ -261,8 +268,15 @@ class StoreControl extends React.Component {
         }
     }
     
-    loadScene() {
-        
+    loadServer() {
+        const list = persistence.getPictureList();
+        list.then(result => {
+            let store = this.props.store;
+
+            store.display.pictureList = result;
+            store.display.page = Constants.page.SERVER_LAYOUT;
+            redraw();
+        });
     }
 
     splitTime(timestamp) {
@@ -305,11 +319,9 @@ class StoreControl extends React.Component {
                 <div>{date}</div>
                 <div>{time}</div>
             </div>
-            <div><button onClick={()=> this.catalogue()}>Catalogue</button></div>
-            <div><button onClick={()=> this.loadServer()}>Load Server Picture</button></div>
-            <div><button onClick={()=> this.loadLocal()}>Load Local Picture</button></div>
-            <div><button onClick={()=> this.saveScene()}>Save Scene</button></div>
-            <div><button onClick={()=> this.loadScene()}>Load Scene</button></div>
+            <div><button onClick={this.catalogue}>Catalogue</button></div>
+            <div><button onClick={this.loadServer}>Load Server Picture</button></div>
+            <div><button onClick={this.saveScene}>Save Scene</button></div>
         </div>
     }
 }

@@ -84,7 +84,7 @@ export class ScenePicture {
     constructor(picture) {
         this.id = 0;
         this.name = picture.name;
-        this.image = picture.image.clone();
+        this.image = picture.image;
         this.clipX = picture.clipX;
         this.clipY = picture.clipY;
         this.clipWidth = picture.clipWidth;
@@ -109,6 +109,16 @@ export class ScenePicture {
 
     copy() {
         const other = {};
+
+        other.clipX = this.clipX;
+        other.clipY = this.clipY;
+        other.clipWidth = this.clipWidth;
+        other.clipHeight = this.clipHeight;
+        other.centroidX = this.centroidX;
+        other.centroidY = this.centroidY;
+
+        other.factor = this.factor;
+
         other.rotate = this.rotate;
         other.translateX = this.translateX;
         other.translateY = this.translateY;

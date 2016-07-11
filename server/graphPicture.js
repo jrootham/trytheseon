@@ -176,7 +176,10 @@ export const getPictureList = {
         if (!"userId" in session) {
             throw Error("No userId in session")
         }
-        return Picture.findAll({where: {userId: session.userId}});
+        return Picture.findAll({
+            where: {userId: session.userId},
+            attributes: { exclude: ["image"] }
+        });
     }
 };
 

@@ -5,9 +5,6 @@
  *
  * Copyright © 2016 Jim Rootham
  */
-import React from "react";
-import ReactDOM from "react-dom";
-
 import LoadBase from "./loadBase";
 import {Constants, Picture} from "./data";
 import {show, hide, makeGoBack} from "./common";

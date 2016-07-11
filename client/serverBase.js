@@ -1,5 +1,5 @@
 /**
- * serverLoad.js
+ * serverBase.js
  *
  * Created by jrootham on 15/02/16.
  *
@@ -16,36 +16,39 @@ export default class ServerBase extends React.Component {
         super();
         this.load = this.load.bind(this);
     }
-    
-    load() {
-        const store = this.props.store;
 
+    finish() {
+    }
+
+    load() {
         const pictureId = parseInt(document.getElementById("pickPicture").value);
+        const store = this.props.store;
 
         persistence.getPicture(pictureId).then(result => {
             const values = result.data.getPicture;
 
             const image = new Image();
+            
+            image.onload = () => {
+                const picture = new Picture(image);
+                picture.id = values.id;
+                picture.image = image;
+                picture.name = values.name;
+                picture.owned = values.owned;
+                picture.clipX = values.clipX;
+                picture.clipY = values.clipY;
+                picture.clipWidth = values.clipWidth;
+                picture.clipHeight = values.clipHeight;
+                picture.centroidX = values.centroidX;
+                picture.centroidY = values.centroidY;
+
+                this.setPicture(store, picture);
+
+                redraw();
+            }
+            
             image.src = values.image;
 
-            const picture = new Picture(image);
-            picture.id = values.id;
-            picture.image = image;
-            picture.name = values.name;
-            picture.owned = values.owned;
-            picture.clipX = values.clipX;
-            picture.clipY = values.clipY;
-            picture.clipWidth = values.clipWidth;
-            picture.clipHeight = values.clipHeight;
-            picture.centroidX = values.centroidX;
-            picture.centroidY = values.centroidY;
-
-            store.picture = picture;
-
-            store.display.page = store.display.next;
-            store.display.picture.layout = Constants.picture.NOTHING;
-
-            redraw();
         });
     }
     

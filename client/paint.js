@@ -15,14 +15,13 @@ const pictureOverlay = store => {
     const context = canvas.getContext("2d");
     context.save();
     const element = store.scene.scenePictures[store.display.which];
-    const picture = element.picture;
 
     const pictureRect = PICTURE_RECT / element.scale;
 
-    const width = picture.clipWidth * element.factor;
-    const height = picture.clipHeight * element.factor;
-    const centroidX = (picture.centroidX - picture.clipX) * element.factor;
-    const centroidY = (picture.centroidY - picture.clipY) * element.factor;
+    const width = element.clipWidth * element.factor;
+    const height = element.clipHeight * element.factor;
+    const centroidX = (element.centroidX - element.clipX) * element.factor;
+    const centroidY = (element.centroidY - element.clipY) * element.factor;
 
     transform(context, element);
     dashedBox(context, width, height);
@@ -51,10 +50,8 @@ const sizeOverlay = store => {
 };
 
 const transform = (context, scenePicture) => {
-    const picture = scenePicture.picture;
-
-    const centroidX = (picture.centroidX - picture.clipX) * scenePicture.factor;
-    const centroidY = (picture.centroidY - picture.clipY) * scenePicture.factor;
+    const centroidX = (scenePicture.centroidX - scenePicture.clipX) * scenePicture.factor;
+    const centroidY = (scenePicture.centroidY - scenePicture.clipY) * scenePicture.factor;
     context.translate(scenePicture.translateX, scenePicture.translateY);
     context.translate(centroidX, centroidY);
     context.rotate(scenePicture.rotate);
@@ -80,13 +77,12 @@ const paint = store => {
         store.scene.scenePictures.forEach((element, index) =>{
             if (element.zIndex === zOrder) {
                 context.save();
-                const picture = element.picture;
                 transform(context, element);
-                const sizeWidth = element.factor * picture.clipWidth;
-                const sizeHeight = element.factor * picture.clipHeight;
+                const sizeWidth = element.factor * element.clipWidth;
+                const sizeHeight = element.factor * element.clipHeight;
 
-                context.drawImage(picture.image, picture.clipX, picture.clipY,
-                    picture.clipWidth, picture.clipHeight, 0, 0, sizeWidth, sizeHeight);
+                context.drawImage(element.image, element.clipX, element.clipY,
+                    element.clipWidth, element.clipHeight, 0, 0, sizeWidth, sizeHeight);
                 context.restore();
             }
         });

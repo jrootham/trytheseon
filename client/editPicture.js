@@ -21,8 +21,20 @@ const BUFFER = 15;
 const TARGET = 30;
 
 class Zoom extends React.Component {
+    constructor() {
+        super();
+        this.change = this.change.bind(this);
+
+    }
+
+    change(value) {
+        const store = this.props.store;
+        store.display.picture.zoom = parseFloat(value);
+        redraw();
+    }
+
     render() {
-        var zoom = [
+        const zoom = [
             {
                 value: 1 / 16,
                 label: "1 / 16",
@@ -50,20 +62,13 @@ class Zoom extends React.Component {
             }
         ];
 
-        const makeChange = store => {
-            return (value, event) => {
-                store.display.picture.zoom = parseFloat(value);
-                redraw();
-            }
-        }
-
         return <div className="control_container">
             Zoom
             <RadioGroup
                 name="zoom"
-                defaultValue={1}
+                defaultValue={this.props.store.display.picture.zoom.toString()}
                 items={zoom}
-                onChange={makeChange(this.props.store)}
+                onChange={this.change}
             />
         </div>
     }
@@ -275,8 +280,14 @@ const convert = picture => {
 };
 
 
-const makeSavePicture = store => {
-    const savePicture = () => {
+class Features extends React.Component {
+    constructor() {
+        super();
+        this.savePicture = this.savePicture.bind(this);
+    }
+
+    savePicture() {
+        const store = this.props.store;
 
         if (store.signon.on) {
             if (store.picture.id === 0) {
@@ -307,12 +318,8 @@ const makeSavePicture = store => {
         else {
             handleError(store, new Error("Not signed on"));
         }
-    };
+    }
 
-    return savePicture;
-};
-
-class Features extends React.Component {
     render() {
         return <div>
             <Zoom store={this.props.store}/>
@@ -321,10 +328,7 @@ class Features extends React.Component {
             <Overlay store={this.props.store}/>
             <Values store={this.props.store}/>
             <div>
-                <button onClick={makeDone(this.props.store)}>Done</button>
-            </div>
-            <div>
-                <button onClick={makeSavePicture(this.props.store)}>Save</button>
+                <button onClick={this.savePicture}>Save</button>
             </div>
         </div>
     }

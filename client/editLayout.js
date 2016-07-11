@@ -17,8 +17,8 @@ export const EditLayout = {
         let index = this.parent.props.store.display.which;
         this.scenePicture = this.parent.props.store.scene.scenePictures[index];
 
-        let pictureWidth = this.scenePicture.picture.clipWidth;
-        let pictureHeight = this.scenePicture.picture.clipHeight;
+        let pictureWidth = this.scenePicture.clipWidth;
+        let pictureHeight = this.scenePicture.clipHeight;
 
         let [left, top, midSide] = getPicturePoints(this.scenePicture);
 
@@ -26,14 +26,14 @@ export const EditLayout = {
 
         this.startPoint = map(this.constant, this.parent.start);
 
-        const picture = this.scenePicture.picture;
-        const centroidX = picture.centroidX - picture.clipX;
-        const centroidY = picture.centroidY - picture.clipY;
+        const centroidX = this.scenePicture.centroidX - this.scenePicture.clipX;
+        const centroidY = this.scenePicture.centroidY - this.scenePicture.clipY;
 
         let boxSize = PICTURE_RECT / (this.scenePicture.scale * this.scenePicture.factor);
 
         if (inBox(this.startPoint, left, top, boxSize)
             || inBox(this.startPoint, left, 0, boxSize)) {
+
             this.parent.continue = true;
             let dx = (this.startPoint.x - centroidX);
             let dy = (this.startPoint.y - centroidY);
@@ -62,8 +62,8 @@ const map = (scenePicture, point) => {
     let x = point.x / scenePicture.factor;
     let y = point.y / scenePicture.factor;
 
-    const centroidX = scenePicture.picture.centroidX - scenePicture.picture.clipX;
-    const centroidY = scenePicture.picture.centroidY - scenePicture.picture.clipY;
+    const centroidX = scenePicture.centroidX - scenePicture.clipX;
+    const centroidY = scenePicture.centroidY - scenePicture.clipY;
 
     x -= scenePicture.translateX / scenePicture.factor;
     y -= scenePicture.translateY / scenePicture.factor;
@@ -94,9 +94,8 @@ function setScale(timestamp) {
     const [x, y] = this.parent.fixXY(this.parent.point);
     const point = map(this.constant, {x:x, y:y});
 
-    const picture = this.scenePicture.picture;
-    const dx = point.x - (picture.centroidX - picture.clipX);
-    const dy = point.y - (picture.centroidY - picture.clipY);
+    const dx = point.x - (this.scenePicture.centroidX - this.scenePicture.clipX);
+    const dy = point.y - (this.scenePicture.centroidY - this.scenePicture.clipY);
 
     const currentLength = dist(dx, dy);
 
@@ -116,9 +115,8 @@ function setScale(timestamp) {
 function setRotate(timestamp) {
     let [x, y] = this.parent.fixXY(this.parent.point);
     let point = map(this.constant, {x:x, y:y});
-    const picture = this.scenePicture.picture;
-    const dx = point.x - (picture.centroidX - picture.clipX);
-    const dy = point.y - (picture.centroidY - picture.clipY);
+    const dx = point.x - (this.scenePicture.centroidX - this.scenePicture.clipX);
+    const dy = point.y - (this.scenePicture.centroidY - this.scenePicture.clipY);
 
     let deltaRotate = Math.atan2(dy, dx) - this.startRotate;
 

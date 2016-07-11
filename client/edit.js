@@ -121,14 +121,13 @@ export const getSizePoints = (width, height) => {
 };
 
 export const getPicturePoints = scenePicture => {
-    const picture = placement.picture;
     const boxSize = PICTURE_RECT / (scenePicture.scale * scenePicture.factor);
-    const width = picture.clipWidth;
-    const height = picture.clipHeight;
+    const width = scenePicture.clipWidth;
+    const height = scenePicture.clipHeight;
 
     const left = width - boxSize;
     const top = height - boxSize;
-    const midSide = picture.centroidY - picture.clipY - Math.round(boxSize / 2);
+    const midSide = scenePicture.centroidY - scenePicture.clipY - Math.round(boxSize / 2);
 
     return [left, top, midSide];
 };

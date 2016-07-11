@@ -8,11 +8,12 @@ import Start from "./start";
 import Signon from "./signon";
 import persistence from "./persistence";
 import LocalLoad from "./localLoad";
-import ServerlLoad from "./serverBase";
+import ServerLoad from "./serverLoad";
 import Catalogue from "./catalogue";
 import SaveAs from "./saveAs";
 import EditPicture from "./editPicture";
 import Layout from "./layout";
+import ServerLayout from "./serverLayout";
 
 class Title extends React.Component{
     render()  {
@@ -65,7 +66,6 @@ class Before extends React.Component{
             store.display.page = Constants.page.SERVER_LOAD;
             redraw();
         });
-        
     }
 
     newScene() {
@@ -126,19 +126,13 @@ class Container extends React.Component {
                 contents = <LocalLoad store={this.props.store}/>
                 break;
 
-            case Constants.page.SERVER_LAYOUT:
-                contents = <ServerLayout store={this.props.store}/>
-                break;
-
             case Constants.page.SERVER_LOAD:
                 this.props.store.display.previous = Constants.page.SERVER_LOAD;
-                this.props.store.display.next = Constants.page.EDIT_PICTURE;
-                contents = <ServerlLoad store={this.props.store}/>
+                contents = <ServerLoad store={this.props.store}/>
                 break;
             
             case Constants.page.SERVER_LAYOUT:
                 this.props.store.display.previous = Constants.page.SERVER_LAYOUT;
-                this.props.store.display.next = Constants.page.LAYOUT;
                 contents = <ServerLayout store={this.props.store}/>
                 break;
 
