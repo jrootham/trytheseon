@@ -9,10 +9,10 @@ import React from "react";
 import ReactDOM from "react-dom";
 import RadioGroup from "react-radio";
 
-import {Constants, setFactor,Scene,ScenePicture} from "./data"
+import {Constants,Scene,makeScenePicture} from "./data"
 import {redraw} from "./index";
 import {inBox, inRect ,PICTURE_RECT} from "./edit";
-import {expand, left, right, flip} from "./imageProcess";
+import {left, right, flip} from "./imageProcess";
 import {transparentColour, transparentEdges, transparentSpeckles, reset} from "./imageProcess";
 import {dashedLine, drawBoxList, inBoxList} from "./common";
 import persistence from "./persistence";
@@ -135,7 +135,7 @@ const makeReset = store => {
 
 const makeDone = store => {
     return () => {
-        const scenePicture = new ScenePicture(store.picture);
+        const scenePicture = makeScenePicture(store.picture);
         if (store.scene) {
             store.scene.add(scenePicture);
             store.display.which = store.scene.scenePictures.length - 1;

@@ -6,14 +6,14 @@
  * Copyright © 2016 Jim Rootham
  */
 
-import {Constants, ScenePicture} from "./data";
+import {Constants, makeScenePicture} from "./data";
 import ServerBase from "./serverBase";
 import {redraw} from "./index";
 
 export default class ServerLayout extends ServerBase {
     
     setPicture(store, picture) {
-        const scenePicture = new ScenePicture(picture);
+        const scenePicture = makeScenePicture(picture);
         if (store.scene) {
             store.scene.add(scenePicture);
         }

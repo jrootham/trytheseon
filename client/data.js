@@ -80,25 +80,29 @@ export class Scene {
     }
 }
 
-export class ScenePicture {
-    constructor(picture) {
-        this.id = 0;
-        this.name = picture.name;
-        this.image = picture.image;
-        this.clipX = picture.clipX;
-        this.clipY = picture.clipY;
-        this.clipWidth = picture.clipWidth;
-        this.clipHeight = picture.clipHeight;
-        this.centroidX = picture.centroidX;
-        this.centroidY = picture.centroidY;
-        this.rotate = 0;
-        this.translateX = 0;
-        this.translateY = 0;
-        this.scale = 1;
-        this.zIndex = 0;
-        this.setFactor();
-    }
+export const makeScenePicture = picture => {
+    const scenePicture = new ScenePicture();
+    
+    scenePicture.id = 0;
+    scenePicture.name = picture.name;
+    scenePicture.image = picture.image;
+    scenePicture.clipX = picture.clipX;
+    scenePicture.clipY = picture.clipY;
+    scenePicture.clipWidth = picture.clipWidth;
+    scenePicture.clipHeight = picture.clipHeight;
+    scenePicture.centroidX = picture.centroidX;
+    scenePicture.centroidY = picture.centroidY;
+    scenePicture.rotate = 0;
+    scenePicture.translateX = 0;
+    scenePicture.translateY = 0;
+    scenePicture.scale = 1;
+    scenePicture.zIndex = 0;
+    scenePicture.setFactor();
 
+    return scenePicture;
+}
+
+export class ScenePicture {
     setFactor() {
         const width = Constants.MAX_WIDTH / this.clipWidth;
         const height = Constants.MAX_HEIGHT / this.clipHeight;
