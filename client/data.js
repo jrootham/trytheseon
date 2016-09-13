@@ -30,10 +30,14 @@ export const Constants = {
         LOCAL_LOAD:     3,
         LOCAL_LAYOUT:   4,
         SERVER_LOAD:    5,
-        SERVER_LAYOUT:  6,
-        CATALOGUE:      7,
-        EDIT_PICTURE:   8,
-        LAYOUT:         9
+        SCENE_LOAD:     6,
+        SERVER_LAYOUT:  7,
+        CATALOGUE:      8,
+        EDIT_PICTURE:   9,
+        LAYOUT:         10,
+        NEW_TAG:        11,
+        PICK_LINK:      12,
+        LINK_PICTURE:   13
     }
 };
 
@@ -61,13 +65,16 @@ export let store = {
             layout:             Constants.picture.NOTHING
         },
         
-        pictureList: []
+        pictureList: [],
+        sceneList: [],
+        tagList: []
     }
 };
 
 export class Scene {
-    constructor(width, height, scenePictures) {
+    constructor(name, width, height, scenePictures) {
         this.id = 0;
+        this.name = name;
         this.savedAt = "";
         this.width = width;
         this.height = height;
@@ -75,7 +82,7 @@ export class Scene {
     }
 
     add(scenePicture) {
-        scenePicture.zIndex = this.scenePictures.length
+        scenePicture.z = this.scenePictures.length
         this.scenePictures.push(scenePicture);
     }
 }
@@ -93,10 +100,10 @@ export const makeScenePicture = picture => {
     scenePicture.centroidX = picture.centroidX;
     scenePicture.centroidY = picture.centroidY;
     scenePicture.rotate = 0;
-    scenePicture.translateX = 0;
-    scenePicture.translateY = 0;
+    scenePicture.x = 0;
+    scenePicture.y = 0;
     scenePicture.scale = 1;
-    scenePicture.zIndex = 0;
+    scenePicture.z = 0;
     scenePicture.setFactor();
 
     return scenePicture;
@@ -124,10 +131,10 @@ export class ScenePicture {
         other.factor = this.factor;
 
         other.rotate = this.rotate;
-        other.translateX = this.translateX;
-        other.translateY = this.translateY;
+        other.x = this.x;
+        other.y = this.y;
         other.scale = this.scale;
-        other.zIndex = this.zIndex;
+        other.z = this.z;
 
         return other;
     }
@@ -146,6 +153,7 @@ export class Picture {
         this.name = "Picture";
         this.owned = true;
         this.image = image;
+        this.thumbnail = "";
         this.clipX = 0;
         this.clipY = 0;
         this.setPoints();

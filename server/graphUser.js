@@ -76,7 +76,6 @@ export const registerUser = {
     type: GraphUser,
     args: credentials,
     resolve(_, args, session) {
-        console.log("register", session);
         if (args.name === "") {
             session.userId = 0;
             throw new UserError(`Name may not be blank`);
@@ -112,7 +111,6 @@ export const signonUser = {
     type: GraphUser,
     args: credentials,
     resolve(_, args, session) {
-        console.log("signon", session);
         const result = User.findOne({where:{name:args.name}}).then(user => {
             if (user === null) {
                 throw new UserError(`Name ${args.name} not found`)
@@ -140,7 +138,6 @@ export const signoffUser = {
         }
     },
     resolve(_, args, session){
-        console.log("signoff", session);
         const result = User.findOne({where:{id:session.userId}}).then(user => {
             if (user.name != args.name) {
                 throw new Error(`Name ${args.name} not signed on`)

@@ -9,11 +9,15 @@ import Signon from "./signon";
 import persistence from "./persistence";
 import LocalLoad from "./localLoad";
 import ServerLoad from "./serverLoad";
+import SceneLoad from "./sceneLoad";
 import Catalogue from "./catalogue";
 import SaveAs from "./saveAs";
 import EditPicture from "./editPicture";
 import Layout from "./layout";
 import ServerLayout from "./serverLayout";
+import NewTag from "./newTag";
+import LinkPicture from "./linkPicture";
+import PickLink from "./pickLink";
 
 class Title extends React.Component{
     render()  {
@@ -31,6 +35,17 @@ class Title extends React.Component{
 };
 
 class Before extends React.Component{
+    constructor() {
+        super();
+        this.signOnOff = this.signOnOff.bind(this);
+        this.loadLocal = this.loadLocal.bind(this);
+        this.loadServer = this.loadServer.bind(this);
+        this.newScene = this.newScene.bind(this);
+        this.loadScene = this.loadScene.bind(this);
+        this.newTag = this.newTag.bind(this);
+        this.pickLink = this.pickLink.bind(this);
+    }
+
     signOnOff() {
         let store = this.props.store;
         if (store.signon.on) {
@@ -68,16 +83,46 @@ class Before extends React.Component{
         });
     }
 
+    loadScene() {
+        const list = persistence.getSceneList();
+        list.then(result => {
+            let store = this.props.store;
+
+            store.display.sceneList = result;
+            store.display.page = Constants.page.SCENE_LOAD;
+            redraw();
+        });
+    }
+
     newScene() {
         const store = this.props.store;
-        store.display.scene = new Scene(Constants.MAX_WIDTH, Constants.MAX_HEIGHT, []);
+        store.scene = new Scene("", Constants.MAX_WIDTH, Constants.MAX_HEIGHT, []);
+        store.display.which = Constants.layout.NOTHING;
         store.display.page = Constants.page.LAYOUT;
         store.display.previous = Constants.page.LAYOUT;
         redraw();
     }
 
-    loadScene() {
+    newTag() {
+        const list = persistence.getTagList();
+        list.then(result => {
+            let store = this.props.store;
 
+            store.display.tagList = result.data.getTagList;
+            store.display.page = Constants.page.NEW_TAG;
+            redraw();
+        });
+    }
+
+    pickLink() {
+        const list = persistence.getPictureList();
+        list.then(result => {
+            let store = this.props.store;
+
+            store.display.pictureList = result;
+            store.display.page = Constants.page.PICK_LINK;
+            redraw();
+        });
     }
 
     render() {
@@ -90,11 +135,13 @@ class Before extends React.Component{
         const signOnOffMsg = this.props.store.signon.on ? "Sign Off" : "Sign On/Register";
         
         return <div style={style}>
-            <div><button onClick={()=> this.signOnOff()}>{signOnOffMsg}</button></div>
-            <div><button onClick={()=> this.loadLocal()}>Load Local Picture</button></div>
-            <div><button onClick={()=> this.loadServer()}>Load Server Picture</button></div>
-            <div><button onClick={()=> this.newScene()}>New Scene</button></div>
-            <div><button onClick={()=> this.loadScene()}>Load Scene</button></div>
+            <div><button onClick={this.signOnOff}>{signOnOffMsg}</button></div>
+            <div><button onClick={this.loadLocal}>Load Local Picture</button></div>
+            <div><button onClick={this.loadServer}>Load Server Picture</button></div>
+            <div><button onClick={this.newScene}>New Scene</button></div>
+            <div><button onClick={this.loadScene}>Load Scene</button></div>
+            <div><button onClick={this.newTag}>New Tag</button></div>
+            <div><button onClick={this.pickLink}>Link Picture</button></div>
         </div>
     }
 };
@@ -126,6 +173,10 @@ class Container extends React.Component {
                 contents = <LocalLoad store={this.props.store}/>
                 break;
 
+            case Constants.page.SCENE_LOAD:
+                contents = <SceneLoad store={this.props.store}/>
+                break;
+
             case Constants.page.SERVER_LOAD:
                 this.props.store.display.previous = Constants.page.SERVER_LOAD;
                 contents = <ServerLoad store={this.props.store}/>
@@ -148,6 +199,18 @@ class Container extends React.Component {
             case Constants.page.LAYOUT:
                 this.props.store.display.previous = Constants.page.LAYOUT;
                 contents = <Layout store={this.props.store}/>
+                break;
+
+            case Constants.page.NEW_TAG:
+                contents = <NewTag store={this.props.store}/>
+                break;
+
+            case Constants.page.PICK_LINK:
+                contents = <PickLink store={this.props.store}/>
+                break;
+
+            case Constants.page.LINK_PICTURE:
+                contents = <LinkPicture store={this.props.store}/>
                 break;
 
             default: {

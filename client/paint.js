@@ -52,7 +52,7 @@ const sizeOverlay = store => {
 const transform = (context, scenePicture) => {
     const centroidX = (scenePicture.centroidX - scenePicture.clipX) * scenePicture.factor;
     const centroidY = (scenePicture.centroidY - scenePicture.clipY) * scenePicture.factor;
-    context.translate(scenePicture.translateX, scenePicture.translateY);
+    context.translate(scenePicture.x, scenePicture.y);
     context.translate(centroidX, centroidY);
     context.rotate(scenePicture.rotate);
     context.scale(scenePicture.scale, scenePicture.scale);
@@ -75,7 +75,7 @@ const paint = store => {
 
     for (let zOrder = 0 ; zOrder < store.scene.scenePictures.length ; zOrder++) {
         store.scene.scenePictures.forEach((element, index) =>{
-            if (element.zIndex === zOrder) {
+            if (element.z === zOrder) {
                 context.save();
                 transform(context, element);
                 const sizeWidth = element.factor * element.clipWidth;

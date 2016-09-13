@@ -15,34 +15,36 @@ import {maskErrors} from "graphql-errors";
 
 import {registerUser, signonUser, signoffUser} from "./graphUser";
 import {savePicture, updatePicture, getPictureList, getPicture} from "./graphPicture";
-import {saveScene, updateScene} from "./graphScene";
+import {saveScene, updateScene, GraphScene, getSceneList, getScene} from "./graphScene";
+import {newTag, getTagList} from "./graphTag";
 
 const query = new GraphQLObjectType({
     name: 'Queries',
-    fields: () => {
-        return {
-            getPictureList: getPictureList,
-            getPicture: getPicture
-        }
+    description: "Query actions",
+    fields: {
+        getPictureList: getPictureList,
+        getPicture: getPicture,
+        getSceneList: getSceneList,
+        getScene: getScene,
+        getTagList: getTagList
     }
 });
-
 
 const mutation = new GraphQLObjectType({
     name: 'Mutations',
     description: "Modification actions",
-    fields() {
-        return {
-            registerUser: registerUser,
-            signonUser: signonUser,
-            signoffUser: signoffUser,
-            
-            savePicture: savePicture,
-            updatePicture: updatePicture,
-            
-            saveScene: saveScene,
-            updateScene: updateScene
-        }
+    fields: {
+        registerUser: registerUser,
+        signonUser: signonUser,
+        signoffUser: signoffUser,
+        
+        savePicture: savePicture,
+        updatePicture: updatePicture,
+        
+        saveScene: saveScene,
+        updateScene: updateScene,
+
+        newTag: newTag
     }
 });
 

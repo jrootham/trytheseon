@@ -11,75 +11,84 @@ import {
     GraphQLInt,
     GraphQLBoolean,
     GraphQLNonNull,
-    GraphQLList,
-    GraphQLInputObjectType
+    GraphQLList
 } from "graphql";
 import {Picture} from "../database/defineDB";
 
 export const GraphPicture = new GraphQLObjectType({
     name: "GraphPicture",
     description: "A picture object",
-    fields: () => {
-        return {
-            id: {
-                type: GraphQLInt,
-                resolve: (picture) => {
-                    return picture.id;
-                }
-            },
-            owned: {
-                type: GraphQLBoolean,
-                resolve: (picture, _, session) => {
-                    return "userId" in session  && picture.userId === session.userId;
-                }
-            },
-            image: {
-                type: GraphQLString,
-                resolve: (picture) => {
-                    return picture.image;
-                }
-            },
-            name: {
-                type: GraphQLString,
-                resolve: (picture) => {
-                    return picture.name;
-                }
-            },
-            clipX: {
-                type: GraphQLInt,
-                resolve: (picture) => {
-                    return picture.clipX;
-                }
-            },
-            clipY: {
-                type: GraphQLInt,
-                resolve: (picture) => {
-                    return picture.clipY;
-                }
-            },
-            clipWidth: {
-                type: GraphQLInt,
-                resolve: (picture) => {
-                    return picture.clipWidth;
-                }
-            },
-            clipHeight: {
-                type: GraphQLInt,
-                resolve: (picture) => {
-                    return picture.clipHeight;
-                }
-            },
-            centroidX: {
-                type: GraphQLInt,
-                resolve: (picture) => {
-                    return picture.centroidX;
-                }
-            },
-            centroidY: {
-                type: GraphQLInt,
-                resolve: (picture) => {
-                    return picture.centroidY;
-                }
+    fields: {
+        id: {
+            type: GraphQLInt,
+            resolve: (picture) => {
+                return picture.id;
+            }
+        },
+        owned: {
+            type: GraphQLBoolean,
+            resolve: (picture, _, session) => {
+                return "userId" in session  && picture.userId === session.userId;
+            }
+        },
+        name: {
+            type: GraphQLString,
+            resolve: (picture) => {
+                return picture.name;
+            }
+        },
+        clipX: {
+            type: GraphQLInt,
+            resolve: (picture) => {
+                return picture.clipX;
+            }
+        },
+        clipY: {
+            type: GraphQLInt,
+            resolve: (picture) => {
+                return picture.clipY;
+            }
+        },
+        clipWidth: {
+            type: GraphQLInt,
+            resolve: (picture) => {
+                return picture.clipWidth;
+            }
+        },
+        clipHeight: {
+            type: GraphQLInt,
+            resolve: (picture) => {
+                return picture.clipHeight;
+            }
+        },
+        centroidX: {
+            type: GraphQLInt,
+            resolve: (picture) => {
+                return picture.centroidX;
+            }
+        },
+        centroidY: {
+            type: GraphQLInt,
+            resolve: (picture) => {
+                return picture.centroidY;
+            }
+        },
+        savedAt: {
+            type: GraphQLString,
+            resolve: scene => {
+                return scene.updatedAt;
+            }
+        },
+        thumbnail: {
+            type: GraphQLString,
+            resolve: (picture) => {
+                return picture.image;
+            }
+        },
+        image: {
+            type: GraphQLString,
+            resolve: (picture) => {
+                return picture.image;
             }
         }
     }
@@ -107,6 +116,9 @@ const baseDataArgs = {
     centroidY: {
         type: new GraphQLNonNull(GraphQLInt)
     },
+    thumbnail: {
+        type: new GraphQLNonNull(GraphQLString)
+    },
     image: {
         type: new GraphQLNonNull(GraphQLString)
     }
@@ -121,6 +133,7 @@ const copyBase = src => {
         clipHeight: src.clipHeight,
         centroidX: src.centroidX,
         centroidY: src.centroidY,
+        thumbnail: src.thumbnail,
         image: src.image
     }
 };
@@ -178,7 +191,7 @@ export const getPictureList = {
         }
         return Picture.findAll({
             where: {userId: session.userId},
-            attributes: { exclude: ["image"] }
+            attributes: { exclude: ["image", "thumbnail"] }
         });
     }
 };

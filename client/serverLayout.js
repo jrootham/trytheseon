@@ -18,7 +18,7 @@ export default class ServerLayout extends ServerBase {
             store.scene.add(scenePicture);
         }
         else {
-            const scene = new Scene(Constants.MAX_WIDTH, Constants.MAX_HEIGHT, [scenePicture]);
+            const scene = new Scene("", Constants.MAX_WIDTH, Constants.MAX_HEIGHT, [scenePicture]);
             store.scene = scene;
         }
 

@@ -51,8 +51,8 @@ export const EditLayout = {
         }
         else if (inRect(this.startPoint, 0, 0, pictureWidth, pictureHeight)){
             this.parent.continue = true;
-            this.startX = this.scenePicture.translateX;
-            this.startY = this.scenePicture.translateY;
+            this.startX = this.scenePicture.x;
+            this.startY = this.scenePicture.y;
             window.requestAnimationFrame(setTranslate.bind(this));
         }
     }
@@ -65,8 +65,8 @@ const map = (scenePicture, point) => {
     const centroidX = scenePicture.centroidX - scenePicture.clipX;
     const centroidY = scenePicture.centroidY - scenePicture.clipY;
 
-    x -= scenePicture.translateX / scenePicture.factor;
-    y -= scenePicture.translateY / scenePicture.factor;
+    x -= scenePicture.x / scenePicture.factor;
+    y -= scenePicture.y / scenePicture.factor;
 
     x -= centroidX;
     y -= centroidY;
@@ -140,8 +140,8 @@ function setTranslate(timestamp) {
     let dx = x - this.parent.start.x;
     let dy = y - this.parent.start.y;
 
-    this.scenePicture.translateX = this.constant.translateX + dx;
-    this.scenePicture.translateY = this.constant.translateY + dy;
+    this.scenePicture.x = this.constant.x + dx;
+    this.scenePicture.y = this.constant.y + dy;
 
     if (this.parent.continue) {
         paintAll(this.parent.props.store);

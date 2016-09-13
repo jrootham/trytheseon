@@ -17,9 +17,6 @@ export default class ServerBase extends React.Component {
         this.load = this.load.bind(this);
     }
 
-    finish() {
-    }
-
     load() {
         const pictureId = parseInt(document.getElementById("pickPicture").value);
         const store = this.props.store;

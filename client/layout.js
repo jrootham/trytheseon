@@ -71,9 +71,9 @@ class Size extends React.Component {
     }
 }
 
-class InputTranslateX extends React.Component {
+class InputX extends React.Component {
     handleChange(event) {
-        this.props.scenePicture.translateX = intParse(event.target.value, 0);
+        this.props.scenePicture.x = intParse(event.target.value, 0);
         redraw();
     }
 
@@ -82,16 +82,16 @@ class InputTranslateX extends React.Component {
             <input
                 type="text"
                 className="input_box"
-                value={this.props.scenePicture.translateX}
+                value={this.props.scenePicture.x}
                 onChange={this.handleChange.bind(this)}
             />
         );
     }
 }
 
-class InputTranslateY extends React.Component {
+class InputY extends React.Component {
     handleChange(event) {
-        this.props.scenePicture.translateY = intParse(event.target.value, 0);
+        this.props.scenePicture.y = intParse(event.target.value, 0);
         redraw();
     }
 
@@ -100,7 +100,7 @@ class InputTranslateY extends React.Component {
             <input
                 type="text"
                 className="input_box"
-                value={this.props.scenePicture.translateY}
+                value={this.props.scenePicture.y}
                 onChange={this.handleChange.bind(this)}
             />
         );
@@ -149,13 +149,13 @@ class PictureData extends React.Component {
         let index = this.props.store.display.which;
         let scenePicture = scenePictureList[index];
         let length = scenePictureList.length;
-        if (length > 1 && scenePicture.zIndex < length - 1) {
+        if (length > 1 && scenePicture.z < length - 1) {
             let other = scenePictureList.find(element => {
-                return element.zIndex === scenePicture.zIndex + 1;
+                return element.z === scenePicture.z + 1;
             });
 
-            other.zIndex--;
-            scenePicture.zIndex++;
+            other.z--;
+            scenePicture.z++;
         }
         redraw();
     }
@@ -165,13 +165,13 @@ class PictureData extends React.Component {
         let index = this.props.store.display.which;
         let scenePicture = scenePictureList[index];
         let length = scenePictureList.length;
-        if (length > 1 && scenePicture.zIndex > 0) {
+        if (length > 1 && scenePicture.z > 0) {
             let other = scenePictureList.find(element => {
-                return element.zIndex === scenePicture.zIndex - 1;
+                return element.z === scenePicture.z - 1;
             });
 
-            other.zIndex++;
-            scenePicture.zIndex--;
+            other.z++;
+            scenePicture.z--;
         }
         redraw();
     }
@@ -194,11 +194,11 @@ class PictureData extends React.Component {
 
         return <div>
             <div>Name: {scenePicture.name}</div>
-            <div>X:<InputTranslateX scenePicture={scenePicture}/></div>
-            <div>Y:<InputTranslateY scenePicture={scenePicture}/></div>
+            <div>X:<InputX scenePicture={scenePicture}/></div>
+            <div>Y:<InputY scenePicture={scenePicture}/></div>
             <div>Scale:<InputScale scenePicture={scenePicture}/></div>
             <div>Rotate:<InputRotate scenePicture={scenePicture}/></div>
-            <div>Z: {scenePicture.zIndex}</div>
+            <div>Z: {scenePicture.z}</div>
             <div>
                 <button onClick={this.plus.bind(this)}>+</button>
                 <button onClick={this.minus.bind(this)}>-</button>
@@ -343,7 +343,7 @@ class After extends React.Component{
 
 const setup = store => {
     if (!store.scene) {
-        store.scene = new Scene(Constants.MAX_WIDTH, Constants.MAX_HEIGHT, []);
+        store.scene = new Scene("", Constants.MAX_WIDTH, Constants.MAX_HEIGHT, []);
     }
 };
 

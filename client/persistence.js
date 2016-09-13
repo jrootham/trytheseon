@@ -6,6 +6,8 @@
  * Copyright © 2016 Jim Rootham
  */
 
+import {makePictureURL} from "./makePictureURL";
+
 class Persistence {
     send(message) {
         const origin = window.location.origin;
@@ -30,16 +32,16 @@ class Persistence {
     }
 
     status(response) {
-    if (response.status >= 200 && response.status < 300) {
-        return Promise.resolve(response)
-    } else {
-        return Promise.reject(new Error(response.statusText))
+        if (response.status >= 200 && response.status < 300) {
+            return Promise.resolve(response)
+        } else {
+            return Promise.reject(new Error(response.statusText))
+        }
     }
-}
 
     json(response) {
-    return response.json()
-}
+        return response.json()
+    }
 
     setNamePassword(name, password) {
         return `(name: "${name}", password:"${password}")`;
@@ -74,11 +76,13 @@ class Persistence {
         const clipHeight = `clipHeight:${picture.clipHeight}`;
         const centroidX = `centroidX:${picture.centroidX}`;
         const centroidY = `centroidY:${picture.centroidY}`;
-        const image = `image:${picture.image}`;
+        const thumbnail = `thumbnail:${picture.thumbnail}`;
+
+        const image = `image:${makePictureURL(picture.image)}`;
         
         const first =`${name} ${clipX} ${clipY} ${clipHeight} ${clipWidth} `;
-        const second = `${centroidX} ${centroidY} ${image}`;
-        return `${first} ${second}`;
+        const second = `${centroidX} ${centroidY}`;
+        return `${first} ${second} ${thumbnail} ${image}`;
     }
     
     savePicture(picture) {
@@ -102,9 +106,60 @@ class Persistence {
 
     getPicture(id) {
         const which = `(id:${id})`;
-        const list = "id owned image name clipX clipY clipWidth clipHeight centroidX centroidY";
-        const message = `query getPicture{getPicture ${which} {${list}}}`;
+        const list1 = "id owned image thumbnail name clipX clipY";
+        const list2 = "clipWidth clipHeight centroidX centroidY";
+        const message = `query getPicture{getPicture ${which} {${list1} ${list2}}}`;
         return this.send(message);
+    }
+
+
+    getSceneList() {
+        const message = "query getSceneList{getSceneList {id name}}";
+        return this.send(message);
+    }
+
+    getScene(id) {
+        const which = `(id:${id})`;
+        const list1 = "id name height width savedAt pictureList";
+        const list2 = "{name clipX clipY clipWidth clipHeight centroidX centroidY";
+        const list3 = "x y z scale rotate image}";
+
+        const result = `${list1} ${list2} ${list3}`;
+        const message = `query getScene{getScene ${which} {${result}}}`;
+        return this.send(message);
+    }
+
+    scenePictureFormat(scenePicture) {
+        const name = `name:"${scenePicture.name}"`;
+        const clipX = `clipX:${scenePicture.clipX}`;
+        const clipY = `clipY:${scenePicture.clipY}`;
+        const clipWidth = `clipWidth:${scenePicture.clipWidth}`;
+        const clipHeight = `clipHeight:${scenePicture.clipHeight}`;
+        const centroidX = `centroidX:${scenePicture.centroidX}`;
+        const centroidY = `centroidY:${scenePicture.centroidY}`;
+        const image = `image:${makePictureURL(scenePicture.image)}`;
+        const rotate = `rotate:${scenePicture.rotate}`;
+        const x = `x:${scenePicture.x}`;
+        const y = `y:${scenePicture.y}`;
+        const scale = `scale:${scenePicture.scale}`;
+        const z = `z:${scenePicture.z}`;
+
+        const first = `${name} ${clipX} ${clipY} ${clipWidth} ${clipHeight}`;
+        const second = `${centroidX} ${centroidY} ${rotate} ${x} ${y}`;
+        const third = `${scale} ${z}`;
+        
+        return `{${first} ${second} ${third} ${image}} `;
+    }
+    
+    saveSceneList(scene) {
+        let result ="pictureList:[";
+        scene.scenePictures.forEach(scenePicture => {
+            result += this.scenePictureFormat(scenePicture);
+        })
+
+        result += "]";
+
+        return result;
     }
 
     saveScene(scene) {
@@ -113,7 +168,8 @@ class Persistence {
         const name = `name:"${scene.name}"`;
         const width = `width:${scene.width}`;
         const height = `height:${scene.height}`;
-        const sceneData = `(${name} ${width} ${height})`
+        const sceneList = `${this.saveSceneList(scene)}`;
+        const sceneData = `(${name} ${width} ${height} ${sceneList})`;
         return this.send(`${base} {saveScene ${sceneData} ${values}}`);
     }
 
@@ -124,10 +180,24 @@ class Persistence {
         const name = `name:"${scene.name}"`;
         const width = `width:${scene.width}`;
         const height = `height:${scene.height}`;
-        const sceneData = `(${id} ${name} ${width} ${height})`
+        const sceneList = `${this.saveSceneList(scene)}`;
+        const sceneData = `(${id} ${name} ${width} ${height} ${sceneList})`
         return this.send(`${base} {updateScene ${sceneData} ${values}}`);
     }
+
+    newTag(entry) {
+        const base = "mutation newTag";
+        const values = "{id, name}";
+        const data = `(name:"${entry}")`;
+        return this.send(`${base} {newTag ${data} ${values}}`);
+    }
+
+    getTagList() {
+        const message = "query getTagList{getTagList {id, name}}";
+        return this.send(message);
+    }
 }
+
 
 const persistence = new Persistence();
 

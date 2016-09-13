@@ -16,7 +16,8 @@ export const connect = new Sequelize(
     password,
     {
         dialect: "postgres",
-        host:"localhost"
+        host:"localhost",
+        logging: false
     });
 
 export const User = connect.define("user", {
@@ -37,6 +38,10 @@ export const Picture = connect.define("picture", {
         allowNull:false
     },
     image: {
+        type: Sequelize.TEXT,
+        allowNull: false
+    },
+    thumbnail: {
         type: Sequelize.TEXT,
         allowNull: false
     },
@@ -126,6 +131,10 @@ export const ScenePicture = connect.define("scenePicture", {
         type: Sequelize.INTEGER,
         allowNull:false
     },
+    z: {
+        type: Sequelize.INTEGER,
+        allowNull:false
+    },
     scale: {
         type: Sequelize.FLOAT,
         allowNull:false
@@ -137,14 +146,16 @@ export const ScenePicture = connect.define("scenePicture", {
 });
 
 Scene.hasMany(ScenePicture);
+ScenePicture.belongsTo(Scene);
 
 export const Tag = connect.define("tag", {
     name: {
         type: Sequelize.STRING,
-        allowNull: false
+        allowNull: false,
+        unique: true
     }
 });
 
-Tag.belongsToMany(Picture, {through: "PictureTag"});
-Picture.belongsToMany(Tag, {through: "PictureTag"});
+Tag.belongsToMany(Picture, {through: "pictureTag"});
+Picture.belongsToMany(Tag, {through: "pictureTag"});
 

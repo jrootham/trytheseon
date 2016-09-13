@@ -16,6 +16,7 @@ import {left, right, flip} from "./imageProcess";
 import {transparentColour, transparentEdges, transparentSpeckles, reset} from "./imageProcess";
 import {dashedLine, drawBoxList, inBoxList} from "./common";
 import persistence from "./persistence";
+import {makePictureURL} from "./makePictureURL";
 
 const BUFFER = 15;
 const TARGET = 30;
@@ -133,23 +134,6 @@ const makeReset = store => {
     }
 }
 
-const makeDone = store => {
-    return () => {
-        const scenePicture = makeScenePicture(store.picture);
-        if (store.scene) {
-            store.scene.add(scenePicture);
-            store.display.which = store.scene.scenePictures.length - 1;
-        }
-        else {
-            const scene = new Scene(Constants.MAX_WIDTH, Constants.MAX_HEIGHT, [scenePicture]);
-            store.scene = scene;
-            store.display.which = store.scene.scenePictures.length - 1;
-        }
-        store.display.page = Constants.page.LAYOUT;
-        redraw();
-    }
-}
-
 class Transparent extends React.Component{
     render() {
         const setTransparent = this.props.store.display.picture.colourTransparent;
@@ -251,35 +235,6 @@ const handleError = (store, error) => {
     redraw();
 };
 
-const makePictureURL = picture => {
-    let canvas = document.getElementById("invisible");
-    let context = canvas.getContext("2d");
-
-    let image = picture.image;
-
-    canvas.width = image.width;
-    canvas.height = image.height;
-
-    context.drawImage(image, 0, 0, image.width, image.height);
-
-    const result = canvas.toDataURL();
-    return `"${result}"`;
-};
-
-const convert = picture => {
-    return {
-        name: `${picture.name}`,
-        clipX: picture.clipX,
-        clipY: picture.clipY,
-        clipWidth: picture.clipWidth,
-        clipHeight: picture.clipHeight,
-        centroidX: picture.centroidX,
-        centroidY: picture.centroidY,
-        image: makePictureURL(picture)
-    }
-};
-
-
 class Features extends React.Component {
     constructor() {
         super();
@@ -291,7 +246,7 @@ class Features extends React.Component {
 
         if (store.signon.on) {
             if (store.picture.id === 0) {
-                const promise = persistence.savePicture(convert(store.picture));
+                const promise = persistence.savePicture(store.picture);
                 promise.then(result => {
                     if ("errors" in result) {
                         handleError(store, result.errors[0]);
