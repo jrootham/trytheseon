@@ -19,13 +19,16 @@ export default class LoadBase extends React.Component {
     }
 
     getFile() {
+        console.log("in getFile");
         const store = this.props.store;
         
         let fileInput = document.getElementById("localFile");
         let fileList = fileInput.files;
 
+        console.log("length", fileList.length);
         if (fileList.length > 0) {
             let file = fileList[0];
+            console.log(file);
             createImageBitmap(file).then(this.insertImage);
         }
         else {
