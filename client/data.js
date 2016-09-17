@@ -8,9 +8,10 @@
 
 export const Constants = {
     MAX_WIDTH:          800,
-    MAX_HEIGHT :        800,
+    MAX_HEIGHT:         800,
     MIN_WIDTH:          80,
-    MIN_HEIGHT :        80,
+    MIN_HEIGHT:         80,
+    THUMB_SIZE:         100,
 
     layout: {
         NOTHING:        -2,

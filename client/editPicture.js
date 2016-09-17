@@ -16,7 +16,7 @@ import {left, right, flip} from "./imageProcess";
 import {transparentColour, transparentEdges, transparentSpeckles, reset} from "./imageProcess";
 import {dashedLine, drawBoxList, inBoxList} from "./common";
 import persistence from "./persistence";
-import {makePictureURL} from "./makePictureURL";
+import {makePictureURL,setThumbnailURL} from "./makePictureURL";
 
 const BUFFER = 15;
 const TARGET = 30;
@@ -245,6 +245,9 @@ class Features extends React.Component {
         const store = this.props.store;
 
         if (store.signon.on) {
+
+            setThumbnailURL(store.picture);
+
             if (store.picture.id === 0) {
                 const promise = persistence.savePicture(store.picture);
                 promise.then(result => {

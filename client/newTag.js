@@ -32,6 +32,7 @@ export default class NewTag extends React.Component {
                 message.innerHTML = `Error: ${result.errors[0].message}`;
             }
             else {
+                message.innerHTML = ``;
                 const newTag = result.data.newTag;
                 const display = this.props.store.display;
                 display.tagList = (display.tagList.concat(newTag)).sort((a,b) => {
