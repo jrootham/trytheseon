@@ -11,7 +11,9 @@ export const Constants = {
     MAX_HEIGHT:         800,
     MIN_WIDTH:          80,
     MIN_HEIGHT:         80,
-    THUMB_SIZE:         100,
+    THUMB_SIZE:         200,
+
+    PROMOTED:           1,
 
     layout: {
         NOTHING:        -2,
@@ -51,7 +53,13 @@ export let store = {
     scene: undefined,
     picture: undefined,
 
-    display : {
+    pictureList: [],
+    sceneList: [],
+    tagList: [],
+    tagLinks: [],
+    publicPictureList: [],
+
+    display: {
         previous:               Constants.page.START,
         page:                   Constants.page.START,
         next:                   Constants.page.START,
@@ -64,11 +72,13 @@ export let store = {
             zoom:               1,
             colourTransparent:  false,
             layout:             Constants.picture.NOTHING
-        },
-        
-        pictureList: [],
-        sceneList: [],
-        tagList: []
+        }
+    },
+    buffer: {
+        scenePicture: {
+
+        }
+
     }
 };
 
@@ -93,6 +103,7 @@ export const makeScenePicture = picture => {
     
     scenePicture.id = 0;
     scenePicture.name = picture.name;
+    scenePicture.description = picture.description;
     scenePicture.image = picture.image;
     scenePicture.clipX = picture.clipX;
     scenePicture.clipY = picture.clipY;
@@ -151,7 +162,8 @@ export class PictureLabel {
 export class Picture {
     constructor(image) {
         this.id = 0;
-        this.name = "Picture";
+        this.name = "";
+        this.description = "";
         this.owned = true;
         this.image = image;
         this.thumbnail = "";
@@ -159,6 +171,7 @@ export class Picture {
         this.clipY = 0;
         this.setPoints();
         this.name = "";
+        this.visible = false;
     }
 
     setPoints() {

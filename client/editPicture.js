@@ -10,8 +10,7 @@ import ReactDOM from "react-dom";
 import RadioGroup from "react-radio";
 
 import {Constants,Scene,makeScenePicture} from "./data"
-import {redraw} from "./index";
-import {inBox, inRect ,PICTURE_RECT} from "./edit";
+import {inBox, inRect, PICTURE_RECT} from "./edit";
 import {left, right, flip} from "./imageProcess";
 import {transparentColour, transparentEdges, transparentSpeckles, reset} from "./imageProcess";
 import {dashedLine, drawBoxList, inBoxList} from "./common";
@@ -31,7 +30,6 @@ class Zoom extends React.Component {
     change(value) {
         const store = this.props.store;
         store.display.picture.zoom = parseFloat(value);
-        redraw();
     }
 
     render() {
@@ -80,7 +78,6 @@ const makeTransform = (store, transform) => {
         const picture = store.picture;
         transform(picture.image).then(image =>{
             picture.setImage(image);
-            redraw();
         });
         ;
     }
@@ -112,7 +109,6 @@ class Orient extends React.Component{
 const makeFlood = store => {
     return () => {
         store.display.picture.colourTransparent = true;
-        redraw();
     }
 }
 
@@ -190,7 +186,6 @@ class Overlay extends React.Component {
         const makeChange = store => {
             return (value, event) => {
                 store.display.picture.layout = parseInt(value);
-                redraw();
             }
         };
 
@@ -216,7 +211,10 @@ class Values extends React.Component {
         const picture = store.picture;
         result = <div className="control_container">
             <div>Values</div>
-            <div>Name:{picture.name}</div>
+            <div>Name:<input type="text"/></div>
+            <div><div>Description</div>
+                <div><textarea/></div>
+            </div>
             <div>Left:{picture.clipX}</div>
             <div>Top:{picture.clipY}</div>
             <div>Width:{picture.clipWidth}</div>
@@ -232,7 +230,6 @@ class Values extends React.Component {
 const handleError = (store, error) => {
     store.display.error = error.message;
     store.display.page = Constants.page.START;
-    redraw();
 };
 
 class Features extends React.Component {
@@ -261,9 +258,7 @@ class Features extends React.Component {
                 });
             }
             else {
-                const data = convert(store.picture);
-                data.id = store.picture.id;
-                const promise = persistence.updatePicture(data);
+                const promise = persistence.updatePicture(store.picture);
                 promise.then(result => {
                     store.display.error = undefined;
 
@@ -332,7 +327,6 @@ export default class EditPicture extends React.Component {
             window.requestAnimationFrame(this.setCentroidX.bind(this));
         }
         else {
-            redraw();
         }
     }
 
@@ -346,7 +340,6 @@ export default class EditPicture extends React.Component {
             window.requestAnimationFrame(this.setCentroidY.bind(this));
         }
         else {
-            redraw();
         }
     }
 
@@ -364,7 +357,6 @@ export default class EditPicture extends React.Component {
             window.requestAnimationFrame(this.setClipX.bind(this));
         }
         else {
-            redraw();
         }
     }
 
@@ -382,7 +374,6 @@ export default class EditPicture extends React.Component {
             window.requestAnimationFrame(this.setClipWidth.bind(this));
         }
         else {
-            redraw();
         }
     }
 
@@ -401,7 +392,6 @@ export default class EditPicture extends React.Component {
             window.requestAnimationFrame(this.setClipY.bind(this));
         }
         else {
-            redraw();
         }
     }
 
@@ -420,7 +410,6 @@ export default class EditPicture extends React.Component {
             window.requestAnimationFrame(this.setClipHeight.bind(this));
         }
         else {
-            redraw();
         }
     }
 

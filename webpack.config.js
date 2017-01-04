@@ -5,7 +5,7 @@
  *
  * Copyright © 2015 Jim Rootham
  */
-var webpack = require("webpack");
+const webpack = require("webpack");
 
 module.exports = {
     entry: "./client/index.js"
@@ -43,6 +43,10 @@ module.exports = {
             , {
                 test: /\.(jpe?g|png)(\?v=\d+\.\d+\.\d+)?$/
                 , loader: "url?limit=102400"
+            }
+            , {
+                test: /\.scss$/,
+                loaders: ['style', 'css', 'sass']
             }
         ]
     }

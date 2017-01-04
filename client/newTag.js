@@ -8,7 +8,6 @@
 
 import React from "react";
 import persistence from "./persistence";
-import {redraw} from "./index";
 
 export default class NewTag extends React.Component {
     constructor() {
@@ -34,20 +33,19 @@ export default class NewTag extends React.Component {
             else {
                 message.innerHTML = ``;
                 const newTag = result.data.newTag;
-                const display = this.props.store.display;
-                display.tagList = (display.tagList.concat(newTag)).sort((a,b) => {
+                const store = this.props.store;
+                store.tagList = (store.tagList.concat(newTag)).sort((a,b) => {
                     if (a.name < b.name) return -1;
                     if (a.name > b.name) return 1;
                     return 0;
                 });
-                redraw();
             }
         })
     }
 
     makeList() {
         let result = "";
-        const tagList = this.props.store.display.tagList;
+        const tagList = this.props.store.tagList;
         if (tagList) {
             result = tagList.map(function(result) {
                 return<li key={result.id}>{result.name}</li>;

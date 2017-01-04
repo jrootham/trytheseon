@@ -9,7 +9,6 @@
 import {PICTURE_RECT, getPicturePoints} from "./edit";
 import {inBox, inRect} from "./common";
 import {paintAll} from "./paint";
-import {redraw} from "./index";
 
 export const EditLayout = {
     start(parent) {
@@ -108,7 +107,6 @@ function setScale(timestamp) {
         window.requestAnimationFrame(setScale.bind(this));
     }
     else {
-        redraw();
     }
 }
 
@@ -129,7 +127,6 @@ function setRotate(timestamp) {
         window.requestAnimationFrame(setRotate.bind(this));
     }
     else {
-        redraw();
     }
 
 }
@@ -148,6 +145,5 @@ function setTranslate(timestamp) {
         window.requestAnimationFrame(setTranslate.bind(this));
     }
     else {
-        redraw();
     }
 }

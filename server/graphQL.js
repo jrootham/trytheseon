@@ -17,6 +17,7 @@ import {registerUser, signonUser, signoffUser} from "./graphUser";
 import {savePicture, updatePicture, getPictureList, getPicture} from "./graphPicture";
 import {saveScene, updateScene, GraphScene, getSceneList, getScene} from "./graphScene";
 import {newTag, getTagList} from "./graphTag";
+import {newPictureTags, getPictureTagList} from "./graphPictureTag";
 
 const query = new GraphQLObjectType({
     name: 'Queries',
@@ -26,7 +27,8 @@ const query = new GraphQLObjectType({
         getPicture: getPicture,
         getSceneList: getSceneList,
         getScene: getScene,
-        getTagList: getTagList
+        getTagList: getTagList,
+        getPictureTagList: getPictureTagList
     }
 });
 
@@ -44,7 +46,9 @@ const mutation = new GraphQLObjectType({
         saveScene: saveScene,
         updateScene: updateScene,
 
-        newTag: newTag
+        newTag: newTag,
+
+        newPictureTags: newPictureTags
     }
 });
 

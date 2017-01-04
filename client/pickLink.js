@@ -7,12 +7,17 @@
  */
 import {Constants} from "./data";
 import ServerBase from "./serverBase";
+import {getTagList, getTagLinks} from "./pickTag";
 
 export default class PickLink extends ServerBase {
 
     setPicture(store, picture) {
         store.picture = picture;
 
-        store.display.page = Constants.page.LINK_PICTURE;
+        Promise.all([getTagLinks(store, picture.id), getTagList(store)]).then(
+            () => {
+                store.display.page = Constants.page.LINK_PICTURE;
+            }
+        )
     }
 }

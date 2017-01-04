@@ -8,7 +8,6 @@
 import LoadBase from "./loadBase";
 import {Constants, Picture} from "./data";
 import {show, hide, makeGoBack} from "./common";
-import {redraw} from "./index";
 
 export default class LocalLoad extends LoadBase {
     constructor() {
@@ -26,7 +25,6 @@ export default class LocalLoad extends LoadBase {
 
         store.display.page = Constants.page.EDIT_PICTURE;
         store.display.previous = store.display.page;
-        redraw();
     }
 }
 

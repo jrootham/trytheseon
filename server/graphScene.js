@@ -32,6 +32,12 @@ export const GraphScenePicture = new GraphQLObjectType({
                 return scenePicture.name;
             }
         },
+        description: {
+            type: GraphQLString,
+            resolve: scenePicture => {
+                return scenePicture.description;
+            }
+        },
         clipX: {
             type: GraphQLInt,
             resolve: scenePicture => {
@@ -111,6 +117,7 @@ const scenePictureInput = new GraphQLInputObjectType({
     name: "scenePictureInput",
     fields:{
         name: {type: new GraphQLNonNull(GraphQLString)},
+        description: {type: new GraphQLNonNull(GraphQLString)},
         clipX: {type: new GraphQLNonNull(GraphQLInt)},
         clipY: {type: new GraphQLNonNull(GraphQLInt)},
         clipWidth: {type: new GraphQLNonNull(GraphQLInt)},
@@ -215,6 +222,7 @@ const saveResult = new GraphQLObjectType({
 const copyPicture = src => {
     return {
         name: src.name,
+        description: src.description,
         clipX: src.clipX,
         clipY: src.clipY,
         clipWidth: src.clipWidth,

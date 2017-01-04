@@ -9,7 +9,6 @@ import React from "react";
 import ReactDOM from "react-dom";
 import {Picture, Constants} from "./data";
 import persistence from "./persistence";
-import {redraw} from "./index";
 
 export default class ServerBase extends React.Component {
     constructor() {
@@ -38,10 +37,9 @@ export default class ServerBase extends React.Component {
                 picture.clipHeight = values.clipHeight;
                 picture.centroidX = values.centroidX;
                 picture.centroidY = values.centroidY;
+                picture.thumbnail = values.thumbnail;
 
                 this.setPicture(store, picture);
-
-                redraw();
             }
             
             image.src = values.image;
@@ -54,24 +52,29 @@ export default class ServerBase extends React.Component {
         let result = undefined;
 
         if (store.signon.on) {
-            const pictureList = store.display.pictureList.data.getPictureList;
+            const pictureList = store.pictureList;
 
-            const pick = <div>
-                <div>
-                    <select id="pickPicture">
-                        {pictureList.map(picture => {
-                            const id = picture.id;
+            if (pictureList.length > 0) {
+                const pick = <div>
+                    <div>
+                        <select id="pickPicture">
+                            {pictureList.map(picture => {
+                                const id = picture.id;
 
-                            return <option key={`${id}`} value={`${id}`}>
-                                {`${picture.id}  ${picture.name}`}
+                                return <option key={`${id}`} value={`${id}`}>
+                                    {`${picture.id}  ${picture.name}`}
                                 </option>
-                        })}
-                    </select>
+                            })}
+                        </select>
+                    </div>
+                    <button onClick={this.load}>Load</button>
                 </div>
-                <button onClick={this.load}>Load</button>
-            </div>
 
-            result = pick;
+                result = pick;
+            }
+            else {
+                result = <div>No picture to choose</div>
+            }
         }
         else {
             result =<div>Not signed on</div>

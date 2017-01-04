@@ -8,7 +8,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
-import {redraw} from "./index";
 import {Constants} from "./data";
 
 import {makeGoBack} from "./common";
@@ -19,7 +18,6 @@ const handleError = (store, error, thisPage) => {
     store.display.page = thisPage;
     store.signon.name = "";
     store.signon.on = false;
-    redraw();
 }
 
 export default class Signon extends React.Component {
@@ -39,7 +37,6 @@ export default class Signon extends React.Component {
                 store.signon.name = result.data.signonUser.name;
                 store.signon.on = result.data.signonUser.signedOn;
                 store.display.page = store.display.previous;
-                redraw();
             }
         });
     }
@@ -60,7 +57,6 @@ export default class Signon extends React.Component {
                 store.signon.name = result.data.registerUser.name;
                 store.signon.on = result.data.registerUser.signedOn;
                 store.display.page = store.display.previous;
-                redraw();
             }
         });
     }

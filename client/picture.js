@@ -6,11 +6,9 @@
  * Copyright © 2016 Jim Rootham
  */
 import React from "react";
-import ReactDOM from "react-dom";
 
 import {Constants, Picture} from "./data.js";
-import {show, hide, redraw} from "./index.js";
-import {nothing} from "./edit.js";
+import {show, hide} from "./index.js";
 
 const BORDER_SIZE = 15;
 const COLOUR_DISTANCE = 40;
@@ -149,7 +147,6 @@ const Features = React.createClass({
     done: function(event) {
         this.props.store.display.which = Constants.NONE;
         hide("picture");
-        redraw();
     },
 
     render: function() {

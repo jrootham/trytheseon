@@ -37,6 +37,10 @@ export const Picture = connect.define("picture", {
         type: Sequelize.STRING,
         allowNull:false
     },
+    description: {
+        type: Sequelize.TEXT,
+        allowNull: false
+    },
     image: {
         type: Sequelize.TEXT,
         allowNull: false
@@ -68,6 +72,10 @@ export const Picture = connect.define("picture", {
     centroidY: {
         type: Sequelize.INTEGER,
         allowNull:false
+    },
+    visible: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false
     }
 });
 
@@ -94,6 +102,10 @@ export const ScenePicture = connect.define("scenePicture", {
     name: {
         type: Sequelize.STRING,
         allowNull:false
+    },
+    description: {
+        type: Sequelize.TEXT,
+        allowNull: false
     },
     image: {
         type: Sequelize.TEXT,
@@ -155,6 +167,8 @@ export const Tag = connect.define("tag", {
         unique: true
     }
 });
+
+export const PictureTag = connect.define("pictureTag", {});
 
 Tag.belongsToMany(Picture, {through: "pictureTag"});
 Picture.belongsToMany(Tag, {through: "pictureTag"});

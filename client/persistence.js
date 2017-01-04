@@ -70,6 +70,7 @@ class Persistence {
     
     makePictureData(picture) {
         const name = `name:"${picture.name}"`;
+        const description = `description:"${picture.description}"`;
         const clipX = `clipX:${picture.clipX}`;
         const clipY = `clipY:${picture.clipY}`;
         const clipWidth = `clipWidth:${picture.clipWidth}`;
@@ -77,11 +78,12 @@ class Persistence {
         const centroidX = `centroidX:${picture.centroidX}`;
         const centroidY = `centroidY:${picture.centroidY}`;
         const thumbnail = `thumbnail:${picture.thumbnail}`;
+        const visible = `visible:${picture.visible}`
 
         const image = `image:${makePictureURL(picture.image)}`;
         
-        const first =`${name} ${clipX} ${clipY} ${clipHeight} ${clipWidth} `;
-        const second = `${centroidX} ${centroidY}`;
+        const first =`${name} ${description} ${clipX} ${clipY} ${clipHeight}`;
+        const second = `${clipWidth} ${centroidX} ${centroidY} ${visible}`;
         return `${first} ${second} ${thumbnail} ${image}`;
     }
     
@@ -101,17 +103,24 @@ class Persistence {
 
     getPictureList() {
         const message = "query getPictureList{getPictureList {id name}}";
+        return this.send(message)
+            .then(result => {
+                return result.data.getPictureList;
+            });
+    }
+
+    getThumbnailList() {
+        const message = "query getThumbnailList{getThumbnailList {id name thumbnail}}";
         return this.send(message);
     }
 
     getPicture(id) {
         const which = `(id:${id})`;
-        const list1 = "id owned image thumbnail name clipX clipY";
+        const list1 = "id name description owned image thumbnail name clipX clipY";
         const list2 = "clipWidth clipHeight centroidX centroidY";
         const message = `query getPicture{getPicture ${which} {${list1} ${list2}}}`;
         return this.send(message);
     }
-
 
     getSceneList() {
         const message = "query getSceneList{getSceneList {id name}}";
@@ -121,8 +130,8 @@ class Persistence {
     getScene(id) {
         const which = `(id:${id})`;
         const list1 = "id name height width savedAt pictureList";
-        const list2 = "{name clipX clipY clipWidth clipHeight centroidX centroidY";
-        const list3 = "x y z scale rotate image}";
+        const list2 = "{name description clipX clipY clipWidth clipHeight ";
+        const list3 = "centroidX centroidY x y z scale rotate image}";
 
         const result = `${list1} ${list2} ${list3}`;
         const message = `query getScene{getScene ${which} {${result}}}`;
@@ -131,6 +140,7 @@ class Persistence {
 
     scenePictureFormat(scenePicture) {
         const name = `name:"${scenePicture.name}"`;
+        const description = `description:"${scenePicture.description}"`;
         const clipX = `clipX:${scenePicture.clipX}`;
         const clipY = `clipY:${scenePicture.clipY}`;
         const clipWidth = `clipWidth:${scenePicture.clipWidth}`;
@@ -195,6 +205,22 @@ class Persistence {
     getTagList() {
         const message = "query getTagList{getTagList {id, name}}";
         return this.send(message);
+    }
+
+    newPictureTags(pictureId, tagList) {
+        const base = "mutation newPictureTags";
+        const args = `pictureId:${pictureId} tagList:[${tagList}]`;
+        const values ="{tagId}";
+        return this.send(`${base} {newPictureTags(${args}) ${values}}`);
+    }
+
+    getPictureTagList(pictureId) {
+        const base = "query getPictureTagList";
+        const message = `${base} {getPictureTagList(pictureId:${pictureId}) {tagId}}`;
+        return this.send(message).then(result =>{
+            console.log(result.data.getPictureTagList);
+            return result.data.getPictureTagList;
+        });
     }
 }
 

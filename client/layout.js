@@ -11,7 +11,6 @@ import RadioGroup from "react-radio";
 
 import "./../trytheseon.css"
 
-import {redraw} from "./index"
 import {store, Constants, Scene} from "./data";
 import Edit from "./edit";
 import {setOverlay, paintAll} from "./paint";
@@ -47,7 +46,6 @@ class Select extends React.Component {
         const makeChange = store => {
             return (value, event) => {
                 this.props.store.display.which = parseInt(value);
-                redraw();
             }
         }
 
@@ -74,7 +72,6 @@ class Size extends React.Component {
 class InputX extends React.Component {
     handleChange(event) {
         this.props.scenePicture.x = intParse(event.target.value, 0);
-        redraw();
     }
 
     render() {
@@ -83,7 +80,7 @@ class InputX extends React.Component {
                 type="text"
                 className="input_box"
                 value={this.props.scenePicture.x}
-                onChange={this.handleChange.bind(this)}
+                onBlur={this.handleChange.bind(this)}
             />
         );
     }
@@ -92,7 +89,6 @@ class InputX extends React.Component {
 class InputY extends React.Component {
     handleChange(event) {
         this.props.scenePicture.y = intParse(event.target.value, 0);
-        redraw();
     }
 
     render() {
@@ -101,7 +97,7 @@ class InputY extends React.Component {
                 type="text"
                 className="input_box"
                 value={this.props.scenePicture.y}
-                onChange={this.handleChange.bind(this)}
+                onBlur={this.handleChange.bind(this)}
             />
         );
     }
@@ -110,7 +106,6 @@ class InputY extends React.Component {
 class InputScale extends React.Component {
     handleChange(event) {
         this.props.scenePicture.scale = floatParse(event.target.value, 0);
-        redraw();
     }
 
     render() {
@@ -119,7 +114,7 @@ class InputScale extends React.Component {
                 type="text"
                 className="input_box"
                 value={Math.round((100 * this.props.scenePicture.scale)) / 100}
-                onChange={this.handleChange.bind(this)}
+                onBlur={this.handleChange.bind(this)}
             />
         );
     }
@@ -128,7 +123,6 @@ class InputScale extends React.Component {
 class InputRotate extends React.Component {
     handleChange(event) {
         this.props.scenePicture.rotate = intParse(event.target.value, 0) * THREESIXTY;
-        redraw();
     }
 
     render() {
@@ -137,7 +131,7 @@ class InputRotate extends React.Component {
                 type="text"
                 className="input_box"
                 value={Math.round(this.props.scenePicture.rotate / THREESIXTY)}
-                onChange={this.handleChange.bind(this)}
+                onBlur={this.handleChange.bind(this)}
             />
         );
     }
@@ -157,7 +151,6 @@ class PictureData extends React.Component {
             other.z--;
             scenePicture.z++;
         }
-        redraw();
     }
 
     minus() {
@@ -173,7 +166,6 @@ class PictureData extends React.Component {
             other.z++;
             scenePicture.z--;
         }
-        redraw();
     }
 
     edit() {
@@ -184,8 +176,6 @@ class PictureData extends React.Component {
         picture.zoom = 1;
         picture.colourTransparent = false;
         picture.layout = Constants.picture.NOTHING;
-
-        redraw();
     }
 
     render() {
@@ -250,21 +240,21 @@ class StoreControl extends React.Component {
         const scene = store.scene;
         scene.name = document.getElementById("sceneName").value;
 
-        if (scene.id === 0) {
-            persistence.saveScene(scene).then(result => {
-                const saveScene = result.data.saveScene;
-                store.scene.id = saveScene.id;
-                store.scene.savedAt = saveScene.savedAt;
-                redraw();
-            })
-        }
-        else {
-            persistence.updateScene(scene).then(result => {
-                const saveScene = result.data.updateScene;
-                store.scene.id = saveScene.id;
-                store.scene.savedAt = saveScene.savedAt;
-                redraw();
-            })
+        if (scene.name != "") {
+            if (scene.id === 0) {
+                persistence.saveScene(scene).then(result => {
+                    const saveScene = result.data.saveScene;
+                    store.scene.id = saveScene.id;
+                    store.scene.savedAt = saveScene.savedAt;
+                })
+            }
+            else {
+                persistence.updateScene(scene).then(result => {
+                    const saveScene = result.data.updateScene;
+                    store.scene.id = saveScene.id;
+                    store.scene.savedAt = saveScene.savedAt;
+                })
+            }
         }
     }
     
@@ -273,9 +263,8 @@ class StoreControl extends React.Component {
         list.then(result => {
             let store = this.props.store;
 
-            store.display.pictureList = result;
+            store.pictureList = result;
             store.display.page = Constants.page.SERVER_LAYOUT;
-            redraw();
         });
     }
 
@@ -287,8 +276,8 @@ class StoreControl extends React.Component {
 
     catalogue() {
         let store = this.props.store;
+
         store.display.page = Constants.page.CATALOGUE;
-        redraw();
     }
 
     render() {

@@ -10,12 +10,12 @@ import {
     GraphQLObjectType,
     GraphQLString,
     GraphQLInt,
-    GraphQLBoolean,
     GraphQLNonNull,
     GraphQLList
 } from "graphql";
 
 import {Tag} from "../database/defineDB";
+import {Constants} from "../client/data";
 
 export const GraphTag = new GraphQLObjectType({
     name: "GraphTag",
@@ -48,6 +48,7 @@ export const getTagList = {
     type: new GraphQLList(GraphTag),
     resolve() {
         return Tag.findAll({
+            where:{id: {$ne: Constants.PROMOTED}},
             order:[['name', 'ASC']]
         })
     }

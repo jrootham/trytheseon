@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 
 import "./../trytheseon.css"
 
+import AppBar from 'react-toolbox/lib/app_bar';
 import {store, Constants, Scene} from "./data";
 import Start from "./start";
 import Signon from "./signon";
@@ -18,21 +19,7 @@ import ServerLayout from "./serverLayout";
 import NewTag from "./newTag";
 import LinkPicture from "./linkPicture";
 import PickLink from "./pickLink";
-
-class Title extends React.Component{
-    render()  {
-        const style = {
-            textAlign: "center"
-        }
-
-        const signon = this.props.store.signon;
-
-        return <div style={style}>
-            <h1>Try These</h1>
-            <h2>{signon.on ? signon.name : ""}</h2>
-        </div>
-    }
-};
+import {getTagList} from "./pickTag";
 
 class Before extends React.Component{
     constructor() {
@@ -57,19 +44,16 @@ class Before extends React.Component{
                 store.signon.name = result.data.signoffUser.name;
                 store.signon.on = result.data.signoffUser.signedOn;
                 store.display.page = store.display.previous;
-                redraw();
             });
         }
         else {
             store.display.page = Constants.page.SIGNON;
         }
-        redraw();
     }
 
     loadLocal() {
         let store = this.props.store;
         store.display.page = Constants.page.LOCAL_LOAD;
-        redraw();
     }
     
     loadServer() {
@@ -77,9 +61,8 @@ class Before extends React.Component{
         list.then(result => {
             let store = this.props.store;
 
-            store.display.pictureList = result;
+            store.pictureList = result;
             store.display.page = Constants.page.SERVER_LOAD;
-            redraw();
         });
     }
 
@@ -88,9 +71,8 @@ class Before extends React.Component{
         list.then(result => {
             let store = this.props.store;
 
-            store.display.sceneList = result;
+            store.sceneList = result.data.getSceneList;
             store.display.page = Constants.page.SCENE_LOAD;
-            redraw();
         });
     }
 
@@ -100,31 +82,30 @@ class Before extends React.Component{
         store.display.which = Constants.layout.NOTHING;
         store.display.page = Constants.page.LAYOUT;
         store.display.previous = Constants.page.LAYOUT;
-        redraw();
     }
 
     newTag() {
-        const list = persistence.getTagList();
-        list.then(result => {
-            let store = this.props.store;
-
-            store.display.tagList = result.data.getTagList;
+        const store = this.props.store;
+        getTagList(store).then(() => {
             store.display.page = Constants.page.NEW_TAG;
-            redraw();
+        });
+    }
+
+    getPictureList() {
+        const list = persistence.getPictureList();
+        return list.then(result => {
+            let store = this.props.store;
+            store.pictureList = result;
+            return 1;
         });
     }
 
     pickLink() {
-        const list = persistence.getPictureList();
-        list.then(result => {
+        this.getPictureList().then(() => {
             let store = this.props.store;
-
-            store.display.pictureList = result;
             store.display.page = Constants.page.PICK_LINK;
-            redraw();
         });
     }
-
     render() {
         const style = {
             display:    "inline-block",
@@ -236,20 +217,24 @@ class Invisible extends React.Component {
     }
 }
 
+class App extends React.Component {
+    render(){
+        const signon = this.props.store.signon;
+        return <AppBar title='Try These Things' leftIcon='menu'>
+            <h2>{signon.on ? signon.name : ""}</h2>
+        </AppBar>
+    }
+};
+
 class Parent extends React.Component {
     render() {
 
         return <div id ="parent">
-            <Title store = {this.props.store}/>
-            <Before store = {this.props.store} />
+            <App store = {this.props.store}/>
             <Container store={this.props.store}/>
             <Invisible />
         </div>
     }
 }
 
-export const redraw = function() {
-    ReactDOM.render(<Parent store={store}/>, document.getElementById('bigbox'));
-}
-
-redraw();
+ReactDOM.render(<Parent store={store}/>, document.getElementById('bigbox'));

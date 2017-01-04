@@ -7,6 +7,9 @@
  */
 
 import React from "react";
+import PickTag from "./pickTag";
+import {Constants} from "./data";
+import persistence from "./persistence";
 
 export default class LinkPicture extends React.Component {
     constructor() {
@@ -15,10 +18,25 @@ export default class LinkPicture extends React.Component {
     }
 
     link() {
+        const store = this.props.store;
+        const pictureId = store.picture.id;
+        const tagLinks = store.tagLinks;
 
+        persistence.newPictureTags(pictureId, tagLinks);
     }
 
     render() {
-        return <div></div>
+        const style = {
+            display:    "inline-block"
+        };
+
+        const picture = this.props.store.picture;
+        return <div>
+                <div style={style}>
+                    <image src={picture.thumbnail}></image>
+                </div>
+                <PickTag store={this.props.store}/>
+                <div><button onClick={this.link}>Save</button></div>
+            </div>
     }
 }

@@ -40,8 +40,9 @@ export const setThumbnailURL = picture => {
     canvas.width = width;
     canvas.height = height;
 
-    context.drawImage(image, 0, 0, width, height,
-        picture.clipX, picture.clipY, picture.clipWidth, picture.clipHeight);
+
+    context.drawImage(picture.image, picture.clipX, picture.clipY,
+        picture.clipWidth, picture.clipHeight, 0, 0, width, height);
 
     const result = canvas.toDataURL();
     picture.thumbnail = `"${result}"`;

@@ -8,8 +8,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
-import {redraw} from "./index";
-
 export default class Catalogue extends React.Component {
     render() {
         return <div></div>

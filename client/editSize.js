@@ -8,7 +8,6 @@
 
 import {Constants} from "./data"
 import {paintAll} from "./paint";
-import {redraw} from "./index";
 import {getSizePoints, SIZE_RECT} from "./edit";
 import {inBox} from "./common";
 
@@ -65,7 +64,6 @@ function setSize (timestamp) {
         window.requestAnimationFrame(setSize.bind(this));
     }
     else {
-        redraw();
     }
 };
 
@@ -81,7 +79,6 @@ function setWidth(timestamp) {
         window.requestAnimationFrame(setWidth.bind(this));
     }
     else {
-        redraw();
     }
 };
 
@@ -96,6 +93,5 @@ function setHeight(timestamp) {
         window.requestAnimationFrame(setHeight.bind(this));
     }
     else {
-        redraw();
     }
 };

@@ -8,7 +8,6 @@
 
 import {Constants, makeScenePicture} from "./data";
 import ServerBase from "./serverBase";
-import {redraw} from "./index";
 
 export default class ServerLayout extends ServerBase {
     
@@ -24,6 +23,5 @@ export default class ServerLayout extends ServerBase {
 
         store.display.which = store.scene.scenePictures.length - 1;
         store.display.page = Constants.page.LAYOUT;
-        redraw();
     }
 }

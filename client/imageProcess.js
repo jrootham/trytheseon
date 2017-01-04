@@ -6,8 +6,6 @@
  * Copyright © 2016 Jim Rootham
  */
 
-import {redraw} from "./index";
-
 const DEPTH = 4;
 const COLOURS = 3;
 const OPACITY = 3;
@@ -184,7 +182,6 @@ const setPicture = (picture, data) => {
 
     createImageBitmap(invisible).then(image =>{
         picture.image = image;
-        redraw();
     });
 };
 

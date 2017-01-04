@@ -6,15 +6,12 @@
  * Copyright © 2016 Jim Rootham
  */
 
-import {redraw} from "./index"
-
 const DASH = 10;
 
 export const makeGoBack = store => {
     return () => {
         store.display.error = undefined;
         store.display.page = store.display.previous;
-        redraw();
     }
 }
 

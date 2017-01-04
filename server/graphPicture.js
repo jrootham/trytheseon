@@ -13,7 +13,7 @@ import {
     GraphQLNonNull,
     GraphQLList
 } from "graphql";
-import {Picture} from "../database/defineDB";
+import {Picture, PictureTag} from "../database/defineDB";
 
 export const GraphPicture = new GraphQLObjectType({
     name: "GraphPicture",
@@ -35,6 +35,18 @@ export const GraphPicture = new GraphQLObjectType({
             type: GraphQLString,
             resolve: (picture) => {
                 return picture.name;
+            }
+        },
+        description: {
+            type: GraphQLString,
+            resolve: (picture) => {
+                return picture.description;
+            }
+        },
+        visible: {
+            type: GraphQLBoolean,
+            resolve: (picture) => {
+                return picture.visible;
             }
         },
         clipX: {
@@ -82,7 +94,7 @@ export const GraphPicture = new GraphQLObjectType({
         thumbnail: {
             type: GraphQLString,
             resolve: (picture) => {
-                return picture.image;
+                return picture.thumbnail;
             }
         },
         image: {
@@ -97,6 +109,12 @@ export const GraphPicture = new GraphQLObjectType({
 const baseDataArgs = {
     name: {
         type: new GraphQLNonNull(GraphQLString)
+    },
+    description: {
+        type: new GraphQLNonNull(GraphQLString)
+    },
+    visible: {
+        type: new GraphQLNonNull(GraphQLBoolean)
     },
     clipX: {
         type: new GraphQLNonNull(GraphQLInt)
@@ -127,6 +145,8 @@ const baseDataArgs = {
 const copyBase = src => {
     return {
         name: src.name,
+        description: src.description,
+        visible: src.visible,
         clipX: src.clipX,
         clipY: src.clipY,
         clipWidth: src.clipWidth,
@@ -192,6 +212,23 @@ export const getPictureList = {
         return Picture.findAll({
             where: {userId: session.userId},
             attributes: { exclude: ["image", "thumbnail"] }
+        });
+    }
+};
+
+export const getVisibleList = {
+    type: new GraphQLList(GraphPicture),
+    resolve(_, args) {
+
+        return Picture.findAll({
+            include: [{
+                Model:PictureTag,
+                where: {tag: {$in: tagList}}
+            }],
+            where: {
+                visible: true,
+            },
+            attributes: { exclude: ["image"] }
         });
     }
 };

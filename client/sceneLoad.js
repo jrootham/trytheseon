@@ -10,7 +10,6 @@ import React from "react";
 import ReactDOM from "react-dom";
 import {Constants, Scene, ScenePicture} from "./data";
 import persistence from "./persistence";
-import {redraw} from "./index";
 
 export default class SceneLoad extends React.Component {
     constructor() {
@@ -70,8 +69,6 @@ export default class SceneLoad extends React.Component {
                 store.scene.savedAt = values.savedAt;
 
                 store.display.page = Constants.page.LAYOUT;
-
-                redraw();
             })
         });
     }
@@ -81,7 +78,7 @@ export default class SceneLoad extends React.Component {
         let result = undefined;
 
         if (store.signon.on) {
-            const sceneList = store.display.sceneList.data.getSceneList;
+            const sceneList = store.sceneList;
 
             if (sceneList.length === 0) {
                 result = <div>No scenes to select</div>

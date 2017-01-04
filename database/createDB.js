@@ -6,6 +6,9 @@
  * Copyright © 2016 Jim Rootham
  */
 
-import {connect} from "./defineDB";
+import {connect, Tag} from "./defineDB";
 
-connect.sync({force: true});
+connect.sync({force: true}).then(() => {
+    Tag.create({name:"Promoted"})
+});
+
